@@ -24,6 +24,8 @@
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@react-navigation/native": "^7.1.8",
+    "@siteed/expo-audio-studio": "^2.18.1",
+    "@techoptio/react-native-live-pitch-detection": "^1.2.0",
     "@types/jest": "29.5.14",
     "expo": "~54.0.27",
     "expo-av": "~16.0.8",
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "expo-mcp": "~0.2.1",
     "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
   },
