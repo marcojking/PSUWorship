@@ -1,122 +1,187 @@
 /**
  * Practice Screen
- * Main screen for harmony singing practice with visualizer, scoring, and ghost mode
+ * Main screen for harmony singing practice with line graph visualizer
  */
 
 import { Text, View } from '@/components/Themed';
 import { MidiNote } from '@/src/generator/IGenerator';
 import { LocalGenerator } from '@/src/generator/LocalGenerator';
-import { HarmonyEngine, INTERVALS } from '@/src/harmony/HarmonyEngine';
+import { HarmonyEngine } from '@/src/harmony/HarmonyEngine';
 import { PitchDetector } from '@/src/pitch/PitchDetector';
+import { frequencyToMidi } from '@/src/pitch/YinPitchDetection';
 import { ScoringEngine } from '@/src/scoring/ScoringEngine';
 import { LocalSynthAdapter } from '@/src/synth/LocalSynthAdapter';
+import {
+  DEFAULT_SETTINGS,
+  harmonyIntervalToSemitones,
+  PracticeSettings,
+} from '@/src/types/PracticeSettings';
 import { HapticManager } from '@/src/ui/HapticManager';
-import { Visualizer } from '@/src/ui/Visualizer';
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Switch } from 'react-native';
+import { LineGraphVisualizer } from '@/src/ui/LineGraphVisualizer';
+import { SettingsModal } from '@/src/ui/SettingsModal';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+
+interface PitchPoint {
+  timeMs: number;
+  pitchMidi: number;
+  accuracy: number;
+}
 
 export default function PracticeScreen() {
   // State
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isListening, setIsListening] = useState(false);
+  const [settingsVisible, setSettingsVisible] = useState(false);
+  const [settings, setSettings] = useState<PracticeSettings>(DEFAULT_SETTINGS);
   const [currentSeed, setCurrentSeed] = useState(12345);
-  const [ghostMode, setGhostMode] = useState(false);
-  const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
-  // Pitch & scoring state
-  const [currentPitch, setCurrentPitch] = useState(0);
-  const [targetNote, setTargetNote] = useState(0);
-  const [isOnTarget, setIsOnTarget] = useState(false);
+  // Melody & harmony
+  const [melodyNotes, setMelodyNotes] = useState<MidiNote[]>([]);
+  const [harmonyNotes, setHarmonyNotes] = useState<MidiNote[]>([]);
+  const [phraseDuration, setPhraseDuration] = useState(0);
+
+  // Real-time state
+  const [currentPosition, setCurrentPosition] = useState(0);
+  const [userPitchHistory, setUserPitchHistory] = useState<PitchPoint[]>([]);
   const [score, setScore] = useState(0);
 
-  // Harmony notes (for scoring)
-  const [harmonyNotes, setHarmonyNotes] = useState<MidiNote[]>([]);
+  // Refs for singletons
+  const synthRef = useRef(new LocalSynthAdapter());
+  const pitchDetectorRef = useRef(new PitchDetector());
+  const scoringEngineRef = useRef(new ScoringEngine());
+  const hapticManagerRef = useRef(new HapticManager());
+  const animationFrameRef = useRef<number | null>(null);
 
-  // Singletons
-  const [synth] = useState(() => new LocalSynthAdapter());
-  const [pitchDetector] = useState(() => new PitchDetector());
-  const [scoringEngine] = useState(() => new ScoringEngine());
-  const [hapticManager] = useState(() => new HapticManager());
-
-  // Initialize on mount
+  // Initialize
   useEffect(() => {
-    synth.initialize().catch(console.error);
+    synthRef.current.initialize().catch(console.error);
 
     return () => {
-      synth.dispose();
-      pitchDetector.dispose();
-      hapticManager.dispose();
+      synthRef.current.dispose();
+      pitchDetectorRef.current.dispose();
+      hapticManagerRef.current.dispose();
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
-  }, [synth, pitchDetector, hapticManager]);
+  }, []);
 
-  // Handle pitch updates
+  // Update haptics setting
+  useEffect(() => {
+    hapticManagerRef.current.setEnabled(settings.hapticsEnabled);
+  }, [settings.hapticsEnabled]);
+
+  // Pitch callback
   const handlePitch = useCallback((result: { pitchHz: number; isVoiced: boolean; confidence: number; timestamp: number }) => {
-    setCurrentPitch(result.pitchHz);
+    const synth = synthRef.current;
+    const scoring = scoringEngineRef.current;
+    const haptic = hapticManagerRef.current;
 
-    // Update scoring
     const currentTimeMs = synth.getCurrentPosition();
-    scoringEngine.processPitch(result, currentTimeMs);
+    scoring.processPitch(result, currentTimeMs);
 
-    const onTarget = scoringEngine.isOnTarget();
-    setIsOnTarget(onTarget);
-
-    // Update target note display
-    const targetMidi = scoringEngine.getCurrentTargetMidi();
-    setTargetNote(targetMidi);
-
-    // Haptic feedback
-    hapticManager.update(onTarget);
+    const onTarget = scoring.isOnTarget();
+    haptic.update(onTarget);
 
     // Ghost mode: unmute harmony when on target
-    if (ghostMode) {
+    if (settings.ghostMode) {
       synth.setHarmonyMuted(!onTarget);
     }
-  }, [synth, scoringEngine, hapticManager, ghostMode]);
 
-  // Start practice session
+    // Add to pitch history
+    if (result.isVoiced && result.pitchHz > 0) {
+      const midiNote = frequencyToMidi(result.pitchHz);
+      const accuracy = onTarget ? 1 : Math.max(0, 1 - Math.abs(scoring.getCurrentTargetMidi() - midiNote) / 6);
+
+      setUserPitchHistory(prev => {
+        const newHistory = [...prev, { timeMs: currentTimeMs, pitchMidi: midiNote, accuracy }];
+        // Keep only last 500 points
+        return newHistory.slice(-500);
+      });
+    }
+  }, [settings.ghostMode]);
+
+  // Animation loop for position updates
+  const updatePosition = useCallback(() => {
+    if (!isPlaying) return;
+
+    const pos = synthRef.current.getCurrentPosition();
+    setCurrentPosition(pos);
+
+    // Update running score
+    const frames = (scoringEngineRef.current as any).frames;
+    if (frames && frames.length > 0) {
+      const correctFrames = frames.filter((f: any) => f.isCorrect).length;
+      setScore((correctFrames / frames.length) * 100);
+    }
+
+    animationFrameRef.current = requestAnimationFrame(updatePosition);
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (isPlaying) {
+      updatePosition();
+    }
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isPlaying, updatePosition]);
+
+  // Generate melody and harmony
+  const generatePhrase = useCallback(() => {
+    const generator = new LocalGenerator();
+    const melody = generator.generate({
+      seed: currentSeed,
+      key: settings.key,
+      difficulty: 1,
+      lengthInNotes: settings.notesPerLoop,
+    });
+
+    const harmonyEngine = new HarmonyEngine();
+    const harmony = harmonyEngine.computeHarmony({
+      melody,
+      interval: harmonyIntervalToSemitones(settings.harmonyInterval),
+      mode: 'diatonic',
+      key: settings.key,
+      direction: 1,
+    });
+
+    const duration = melody.length > 0
+      ? melody[melody.length - 1].start_ms + melody[melody.length - 1].duration_ms
+      : 0;
+
+    setMelodyNotes(melody);
+    setHarmonyNotes(harmony);
+    setPhraseDuration(duration);
+
+    return { melody, harmony };
+  }, [currentSeed, settings.key, settings.notesPerLoop, settings.harmonyInterval]);
+
+  // Start practice
   const startPractice = async () => {
     setIsLoading(true);
+    setUserPitchHistory([]);
+    setScore(0);
 
     try {
-      // Generate melody and harmony
-      const generator = new LocalGenerator();
-      const melody = generator.generate({
-        seed: currentSeed,
-        key: 'C',
-        difficulty: 1,
-        lengthInNotes: 8,
-      });
+      const { melody, harmony } = generatePhrase();
 
-      const harmonyEngine = new HarmonyEngine();
-      const harmony = harmonyEngine.computeHarmony({
-        melody,
-        interval: INTERVALS.MAJOR_THIRD,
-        mode: 'diatonic',
-        key: 'C',
-        direction: 1,
-      });
+      await synthRef.current.loadPhrase(melody, harmony);
 
-      setHarmonyNotes(harmony);
+      pitchDetectorRef.current.onPitch(handlePitch);
+      await pitchDetectorRef.current.start();
 
-      // Load audio
-      await synth.loadPhrase(melody, harmony);
+      scoringEngineRef.current.startRun(harmony);
+      scoringEngineRef.current.setTolerance(settings.pitchToleranceCents);
 
-      // Start pitch detection
-      pitchDetector.onPitch(handlePitch);
-      await pitchDetector.start();
-      setIsListening(true);
-
-      // Start scoring
-      scoringEngine.startRun(harmony);
-
-      // Ghost mode: start with harmony muted
-      if (ghostMode) {
-        synth.setHarmonyMuted(true);
+      if (settings.ghostMode) {
+        synthRef.current.setHarmonyMuted(true);
       }
 
-      // Start playback (looping)
-      synth.play(true);
+      synthRef.current.play(settings.practiceMode === 'loop');
       setIsPlaying(true);
 
     } catch (error) {
@@ -126,134 +191,87 @@ export default function PracticeScreen() {
     }
   };
 
-  // Stop practice session
+  // Stop practice
   const stopPractice = async () => {
-    synth.stop();
+    synthRef.current.stop();
     setIsPlaying(false);
 
-    if (isListening) {
-      pitchDetector.offPitch(handlePitch);
-      await pitchDetector.stop();
-      setIsListening(false);
-    }
+    pitchDetectorRef.current.offPitch(handlePitch);
+    await pitchDetectorRef.current.stop();
 
-    // Get final score
-    const runScore = scoringEngine.endRun();
+    const runScore = scoringEngineRef.current.endRun();
     setScore(runScore.overallScore);
-
-    // Reset state
-    setCurrentPitch(0);
-    setIsOnTarget(false);
   };
 
   // New melody
   const handleNewMelody = () => {
-    stopPractice();
+    if (isPlaying) stopPractice();
     setCurrentSeed(Math.floor(Math.random() * 1000000));
+    setUserPitchHistory([]);
     setScore(0);
+    generatePhrase();
   };
 
-  // Toggle ghost mode
-  const toggleGhostMode = (value: boolean) => {
-    setGhostMode(value);
-    if (isPlaying) {
-      synth.setHarmonyMuted(value && !isOnTarget);
-    }
-  };
-
-  // Toggle haptics
-  const toggleHaptics = (value: boolean) => {
-    setHapticsEnabled(value);
-    hapticManager.setEnabled(value);
-  };
-
-  // Update score periodically
+  // Generate initial phrase
   useEffect(() => {
-    if (!isPlaying) return;
-
-    const interval = setInterval(() => {
-      // Calculate running score
-      const frames = (scoringEngine as any).frames;
-      if (frames && frames.length > 0) {
-        const correctFrames = frames.filter((f: any) => f.isCorrect).length;
-        const runningScore = (correctFrames / frames.length) * 100;
-        setScore(runningScore);
-      }
-    }, 200);
-
-    return () => clearInterval(interval);
-  }, [isPlaying, scoringEngine]);
+    generatePhrase();
+  }, [generatePhrase]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🎵 VocalHarmony</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>VocalHarmony</Text>
+        <Pressable onPress={() => setSettingsVisible(true)} style={styles.settingsButton}>
+          <Text style={styles.settingsIcon}>⚙️</Text>
+        </Pressable>
+      </View>
 
-      {/* Visualizer */}
-      <Visualizer
-        currentPitch={currentPitch}
-        targetNote={targetNote}
-        isOnTarget={isOnTarget}
+      {/* Line Graph Visualizer - Main focus */}
+      <LineGraphVisualizer
+        melodyNotes={melodyNotes}
+        harmonyNotes={harmonyNotes}
+        userPitchHistory={userPitchHistory}
+        currentPositionMs={currentPosition}
+        phraseDurationMs={phraseDuration}
+        isPlaying={isPlaying}
         score={score}
       />
-
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 
       {/* Controls */}
       <View style={styles.controls}>
         {isLoading ? (
           <ActivityIndicator size="large" color="#6366f1" />
-        ) : isPlaying ? (
-          <Pressable style={[styles.button, styles.stopButton]} onPress={stopPractice}>
-            <Text style={styles.buttonText}>⏹ Stop</Text>
-          </Pressable>
         ) : (
           <Pressable
-            style={[styles.button, styles.playButton]}
-            onPress={startPractice}
+            style={[styles.mainButton, isPlaying ? styles.stopButton : styles.playButton]}
+            onPress={isPlaying ? stopPractice : startPractice}
           >
-            <Text style={styles.buttonText}>🎤 Start Practice</Text>
+            <Text style={styles.mainButtonText}>
+              {isPlaying ? '⏹' : '▶'}
+            </Text>
           </Pressable>
         )}
 
-        <Pressable
-          style={[styles.button, styles.newButton]}
-          onPress={handleNewMelody}
-        >
-          <Text style={styles.buttonText}>🎲 New</Text>
+        <Pressable style={styles.newButton} onPress={handleNewMelody}>
+          <Text style={styles.newButtonText}>🎲</Text>
         </Pressable>
       </View>
 
-      {/* Settings */}
-      <View style={styles.settings}>
-        <View style={styles.settingRow}>
-          <Text style={styles.settingLabel}>👻 Ghost Mode</Text>
-          <Switch
-            value={ghostMode}
-            onValueChange={toggleGhostMode}
-            trackColor={{ false: '#374151', true: '#6366f1' }}
-            thumbColor={ghostMode ? '#fff' : '#f4f3f4'}
-          />
-        </View>
-        <Text style={styles.settingHint}>
-          Harmony only plays when you're on pitch
+      {/* Info bar */}
+      <View style={styles.infoBar}>
+        <Text style={styles.infoText}>
+          {settings.key} • {settings.harmonyInterval} • {settings.notesPerLoop} notes
         </Text>
-
-        <View style={styles.settingRow}>
-          <Text style={styles.settingLabel}>📳 Haptics</Text>
-          <Switch
-            value={hapticsEnabled}
-            onValueChange={toggleHaptics}
-            trackColor={{ false: '#374151', true: '#10b981' }}
-            thumbColor={hapticsEnabled ? '#fff' : '#f4f3f4'}
-          />
-        </View>
       </View>
 
-      {/* Info */}
-      <View style={styles.infoBox}>
-        <Text style={styles.infoText}>Seed: {currentSeed}</Text>
-        <Text style={styles.infoText}>Key: C Major | Interval: Major 3rd</Text>
-      </View>
+      {/* Settings Modal */}
+      <SettingsModal
+        visible={settingsVisible}
+        settings={settings}
+        onClose={() => setSettingsVisible(false)}
+        onSettingsChange={setSettings}
+      />
     </View>
   );
 }
@@ -261,31 +279,46 @@ export default function PracticeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0f172a',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 40,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 10,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    fontSize: 24,
+    fontWeight: '300',
+    color: '#fff',
+    letterSpacing: 2,
   },
-  separator: {
-    marginVertical: 16,
-    height: 1,
-    width: '100%',
+  settingsButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsIcon: {
+    fontSize: 20,
   },
   controls: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 20,
-  },
-  button: {
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    minWidth: 120,
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: 20,
+    paddingVertical: 30,
+  },
+  mainButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   playButton: {
     backgroundColor: '#10b981',
@@ -293,47 +326,29 @@ const styles = StyleSheet.create({
   stopButton: {
     backgroundColor: '#ef4444',
   },
-  newButton: {
-    backgroundColor: '#f59e0b',
-  },
-  buttonText: {
+  mainButtonText: {
+    fontSize: 32,
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
-  settings: {
-    width: '100%',
-    maxWidth: 320,
-    backgroundColor: 'rgba(100,100,100,0.1)',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  newButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
-    marginBottom: 4,
+    justifyContent: 'center',
   },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+  newButtonText: {
+    fontSize: 24,
   },
-  settingHint: {
-    fontSize: 12,
-    opacity: 0.6,
-    marginBottom: 12,
-  },
-  infoBox: {
-    backgroundColor: 'rgba(100,100,100,0.05)',
-    padding: 12,
-    borderRadius: 8,
-    width: '100%',
-    maxWidth: 320,
+  infoBar: {
+    paddingHorizontal: 20,
+    paddingBottom: 30,
   },
   infoText: {
-    fontSize: 12,
-    opacity: 0.7,
     textAlign: 'center',
+    color: '#6b7280',
+    fontSize: 12,
+    letterSpacing: 1,
   },
 });
