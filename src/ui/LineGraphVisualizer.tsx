@@ -15,7 +15,7 @@ import { MidiNote } from '@/src/generator/IGenerator';
 import { midiToNoteName } from '@/src/pitch/YinPitchDetection';
 import React, { useMemo } from 'react';
 import { Dimensions, Text as RNText, StyleSheet, View } from 'react-native';
-import Svg, { Circle, G, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, G, Line, Path, Polygon, Rect, Text as SvgText } from 'react-native-svg';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -32,6 +32,10 @@ interface LineGraphVisualizerProps {
     harmonyNotes: MidiNote[];
     /** User's sung pitch history */
     userPitchHistory: PitchPoint[];
+    /** Current pitch in MIDI (0 if not singing) */
+    currentPitchMidi: number;
+    /** Current pitch accuracy (0-1) */
+    currentAccuracy: number;
     /** Current playback position in ms */
     currentPositionMs: number;
     /** Total phrase duration in ms */
@@ -69,6 +73,8 @@ export function LineGraphVisualizer({
     melodyNotes,
     harmonyNotes,
     userPitchHistory,
+    currentPitchMidi,
+    currentAccuracy,
     currentPositionMs,
     phraseDurationMs,
     isPlaying,
@@ -280,17 +286,58 @@ export function LineGraphVisualizer({
                     );
                 })}
 
-                {/* Current pitch dot */}
-                {userPitchHistory.length > 0 && userPitchHistory[userPitchHistory.length - 1].pitchMidi > 0 && (
-                    <Circle
-                        cx={timeToX(userPitchHistory[userPitchHistory.length - 1].timeMs)}
-                        cy={pitchToY(userPitchHistory[userPitchHistory.length - 1].pitchMidi)}
-                        r={6}
-                        fill={getAccuracyColor(userPitchHistory[userPitchHistory.length - 1].accuracy)}
-                        stroke="#fff"
-                        strokeWidth={2}
-                    />
-                )}
+                {/* Current pitch dot - always visible */}
+                {(() => {
+                    // Determine dot position
+                    const dotX = isPlaying ? playheadX : GRAPH_PADDING.left + 10;
+                    let dotY = GRAPH_PADDING.top + PLOT_HEIGHT / 2; // center if no pitch
+                    let showUpArrow = false;
+                    let showDownArrow = false;
+
+                    if (currentPitchMidi > 0) {
+                        if (currentPitchMidi > maxPitch) {
+                            dotY = GRAPH_PADDING.top + 10;
+                            showDownArrow = true; // Arrow pointing down toward center
+                        } else if (currentPitchMidi < minPitch) {
+                            dotY = GRAPH_HEIGHT - GRAPH_PADDING.bottom - 10;
+                            showUpArrow = true; // Arrow pointing up toward center
+                        } else {
+                            dotY = pitchToY(currentPitchMidi);
+                        }
+                    }
+
+                    const dotColor = currentPitchMidi > 0
+                        ? getAccuracyColor(currentAccuracy)
+                        : 'rgba(255,255,255,0.3)';
+
+                    return (
+                        <G>
+                            {/* The dot */}
+                            <Circle
+                                cx={dotX}
+                                cy={dotY}
+                                r={8}
+                                fill={dotColor}
+                                stroke="#fff"
+                                strokeWidth={2}
+                            />
+                            {/* Arrow pointing down (pitch too high) */}
+                            {showDownArrow && (
+                                <Polygon
+                                    points={`${dotX},${dotY + 18} ${dotX - 6},${dotY + 12} ${dotX + 6},${dotY + 12}`}
+                                    fill={dotColor}
+                                />
+                            )}
+                            {/* Arrow pointing up (pitch too low) */}
+                            {showUpArrow && (
+                                <Polygon
+                                    points={`${dotX},${dotY - 18} ${dotX - 6},${dotY - 12} ${dotX + 6},${dotY - 12}`}
+                                    fill={dotColor}
+                                />
+                            )}
+                        </G>
+                    );
+                })()}
 
                 {/* Playhead */}
                 {isPlaying && (

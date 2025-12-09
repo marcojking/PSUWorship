@@ -43,6 +43,8 @@ export default function PracticeScreen() {
 
   // Real-time state
   const [currentPosition, setCurrentPosition] = useState(0);
+  const [currentPitchMidi, setCurrentPitchMidi] = useState(0);
+  const [currentAccuracy, setCurrentAccuracy] = useState(0);
   const [userPitchHistory, setUserPitchHistory] = useState<PitchPoint[]>([]);
   const [score, setScore] = useState(0);
 
@@ -89,16 +91,21 @@ export default function PracticeScreen() {
       synth.setHarmonyMuted(!onTarget);
     }
 
-    // Add to pitch history
+    // Update current pitch display
     if (result.isVoiced && result.pitchHz > 0) {
       const midiNote = frequencyToMidi(result.pitchHz);
       const accuracy = onTarget ? 1 : Math.max(0, 1 - Math.abs(scoring.getCurrentTargetMidi() - midiNote) / 6);
 
+      setCurrentPitchMidi(midiNote);
+      setCurrentAccuracy(accuracy);
+
       setUserPitchHistory(prev => {
         const newHistory = [...prev, { timeMs: currentTimeMs, pitchMidi: midiNote, accuracy }];
-        // Keep only last 500 points
         return newHistory.slice(-500);
       });
+    } else {
+      setCurrentPitchMidi(0);
+      setCurrentAccuracy(0);
     }
   }, [settings.ghostMode]);
 
@@ -225,6 +232,8 @@ export default function PracticeScreen() {
           melodyNotes={melodyNotes}
           harmonyNotes={harmonyNotes}
           userPitchHistory={userPitchHistory}
+          currentPitchMidi={currentPitchMidi}
+          currentAccuracy={currentAccuracy}
           currentPositionMs={currentPosition}
           phraseDurationMs={phraseDuration}
           isPlaying={isPlaying}
