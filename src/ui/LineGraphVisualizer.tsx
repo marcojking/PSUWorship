@@ -12,12 +12,11 @@
  */
 
 import { MidiNote } from '@/src/generator/IGenerator';
-import { midiToNoteName } from '@/src/pitch/YinPitchDetection';
 import React, { useMemo } from 'react';
 import { Dimensions, Text as RNText, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Polygon, Rect, Text as SvgText } from 'react-native-svg';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface PitchPoint {
     timeMs: number;
@@ -46,12 +45,47 @@ interface LineGraphVisualizerProps {
     score: number;
 }
 
-// Constants
-const GRAPH_HEIGHT = 280;
-const GRAPH_PADDING = { top: 30, bottom: 40, left: 40, right: 20 };
-const GRAPH_WIDTH = SCREEN_WIDTH - 32;
+// Graph fills most of screen, leaving room for buttons at bottom
+const GRAPH_HEIGHT = SCREEN_HEIGHT - 200; // Leave space for bottom controls
+const GRAPH_PADDING = { top: 60, bottom: 40, left: 50, right: 20 };
+const GRAPH_WIDTH = SCREEN_WIDTH - 16;
 const PLOT_WIDTH = GRAPH_WIDTH - GRAPH_PADDING.left - GRAPH_PADDING.right;
 const PLOT_HEIGHT = GRAPH_HEIGHT - GRAPH_PADDING.top - GRAPH_PADDING.bottom;
+
+// Treble clef staff lines (bottom to top): E4, G4, B4, D5, F5
+const STAFF_LINES = [
+    { midi: 64, name: 'E4' },  // Bottom line
+    { midi: 67, name: 'G4' },  // Second line
+    { midi: 71, name: 'B4' },  // Third line (middle)
+    { midi: 74, name: 'D5' },  // Fourth line
+    { midi: 77, name: 'F5' },  // Top line
+];
+
+// Staff spaces represent: F4, A4, C5, E5
+const STAFF_SPACES = [
+    { midi: 65, name: 'F4' },  // Bottom space
+    { midi: 69, name: 'A4' },  // Second space
+    { midi: 72, name: 'C5' },  // Third space (middle C is ledger below)
+    { midi: 76, name: 'E5' },  // Top space
+];
+
+// Extended range for ledger lines
+const LEDGER_BELOW = [
+    { midi: 60, name: 'C4' },  // Middle C - 2 ledger lines below
+    { midi: 62, name: 'D4' },  // Space below E4
+];
+const LEDGER_ABOVE = [
+    { midi: 79, name: 'G5' },  // Ledger above F5
+    { midi: 81, name: 'A5' },  // Space above
+];
+
+// Full range for visualization (C4 to A5)
+const STAFF_MIN_MIDI = 60; // C4 (middle C)
+const STAFF_MAX_MIDI = 81; // A5
+const STAFF_RANGE = STAFF_MAX_MIDI - STAFF_MIN_MIDI;
+
+// Spacing between staff lines
+const LINE_SPACING = PLOT_HEIGHT / 12; // 12 semitones from C4 to C5
 
 /**
  * Interpolate color from orange to green based on accuracy
@@ -80,22 +114,10 @@ export function LineGraphVisualizer({
     isPlaying,
     score,
 }: LineGraphVisualizerProps) {
-    // Calculate pitch range
-    const { minPitch, maxPitch, pitchRange } = useMemo(() => {
-        const allPitches = [
-            ...melodyNotes.map(n => n.note),
-            ...harmonyNotes.map(n => n.note),
-            ...userPitchHistory.map(p => p.pitchMidi).filter(p => p > 0),
-        ];
-
-        if (allPitches.length === 0) {
-            return { minPitch: 60, maxPitch: 72, pitchRange: 12 };
-        }
-
-        const min = Math.min(...allPitches) - 2;
-        const max = Math.max(...allPitches) + 2;
-        return { minPitch: min, maxPitch: max, pitchRange: max - min };
-    }, [melodyNotes, harmonyNotes, userPitchHistory]);
+    // Fixed staff range (C4 to A5 covers treble clef and common vocal range)
+    const minPitch = STAFF_MIN_MIDI;
+    const maxPitch = STAFF_MAX_MIDI;
+    const pitchRange = STAFF_RANGE;
 
     // Convert time to X position
     const timeToX = (timeMs: number): number => {
@@ -103,10 +125,12 @@ export function LineGraphVisualizer({
         return GRAPH_PADDING.left + (timeMs / phraseDurationMs) * PLOT_WIDTH;
     };
 
-    // Convert MIDI pitch to Y position
+    // Convert MIDI pitch to Y position (staff-based)
     const pitchToY = (midi: number): number => {
-        const normalized = (midi - minPitch) / pitchRange;
-        return GRAPH_PADDING.top + PLOT_HEIGHT - normalized * PLOT_HEIGHT;
+        // Each semitone gets equal vertical spacing
+        const normalized = (midi - STAFF_MIN_MIDI) / STAFF_RANGE;
+        // Invert Y (higher pitch = higher on screen = lower Y value)
+        return GRAPH_PADDING.top + PLOT_HEIGHT - (normalized * PLOT_HEIGHT);
     };
 
     // Generate melody path (stepped line)
@@ -147,18 +171,18 @@ export function LineGraphVisualizer({
             d += ` L ${x2} ${y}`;
         });
         return d;
-    }, [harmonyNotes, phraseDurationMs, minPitch, pitchRange]);
+    }, [harmonyNotes, phraseDurationMs]);
 
-    // Generate grid lines for pitch
-    const pitchGridLines = useMemo(() => {
-        const lines = [];
-        for (let pitch = Math.ceil(minPitch); pitch <= Math.floor(maxPitch); pitch++) {
-            const y = pitchToY(pitch);
-            const isC = pitch % 12 === 0;
-            lines.push({ pitch, y, isC, label: midiToNoteName(pitch) });
-        }
-        return lines;
-    }, [minPitch, maxPitch, pitchRange]);
+    // Generate staff lines data
+    const staffLineData = useMemo(() => {
+        return STAFF_LINES.map(line => ({
+            ...line,
+            y: pitchToY(line.midi)
+        }));
+    }, []);
+
+    // Middle C ledger line
+    const middleCY = pitchToY(60);
 
     // Current playhead position
     const playheadX = timeToX(currentPositionMs);
@@ -196,31 +220,51 @@ export function LineGraphVisualizer({
                     rx={8}
                 />
 
-                {/* Pitch grid lines */}
-                {pitchGridLines.map(({ pitch, y, isC, label }) => (
-                    <G key={pitch}>
+                {/* 5-Line Treble Clef Staff */}
+                {staffLineData.map(({ midi, name, y }) => (
+                    <G key={midi}>
+                        {/* Staff line */}
                         <Line
                             x1={GRAPH_PADDING.left}
                             y1={y}
                             x2={GRAPH_WIDTH - GRAPH_PADDING.right}
                             y2={y}
-                            stroke={isC ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)'}
-                            strokeWidth={isC ? 1 : 0.5}
+                            stroke="rgba(255,255,255,0.5)"
+                            strokeWidth={1.5}
                         />
-                        {/* Show note labels for C notes and every 4th */}
-                        {(isC || pitch % 4 === 0) && (
-                            <SvgText
-                                x={GRAPH_PADDING.left - 8}
-                                y={y + 4}
-                                fill="#6b7280"
-                                fontSize={10}
-                                textAnchor="end"
-                            >
-                                {label}
-                            </SvgText>
-                        )}
+                        {/* Note label on left */}
+                        <SvgText
+                            x={GRAPH_PADDING.left - 8}
+                            y={y + 4}
+                            fill="#9ca3af"
+                            fontSize={11}
+                            textAnchor="end"
+                            fontWeight="500"
+                        >
+                            {name}
+                        </SvgText>
                     </G>
                 ))}
+
+                {/* Middle C ledger line (short, only when needed) */}
+                <Line
+                    x1={GRAPH_PADDING.left}
+                    y1={middleCY}
+                    x2={GRAPH_PADDING.left + 30}
+                    y2={middleCY}
+                    stroke="rgba(255,255,255,0.3)"
+                    strokeWidth={1}
+                    strokeDasharray="4,4"
+                />
+                <SvgText
+                    x={GRAPH_PADDING.left - 8}
+                    y={middleCY + 4}
+                    fill="#6b7280"
+                    fontSize={10}
+                    textAnchor="end"
+                >
+                    C4
+                </SvgText>
 
                 {/* Measure markers */}
                 {measureMarkers.map(({ x, measure }) => (
