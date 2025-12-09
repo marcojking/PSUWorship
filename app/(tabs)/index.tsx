@@ -219,27 +219,25 @@ export default function PracticeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>VocalHarmony</Text>
-        <Pressable onPress={() => setSettingsVisible(true)} style={styles.settingsButton}>
-          <Text style={styles.settingsIcon}>⚙️</Text>
-        </Pressable>
+      {/* Line Graph Visualizer - Full screen */}
+      <View style={styles.graphContainer}>
+        <LineGraphVisualizer
+          melodyNotes={melodyNotes}
+          harmonyNotes={harmonyNotes}
+          userPitchHistory={userPitchHistory}
+          currentPositionMs={currentPosition}
+          phraseDurationMs={phraseDuration}
+          isPlaying={isPlaying}
+          score={score}
+        />
       </View>
 
-      {/* Line Graph Visualizer - Main focus */}
-      <LineGraphVisualizer
-        melodyNotes={melodyNotes}
-        harmonyNotes={harmonyNotes}
-        userPitchHistory={userPitchHistory}
-        currentPositionMs={currentPosition}
-        phraseDurationMs={phraseDuration}
-        isPlaying={isPlaying}
-        score={score}
-      />
+      {/* Bottom Controls */}
+      <View style={styles.bottomBar}>
+        <Pressable style={styles.iconButton} onPress={handleNewMelody}>
+          <Text style={styles.iconText}>🎲</Text>
+        </Pressable>
 
-      {/* Controls */}
-      <View style={styles.controls}>
         {isLoading ? (
           <ActivityIndicator size="large" color="#6366f1" />
         ) : (
@@ -253,8 +251,8 @@ export default function PracticeScreen() {
           </Pressable>
         )}
 
-        <Pressable style={styles.newButton} onPress={handleNewMelody}>
-          <Text style={styles.newButtonText}>🎲</Text>
+        <Pressable style={styles.iconButton} onPress={() => setSettingsVisible(true)}>
+          <Text style={styles.iconText}>⚙️</Text>
         </Pressable>
       </View>
 
@@ -281,42 +279,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0f172a',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+  graphContainer: {
+    flex: 1,
     paddingTop: 50,
-    paddingBottom: 10,
+    justifyContent: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '300',
-    color: '#fff',
-    letterSpacing: 2,
+  bottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 24,
+    paddingVertical: 20,
   },
-  settingsButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  iconButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  settingsIcon: {
-    fontSize: 20,
-  },
-  controls: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 20,
-    paddingVertical: 30,
+  iconText: {
+    fontSize: 24,
   },
   mainButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -327,19 +316,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ef4444',
   },
   mainButtonText: {
-    fontSize: 32,
+    fontSize: 28,
     color: '#fff',
-  },
-  newButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  newButtonText: {
-    fontSize: 24,
   },
   infoBar: {
     paddingHorizontal: 20,
