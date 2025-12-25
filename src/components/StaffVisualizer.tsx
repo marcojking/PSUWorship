@@ -267,6 +267,14 @@ export default function StaffVisualizer({
     ctx.textAlign = 'left';
     ctx.fillText(`userPitch: ${userPitch}`, 10, 20);
 
+    // DEBUG: Always draw a test circle at the now-line
+    if (userPitch !== null) {
+      ctx.fillStyle = 'red';
+      ctx.beginPath();
+      ctx.arc(nowLineX, staffCenter, 20, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     // Current user pitch marker
     if (userPitch !== null && userPitch > 0) {
       const y = getY(userPitch);
