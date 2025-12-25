@@ -261,16 +261,14 @@ export default function StaffVisualizer({
       ctx.globalAlpha = 1;
     }
 
-    // DEBUG: Draw debug info on canvas
-    ctx.fillStyle = 'red';
-    ctx.font = 'bold 14px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`pitch:${userPitch} nowX:${nowLineX.toFixed(0)} center:${staffCenter.toFixed(0)} w:${width} h:${height}`, 10, 20);
-
-    // DEBUG: Always draw a test circle at fixed position (100, 100)
-    ctx.fillStyle = 'red';
+    // DEBUG: Draw BIG OBVIOUS marker at the now-line center - should ALWAYS be visible
+    ctx.fillStyle = '#ff0000';
     ctx.beginPath();
-    ctx.arc(100, 100, 20, 0, Math.PI * 2);
+    ctx.arc(nowLineX, staffCenter, 30, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#00ff00';
+    ctx.beginPath();
+    ctx.arc(nowLineX, staffCenter, 15, 0, Math.PI * 2);
     ctx.fill();
 
     // Current user pitch marker
