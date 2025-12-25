@@ -14,12 +14,17 @@ interface StaffVisualizerProps {
   isPlaying: boolean;
 }
 
-// Staff configuration - ZOOMED IN
-const STAFF_CONFIG = {
-  lineSpacing: 28,          // Bigger spacing between lines
-  noteWidth: 16,            // Bigger note heads
-  nowLinePercent: 0.3,      // Now-line position
-  beatsVisible: 8,          // Fewer beats = more zoom
+// Staff configuration - responsive
+const getStaffConfig = (width: number) => {
+  const isMobile = width < 640;
+  return {
+    lineSpacing: isMobile ? 20 : 28,          // Smaller on mobile
+    noteWidth: isMobile ? 12 : 16,            // Smaller note heads on mobile
+    nowLinePercent: 0.3,                      // Now-line position
+    beatsVisible: isMobile ? 6 : 8,           // Fewer beats on mobile = less crowded
+    clefSize: isMobile ? 3 : 4,               // Smaller clef on mobile
+    leftPadding: isMobile ? 30 : 40,          // Less padding on mobile
+  };
 };
 
 // MIDI to staff position (diatonic, not chromatic)
@@ -99,32 +104,35 @@ export default function StaffVisualizer({
     canvas.style.height = `${height}px`;
     ctx.scale(dpr, dpr);
 
+    // Get responsive config
+    const config = getStaffConfig(width);
+
     // Background - cream
     ctx.fillStyle = '#fff1dc';
     ctx.fillRect(0, 0, width, height);
 
     // Staff dimensions
-    const staffHeight = STAFF_CONFIG.lineSpacing * 4;
+    const staffHeight = config.lineSpacing * 4;
     const staffTop = (height - staffHeight) / 2;  // Center vertically
     const staffCenter = staffTop + staffHeight / 2;
-    const nowLineX = width * STAFF_CONFIG.nowLinePercent;
-    const pixelsPerBeat = (width * 0.9) / STAFF_CONFIG.beatsVisible;
+    const nowLineX = width * config.nowLinePercent;
+    const pixelsPerBeat = (width * 0.9) / config.beatsVisible;
 
     // Draw staff lines - brand color
     ctx.strokeStyle = '#1b354e';
     ctx.lineWidth = 2;
     for (let i = 0; i < 5; i++) {
-      const y = staffTop + i * STAFF_CONFIG.lineSpacing;
+      const y = staffTop + i * config.lineSpacing;
       ctx.beginPath();
-      ctx.moveTo(40, y);
+      ctx.moveTo(config.leftPadding, y);
       ctx.lineTo(width - 20, y);
       ctx.stroke();
     }
 
-    // Treble clef - bigger
+    // Treble clef - responsive size
     ctx.fillStyle = '#1b354e';
-    ctx.font = `${STAFF_CONFIG.lineSpacing * 4}px serif`;
-    ctx.fillText('𝄞', 50, staffTop + staffHeight + STAFF_CONFIG.lineSpacing * 0.5);
+    ctx.font = `${config.lineSpacing * config.clefSize}px serif`;
+    ctx.fillText('𝄞', config.leftPadding + 10, staffTop + staffHeight + config.lineSpacing * 0.5);
 
     // Now-line - prominent glow effect
     ctx.shadowColor = '#1b354e';
@@ -139,7 +147,7 @@ export default function StaffVisualizer({
 
     // Position helpers
     const getX = (beat: number) => nowLineX + (beat - currentBeat) * pixelsPerBeat;
-    const getY = (midi: number) => staffCenter + getMidiStaffPosition(midi, STAFF_CONFIG.lineSpacing);
+    const getY = (midi: number) => staffCenter + getMidiStaffPosition(midi, config.lineSpacing);
 
     // Draw note function
     const drawNote = (note: Note, color: string, alpha: number = 1, filled: boolean = true) => {
@@ -155,21 +163,21 @@ export default function StaffVisualizer({
       ctx.lineWidth = 2;
 
       // Above staff
-      if (y < staffTop - STAFF_CONFIG.lineSpacing / 2) {
-        for (let ly = staffTop - STAFF_CONFIG.lineSpacing; ly > y - STAFF_CONFIG.lineSpacing / 2; ly -= STAFF_CONFIG.lineSpacing) {
+      if (y < staffTop - config.lineSpacing / 2) {
+        for (let ly = staffTop - config.lineSpacing; ly > y - config.lineSpacing / 2; ly -= config.lineSpacing) {
           ctx.beginPath();
-          ctx.moveTo(x - STAFF_CONFIG.noteWidth - 8, ly);
-          ctx.lineTo(x + STAFF_CONFIG.noteWidth + 8, ly);
+          ctx.moveTo(x - config.noteWidth - 8, ly);
+          ctx.lineTo(x + config.noteWidth + 8, ly);
           ctx.stroke();
         }
       }
 
       // Below staff
-      if (y > staffTop + staffHeight + STAFF_CONFIG.lineSpacing / 2) {
-        for (let ly = staffTop + staffHeight + STAFF_CONFIG.lineSpacing; ly < y + STAFF_CONFIG.lineSpacing / 2; ly += STAFF_CONFIG.lineSpacing) {
+      if (y > staffTop + staffHeight + config.lineSpacing / 2) {
+        for (let ly = staffTop + staffHeight + config.lineSpacing; ly < y + config.lineSpacing / 2; ly += config.lineSpacing) {
           ctx.beginPath();
-          ctx.moveTo(x - STAFF_CONFIG.noteWidth - 8, ly);
-          ctx.lineTo(x + STAFF_CONFIG.noteWidth + 8, ly);
+          ctx.moveTo(x - config.noteWidth - 8, ly);
+          ctx.lineTo(x + config.noteWidth + 8, ly);
           ctx.stroke();
         }
       }
@@ -178,7 +186,7 @@ export default function StaffVisualizer({
       ctx.fillStyle = color;
       ctx.strokeStyle = color;
       ctx.beginPath();
-      ctx.ellipse(x, y, STAFF_CONFIG.noteWidth, STAFF_CONFIG.noteWidth * 0.75, -0.2, 0, Math.PI * 2);
+      ctx.ellipse(x, y, config.noteWidth, config.noteWidth * 0.75, -0.2, 0, Math.PI * 2);
 
       if (filled) {
         ctx.fill();
@@ -265,23 +273,23 @@ export default function StaffVisualizer({
       ctx.shadowBlur = 15;
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.ellipse(nowLineX, clampedY, STAFF_CONFIG.noteWidth + 4, (STAFF_CONFIG.noteWidth + 4) * 0.75, -0.2, 0, Math.PI * 2);
+      ctx.ellipse(nowLineX, clampedY, config.noteWidth + 4, (config.noteWidth + 4) * 0.75, -0.2, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
 
       // Arrow if out of range
       if (isOutOfRange) {
         ctx.fillStyle = '#1b354e';
-        ctx.font = 'bold 20px sans-serif';
+        ctx.font = `bold ${width < 640 ? 16 : 20}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(y < clampedY ? '▲' : '▼', nowLineX, clampedY + 6);
       }
 
       // Note label
       ctx.fillStyle = '#1b354e';
-      ctx.font = 'bold 16px monospace';
+      ctx.font = `bold ${width < 640 ? 12 : 16}px monospace`;
       ctx.textAlign = 'left';
-      ctx.fillText(midiToNoteName(Math.round(userPitch)), nowLineX + STAFF_CONFIG.noteWidth + 12, clampedY + 6);
+      ctx.fillText(midiToNoteName(Math.round(userPitch)), nowLineX + config.noteWidth + 12, clampedY + 6);
     }
 
 
