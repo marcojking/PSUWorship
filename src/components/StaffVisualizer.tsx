@@ -31,20 +31,29 @@ const getStaffConfig = (width: number) => {
 // Returns vertical offset from staff center (middle line = B4) in pixels
 // Staff lines: E4 (bottom), G4, B4 (middle), D5, F5 (top)
 function getMidiStaffPosition(midi: number, lineSpacing: number): number {
-  // Semitone offsets for natural notes within octave (C=0)
-  const naturalNoteOffsets = [0, 2, 4, 5, 7, 9, 11]; // C, D, E, F, G, A, B
+  // Map semitone (0-11) to natural note index (0=C, 1=D, 2=E, 3=F, 4=G, 5=A, 6=B)
+  // Accidentals are mapped to the NEAREST natural note for correct diatonic display
+  // Flats (Db, Eb, Ab, Bb) map UP to their letter name
+  // Sharps (C#, F#, G#) map DOWN to their letter name
+  const semitoneToNaturalNote = [
+    0, // 0: C
+    1, // 1: C#/Db → D (round up for visual correctness in flat keys)
+    1, // 2: D
+    2, // 3: D#/Eb → E (Eb is more common, display on E line)
+    2, // 4: E
+    3, // 5: F
+    3, // 6: F#/Gb → F (F# is more common, display on F line)
+    4, // 7: G
+    5, // 8: G#/Ab → A (Ab is more common, display on A space)
+    5, // 9: A
+    6, // 10: A#/Bb → B (Bb is more common, display on B line)
+    6, // 11: B
+  ];
 
   // Get octave and semitone within octave
   const octave = Math.floor(midi / 12) - 1;
   const semitone = midi % 12;
-
-  // Find the natural note index (0=C, 1=D, 2=E, 3=F, 4=G, 5=A, 6=B)
-  let noteIndex = 0;
-  for (let i = 0; i < naturalNoteOffsets.length; i++) {
-    if (semitone >= naturalNoteOffsets[i]) {
-      noteIndex = i;
-    }
-  }
+  const noteIndex = semitoneToNaturalNote[semitone];
 
   // Calculate diatonic steps from middle line (B4)
   // B4 is octave 4, note index 6
