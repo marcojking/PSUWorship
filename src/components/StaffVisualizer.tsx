@@ -10,6 +10,7 @@ interface StaffVisualizerProps {
   tempo: number;
   currentBeat: number;
   userPitch: number | null;
+  userPitchClarity: number;
   userPitchHistory: Array<{ midi: number; timestamp: number }>;
   isPlaying: boolean;
 }
@@ -87,6 +88,7 @@ export default function StaffVisualizer({
   tempo,
   currentBeat,
   userPitch,
+  userPitchClarity,
   userPitchHistory,
   isPlaying,
 }: StaffVisualizerProps) {
@@ -277,9 +279,14 @@ export default function StaffVisualizer({
         color = getAccuracyColor(centsDiff);
       }
 
-      // Glow effect
+      // Adjust opacity based on pitch clarity (lower clarity = more transparent)
+      // Clarity ranges from 0.3-1.0, map to opacity 0.4-1.0
+      const clarityOpacity = Math.min(1, Math.max(0.4, (userPitchClarity - 0.3) / 0.7 * 0.6 + 0.4));
+      ctx.globalAlpha = clarityOpacity;
+
+      // Glow effect (reduced for low clarity)
       ctx.shadowColor = color;
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 15 * clarityOpacity;
       ctx.fillStyle = color;
       ctx.beginPath();
       ctx.ellipse(nowLineX, clampedY, config.noteWidth + 4, (config.noteWidth + 4) * 0.75, -0.2, 0, Math.PI * 2);
@@ -299,10 +306,12 @@ export default function StaffVisualizer({
       ctx.font = `bold ${width < 640 ? 12 : 16}px monospace`;
       ctx.textAlign = 'left';
       ctx.fillText(midiToNoteName(Math.round(userPitch)), nowLineX + config.noteWidth + 12, clampedY + 6);
+
+      ctx.globalAlpha = 1;
     }
 
 
-  }, [melody, harmony, tempo, currentBeat, userPitch, userPitchHistory, isPlaying]);
+  }, [melody, harmony, tempo, currentBeat, userPitch, userPitchClarity, userPitchHistory, isPlaying]);
 
   useEffect(() => {
     let animationId: number;
