@@ -261,6 +261,11 @@ export default function StaffVisualizer({
       ctx.globalAlpha = 1;
     }
 
+    // Debug: show userPitch on canvas
+    ctx.fillStyle = '#1b354e';
+    ctx.font = 'bold 16px monospace';
+    ctx.fillText(`pitch: ${userPitch?.toFixed(1) ?? 'null'}`, nowLineX - 50, 30);
+
     // Current user pitch marker
     if (userPitch !== null && userPitch > 0) {
       const y = getY(userPitch);
@@ -282,7 +287,7 @@ export default function StaffVisualizer({
       ctx.shadowBlur = 15;
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.ellipse(nowLineX, clampedY, config.noteWidth + 4, (config.noteWidth + 4) * 0.75, -0.2, 0, Math.PI * 2);
+      ctx.arc(nowLineX, clampedY, config.noteWidth + 4, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
 
