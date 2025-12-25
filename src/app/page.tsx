@@ -241,14 +241,14 @@ export default function Home() {
   }, [harmonyInterval, melody, selectedKey, scaleType]);
 
   return (
-    <div className="flex flex-col h-screen bg-[#fff1dc] text-[#1b354e]">
+    <div className="flex flex-col h-dvh bg-[#fff1dc] text-[#1b354e] overflow-hidden">
       {/* Logo */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10">
         <Logo />
       </div>
 
       {/* Main visualization area */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         <StaffVisualizer
           melody={melody}
           harmony={harmony}
