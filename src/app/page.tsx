@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import StaffVisualizer from '@/components/StaffVisualizer';
 import ControlBar from '@/components/ControlBar';
 import SettingsMenu from '@/components/SettingsMenu';
+import Logo from '@/components/Logo';
 import { generateMelody, generateHarmony, Note, getTotalBeats, beatsToSeconds, MelodyType } from '@/lib/music/melodyGenerator';
 import { ScaleType, VocalRange, VOCAL_RANGES, getRecommendedKey } from '@/lib/music/theory';
 import { getPianoPlayer, resumeAudioContext, getAudioContext } from '@/lib/audio/piano';
@@ -240,7 +241,12 @@ export default function Home() {
   }, [harmonyInterval, melody, selectedKey, scaleType]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-950 text-white">
+    <div className="flex flex-col h-screen bg-[#fff1dc] text-[#1b354e]">
+      {/* Logo */}
+      <div className="absolute top-4 left-4 z-10">
+        <Logo />
+      </div>
+
       {/* Main visualization area */}
       <div className="flex-1 relative">
         <StaffVisualizer

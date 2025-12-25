@@ -6,7 +6,13 @@
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
       "Bash(npm run dev:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nRewrite as Next.js web app with staff visualizer\n\n- Complete rewrite from React Native/Expo to Next.js 16\n- Staff-based music notation with treble clef visualization\n- Real-time pitch detection using YIN algorithm\n- Piano playback using smplr \\(SplendidGrandPiano\\)\n- Vocal range selection \\(bass to soprano\\)\n- Scale and random melody generation modes\n- Adjustable complexity, tempo, and harmony intervals\n- Independent melody/harmony volume controls\n- Color-coded pitch accuracy feedback\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(gh repo create:*)",
+      "Bash(gh auth status:*)",
+      "mcp__vercel__deploy_to_vercel",
+      "Bash(npx vercel --yes)",
+      "Bash(taskkill:*)"
     ]
   }
 }

@@ -99,8 +99,8 @@ export default function StaffVisualizer({
     canvas.style.height = `${height}px`;
     ctx.scale(dpr, dpr);
 
-    // Background - clean dark
-    ctx.fillStyle = '#0f172a';
+    // Background - cream
+    ctx.fillStyle = '#fff1dc';
     ctx.fillRect(0, 0, width, height);
 
     // Staff dimensions
@@ -110,8 +110,8 @@ export default function StaffVisualizer({
     const nowLineX = width * STAFF_CONFIG.nowLinePercent;
     const pixelsPerBeat = (width * 0.9) / STAFF_CONFIG.beatsVisible;
 
-    // Draw staff lines - clean and subtle
-    ctx.strokeStyle = '#334155';
+    // Draw staff lines - brand color
+    ctx.strokeStyle = '#1b354e';
     ctx.lineWidth = 2;
     for (let i = 0; i < 5; i++) {
       const y = staffTop + i * STAFF_CONFIG.lineSpacing;
@@ -122,14 +122,14 @@ export default function StaffVisualizer({
     }
 
     // Treble clef - bigger
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = '#1b354e';
     ctx.font = `${STAFF_CONFIG.lineSpacing * 4}px serif`;
     ctx.fillText('𝄞', 50, staffTop + staffHeight + STAFF_CONFIG.lineSpacing * 0.5);
 
     // Now-line - prominent glow effect
-    ctx.shadowColor = '#3b82f6';
+    ctx.shadowColor = '#1b354e';
     ctx.shadowBlur = 20;
-    ctx.strokeStyle = '#3b82f6';
+    ctx.strokeStyle = '#1b354e';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(nowLineX, staffTop - 40);
@@ -151,7 +151,7 @@ export default function StaffVisualizer({
       ctx.globalAlpha = alpha;
 
       // Draw ledger lines first
-      ctx.strokeStyle = '#334155';
+      ctx.strokeStyle = '#1b354e';
       ctx.lineWidth = 2;
 
       // Above staff
@@ -190,14 +190,14 @@ export default function StaffVisualizer({
       ctx.globalAlpha = 1;
     };
 
-    // Draw harmony notes (ghost purple outline)
+    // Draw harmony notes (ghost outline)
     for (const note of harmony) {
-      drawNote(note, '#a78bfa', 0.6, false);
+      drawNote(note, '#3a5a7a', 0.6, false);
     }
 
-    // Draw melody notes (solid blue)
+    // Draw melody notes (solid main color)
     for (const note of melody) {
-      drawNote(note, '#60a5fa', 1, true);
+      drawNote(note, '#1b354e', 1, true);
     }
 
     // User pitch trail
@@ -225,7 +225,7 @@ export default function StaffVisualizer({
           n => n.startBeat <= beatAtPoint && n.startBeat + n.duration > beatAtPoint
         );
 
-        let color = '#94a3b8';
+        let color = '#1b354e';
         if (targetNote) {
           const centsDiff = (curr.midi - targetNote.midi) * 100;
           color = getAccuracyColor(centsDiff);
@@ -271,14 +271,14 @@ export default function StaffVisualizer({
 
       // Arrow if out of range
       if (isOutOfRange) {
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = '#1b354e';
         ctx.font = 'bold 20px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(y < clampedY ? '▲' : '▼', nowLineX, clampedY + 6);
       }
 
       // Note label
-      ctx.fillStyle = '#e2e8f0';
+      ctx.fillStyle = '#1b354e';
       ctx.font = 'bold 16px monospace';
       ctx.textAlign = 'left';
       ctx.fillText(midiToNoteName(Math.round(userPitch)), nowLineX + STAFF_CONFIG.noteWidth + 12, clampedY + 6);

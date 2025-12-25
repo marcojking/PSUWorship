@@ -66,12 +66,12 @@ export default function SettingsMenu({
       />
 
       {/* Menu panel */}
-      <div className="fixed bottom-20 right-4 w-80 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 p-4">
+      <div className="fixed bottom-20 right-4 w-80 bg-[#1b354e] border border-[#2a4a6a] rounded-lg shadow-xl z-50 p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Settings</h2>
+          <h2 className="text-lg font-semibold text-[#fff1dc]">Settings</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white"
+            className="text-[#fff1dc]/70 hover:text-[#fff1dc]"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 18L18 6M6 6l12 12" />
@@ -82,11 +82,11 @@ export default function SettingsMenu({
         <div className="space-y-4">
           {/* Voice type selector */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Voice Type</label>
+            <label className="block text-sm text-[#fff1dc]/70 mb-1">Voice Type</label>
             <select
               value={vocalRange}
               onChange={(e) => onVocalRangeChange(e.target.value as VocalRange)}
-              className="w-full bg-gray-800 text-white rounded px-3 py-2 border border-gray-700"
+              className="w-full bg-[#2a4a6a] text-[#fff1dc] rounded px-3 py-2 border border-[#3a5a7a]"
             >
               {Object.entries(VOCAL_RANGES).map(([key, range]) => (
                 <option key={key} value={key}>
@@ -98,11 +98,11 @@ export default function SettingsMenu({
 
           {/* Melody type selector */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Melody Type</label>
+            <label className="block text-sm text-[#fff1dc]/70 mb-1">Melody Type</label>
             <select
               value={melodyType}
               onChange={(e) => onMelodyTypeChange(e.target.value as MelodyType)}
-              className="w-full bg-gray-800 text-white rounded px-3 py-2 border border-gray-700"
+              className="w-full bg-[#2a4a6a] text-[#fff1dc] rounded px-3 py-2 border border-[#3a5a7a]"
             >
               <option value="scale">Scale (up & down)</option>
               <option value="random">Random melody</option>
@@ -111,11 +111,11 @@ export default function SettingsMenu({
 
           {/* Key selector */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Key</label>
+            <label className="block text-sm text-[#fff1dc]/70 mb-1">Key</label>
             <select
               value={selectedKey}
               onChange={(e) => onKeyChange(parseInt(e.target.value))}
-              className="w-full bg-gray-800 text-white rounded px-3 py-2 border border-gray-700"
+              className="w-full bg-[#2a4a6a] text-[#fff1dc] rounded px-3 py-2 border border-[#3a5a7a]"
             >
               {AVAILABLE_KEYS.map((key) => (
                 <option key={key.midi} value={key.midi}>
@@ -127,11 +127,11 @@ export default function SettingsMenu({
 
           {/* Scale type */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Scale</label>
+            <label className="block text-sm text-[#fff1dc]/70 mb-1">Scale</label>
             <select
               value={scaleType}
               onChange={(e) => onScaleTypeChange(e.target.value as ScaleType)}
-              className="w-full bg-gray-800 text-white rounded px-3 py-2 border border-gray-700"
+              className="w-full bg-[#2a4a6a] text-[#fff1dc] rounded px-3 py-2 border border-[#3a5a7a]"
             >
               <option value="major">Major</option>
               <option value="minor">Natural Minor</option>
@@ -142,7 +142,7 @@ export default function SettingsMenu({
 
           {/* Tempo */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-[#fff1dc]/70 mb-1">
               Tempo: {tempo} BPM
             </label>
             <input
@@ -157,7 +157,7 @@ export default function SettingsMenu({
 
           {/* Measures */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-[#fff1dc]/70 mb-1">
               Measures: {measures}
             </label>
             <input
@@ -172,7 +172,7 @@ export default function SettingsMenu({
 
           {/* Complexity */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-[#fff1dc]/70 mb-1">
               Rhythm: {getComplexityLabel(complexity, melodyType)}
             </label>
             <input
@@ -183,7 +183,7 @@ export default function SettingsMenu({
               onChange={(e) => onComplexityChange(parseInt(e.target.value))}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-[#fff1dc]/50 mt-1">
               <span>Simple</span>
               <span>Complex</span>
             </div>
@@ -191,11 +191,11 @@ export default function SettingsMenu({
 
           {/* Harmony interval */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Harmony Type</label>
+            <label className="block text-sm text-[#fff1dc]/70 mb-1">Harmony Type</label>
             <select
               value={harmonyInterval}
               onChange={(e) => onHarmonyIntervalChange(parseInt(e.target.value))}
-              className="w-full bg-gray-800 text-white rounded px-3 py-2 border border-gray-700"
+              className="w-full bg-[#2a4a6a] text-[#fff1dc] rounded px-3 py-2 border border-[#3a5a7a]"
             >
               <option value="3">Third Above</option>
               <option value="-3">Third Below</option>
@@ -212,7 +212,7 @@ export default function SettingsMenu({
               onNewMelody();
               onClose();
             }}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded transition-colors"
+            className="w-full bg-[#fff1dc] hover:bg-[#ffe8c8] text-[#1b354e] font-medium py-2 px-4 rounded transition-colors"
           >
             Generate New Melody
           </button>
