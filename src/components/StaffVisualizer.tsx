@@ -50,9 +50,10 @@ function getMidiStaffPosition(midi: number, lineSpacing: number): number {
     6, // 11: B
   ];
 
-  // Get octave and semitone within octave
-  const octave = Math.floor(midi / 12) - 1;
-  const semitone = midi % 12;
+  // Get octave and semitone within octave (round midi for fractional pitches)
+  const midiRounded = Math.round(midi);
+  const octave = Math.floor(midiRounded / 12) - 1;
+  const semitone = midiRounded % 12;
   const noteIndex = semitoneToNaturalNote[semitone];
 
   // Calculate diatonic steps from middle line (B4)
