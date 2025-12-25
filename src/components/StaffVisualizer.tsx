@@ -287,7 +287,7 @@ export default function StaffVisualizer({
       ctx.shadowBlur = 15;
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.ellipse(nowLineX, clampedY, config.noteWidth + 4, (config.noteWidth + 4) * 0.75, -0.2, 0, Math.PI * 2);
+      ctx.arc(nowLineX, clampedY, config.noteWidth + 4, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
 
