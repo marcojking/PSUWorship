@@ -66,8 +66,8 @@ export default function SettingsMenu({
       />
 
       {/* Menu panel */}
-      <div className="fixed bottom-20 right-4 w-80 bg-[#1b354e] border border-[#2a4a6a] rounded-lg shadow-xl z-50 p-4">
-        <div className="flex items-center justify-between mb-4">
+      <div className="fixed bottom-20 right-2 sm:right-4 w-[calc(100vw-1rem)] sm:w-96 max-w-md bg-[#1b354e] border border-[#2a4a6a] rounded-lg shadow-xl z-50 max-h-[calc(100vh-7rem)] flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-[#2a4a6a] flex-shrink-0">
           <h2 className="text-lg font-semibold text-[#fff1dc]">Settings</h2>
           <button
             onClick={onClose}
@@ -79,7 +79,7 @@ export default function SettingsMenu({
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 p-4 overflow-y-auto flex-1 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Voice type selector */}
           <div>
             <label className="block text-sm text-[#fff1dc]/70 mb-1">Voice Type</label>
