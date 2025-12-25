@@ -282,14 +282,11 @@ export default function StaffVisualizer({
         color = getAccuracyColor(centsDiff);
       }
 
-      // Glow effect
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 15;
+      // Draw pitch marker (no shadow for Safari compatibility)
       ctx.fillStyle = color;
       ctx.beginPath();
       ctx.arc(nowLineX, clampedY, config.noteWidth + 4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.shadowBlur = 0;
 
       // Arrow if out of range
       if (isOutOfRange) {
