@@ -60,6 +60,7 @@ export default function Home() {
 
   // User pitch
   const [userPitch, setUserPitch] = useState<number | null>(null);
+  const [pitchClarity, setPitchClarity] = useState<number>(0);
   const [pitchHistory, setPitchHistory] = useState<PitchPoint[]>([]);
 
   // Refs for playback
@@ -194,17 +195,28 @@ export default function Home() {
       // Start pitch detection
       const detector = getPitchDetector();
       try {
+        // Use lower clarity threshold on mobile (mobile mics are noisier)
+        const isMobile = window.innerWidth < 640 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const clarityThreshold = isMobile ? 0.5 : 0.7;
+
         await detector.start((result: PitchResult) => {
-          if (result.clarity > 0.8 && result.frequency > 0) {
+          if (result.clarity > clarityThreshold && result.frequency > 0) {
             setUserPitch(result.midi);
+            setPitchClarity(result.clarity);
             setPitchHistory(prev => {
               const now = performance.now();
               // Keep only recent history (last 2 seconds)
               const filtered = prev.filter(p => now - p.timestamp < 2000);
               return [...filtered, { midi: result.midi, timestamp: now }];
             });
+          } else if (result.clarity > 0.3 && result.frequency > 0) {
+            // Show pitch at lower clarity but don't add to history trail
+            // This provides feedback that the mic is working
+            setUserPitch(result.midi);
+            setPitchClarity(result.clarity);
           } else {
             setUserPitch(null);
+            setPitchClarity(0);
           }
         });
       } catch (error) {
@@ -255,6 +267,7 @@ export default function Home() {
           tempo={tempo}
           currentBeat={currentBeat}
           userPitch={userPitch}
+          userPitchClarity={pitchClarity}
           userPitchHistory={pitchHistory}
           isPlaying={isPlaying}
         />
