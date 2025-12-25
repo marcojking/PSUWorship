@@ -119,8 +119,9 @@ export function getHarmonyNote(
   if (melodyIndex === -1) return melodyMidi; // Fallback
 
   // Calculate harmony index
-  // For interval of 3 (third), we move 2 scale positions (0-indexed)
-  const harmonyIndex = melodyIndex + (interval - 1) * Math.sign(interval);
+  // For interval of 3 (third above), we move 2 scale positions up
+  // For interval of -3 (third below), we move 2 scale positions down
+  const harmonyIndex = melodyIndex + (Math.abs(interval) - 1) * Math.sign(interval);
 
   // Clamp to valid range
   const clampedIndex = Math.max(0, Math.min(scale.length - 1, harmonyIndex));
