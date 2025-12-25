@@ -194,7 +194,12 @@ export default function Home() {
       // Start pitch detection
       const detector = getPitchDetector();
       try {
+        console.log('Starting pitch detection...');
         await detector.start((result: PitchResult) => {
+          // Debug: log every 60th result to avoid spam
+          if (Math.random() < 0.017) {
+            console.log('Pitch detected:', { freq: result.frequency.toFixed(1), clarity: result.clarity.toFixed(2), midi: result.midi.toFixed(1) });
+          }
           if (result.clarity > 0.8 && result.frequency > 0) {
             setUserPitch(result.midi);
             setPitchHistory(prev => {
