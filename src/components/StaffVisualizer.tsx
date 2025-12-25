@@ -22,8 +22,7 @@ const getStaffConfig = (width: number) => {
     noteWidth: isMobile ? 12 : 16,            // Smaller note heads on mobile
     nowLinePercent: 0.3,                      // Now-line position
     beatsVisible: isMobile ? 6 : 8,           // Fewer beats on mobile = less crowded
-    clefSize: isMobile ? 3 : 4,               // Smaller clef on mobile
-    leftPadding: isMobile ? 30 : 40,          // Less padding on mobile
+    leftPadding: isMobile ? 20 : 30,          // Less padding since no clef
   };
 };
 
@@ -138,11 +137,6 @@ export default function StaffVisualizer({
       ctx.lineTo(width - 20, y);
       ctx.stroke();
     }
-
-    // Treble clef - responsive size
-    ctx.fillStyle = '#1b354e';
-    ctx.font = `${config.lineSpacing * config.clefSize}px serif`;
-    ctx.fillText('𝄞', config.leftPadding + 10, staffTop + staffHeight + config.lineSpacing * 0.5);
 
     // Now-line - prominent glow effect
     ctx.shadowColor = '#1b354e';
