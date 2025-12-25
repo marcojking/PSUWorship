@@ -261,6 +261,12 @@ export default function StaffVisualizer({
       ctx.globalAlpha = 1;
     }
 
+    // DEBUG: Draw userPitch value on canvas
+    ctx.fillStyle = 'red';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`userPitch: ${userPitch}`, 10, 20);
+
     // Current user pitch marker
     if (userPitch !== null && userPitch > 0) {
       const y = getY(userPitch);
