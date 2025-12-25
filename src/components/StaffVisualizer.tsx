@@ -268,16 +268,22 @@ export default function StaffVisualizer({
       const clampedY = Math.max(staffTop - 60, Math.min(staffTop + staffHeight + 60, y));
       const isOutOfRange = Math.abs(y - clampedY) > 1;
 
-      // Debug: show all values
-      ctx.fillStyle = '#1b354e';
-      ctx.font = 'bold 12px monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(`pitch:${userPitch.toFixed(1)} y:${y.toFixed(0)} clampedY:${clampedY.toFixed(0)} staffCenter:${staffCenter.toFixed(0)}`, 10, 20);
+      // Find target harmony note to compare against
+      const targetNote = harmony.find(
+        n => n.startBeat <= currentBeat && n.startBeat + n.duration > currentBeat
+      );
 
-      // Draw pitch marker - HARDCODED RED for testing
-      ctx.fillStyle = '#ff0000';
+      // Color based on accuracy to target note
+      let color = '#4ade80'; // Default green
+      if (targetNote) {
+        const centsDiff = (userPitch - targetNote.midi) * 100;
+        color = getAccuracyColor(centsDiff);
+      }
+
+      // Draw pitch marker
+      ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(nowLineX, clampedY, 20, 0, Math.PI * 2);
+      ctx.arc(nowLineX, clampedY, config.noteWidth + 4, 0, Math.PI * 2);
       ctx.fill();
 
       // Arrow if out of range
