@@ -233,6 +233,10 @@ export default function Home() {
       setIsPlaying(false);
       const piano = getPianoPlayer();
       piano.stop();
+
+      // Stop pitch detection so it can be restarted
+      const detector = getPitchDetector();
+      detector.stop();
     }
 
     generateNewMelody();
