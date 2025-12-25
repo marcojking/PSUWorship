@@ -62,9 +62,6 @@ export default function Home() {
   const [userPitch, setUserPitch] = useState<number | null>(null);
   const [pitchHistory, setPitchHistory] = useState<PitchPoint[]>([]);
 
-  // Debug state
-  const [debugInfo, setDebugInfo] = useState<string>('Not started');
-
   // Refs for playback
   const playbackStartRef = useRef<number>(0);
   const animationRef = useRef<number | null>(null);
@@ -197,11 +194,7 @@ export default function Home() {
       // Start pitch detection
       const detector = getPitchDetector();
       try {
-        setDebugInfo('Starting mic...');
         await detector.start((result: PitchResult) => {
-          // Update debug display
-          setDebugInfo(`freq:${result.frequency.toFixed(0)} clarity:${result.clarity.toFixed(2)} midi:${result.midi.toFixed(1)}`);
-
           if (result.clarity > 0.8 && result.frequency > 0) {
             setUserPitch(result.midi);
             setPitchHistory(prev => {
@@ -214,9 +207,8 @@ export default function Home() {
             setUserPitch(null);
           }
         });
-        setDebugInfo('Mic started, listening...');
       } catch (error) {
-        setDebugInfo(`Mic error: ${error}`);
+        console.error('Microphone access denied:', error);
       }
     }
   };
@@ -257,11 +249,6 @@ export default function Home() {
       {/* Logo */}
       <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10">
         <Logo />
-      </div>
-
-      {/* Debug display */}
-      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 bg-black/70 text-white text-xs px-2 py-1 rounded font-mono">
-        {debugInfo} | pitch: {userPitch?.toFixed(1) ?? 'null'}
       </div>
 
       {/* Main visualization area */}
