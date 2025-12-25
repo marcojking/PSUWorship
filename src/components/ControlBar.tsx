@@ -11,33 +11,6 @@ interface ControlBarProps {
   isLoading: boolean;
 }
 
-// Volume icon component
-function VolumeIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-    </svg>
-  );
-}
-
-// Music note icon for melody
-function MelodyIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-    </svg>
-  );
-}
-
-// Harmony icon (outline note)
-function HarmonyIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-    </svg>
-  );
-}
-
 export default function ControlBar({
   isPlaying,
   onPlayPause,
@@ -75,10 +48,9 @@ export default function ControlBar({
       </button>
 
       {/* Volume sliders - compact on mobile */}
-      <div className="flex-1 flex items-center justify-center gap-2 sm:gap-6 min-w-0">
+      <div className="flex-1 flex items-center justify-center gap-4 sm:gap-8 min-w-0">
         {/* Melody volume */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          <MelodyIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#fff1dc] flex-shrink-0" />
+        <div className="flex flex-col items-center gap-1">
           <input
             type="range"
             min="0"
@@ -89,11 +61,11 @@ export default function ControlBar({
             className="w-16 sm:w-24 h-2 bg-[#2a4a6a] rounded-lg appearance-none cursor-pointer slider"
             aria-label="Melody volume"
           />
+          <span className="text-[10px] sm:text-xs text-[#fff1dc]/70">melody</span>
         </div>
 
         {/* Harmony volume */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          <HarmonyIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#fff1dc] flex-shrink-0" />
+        <div className="flex flex-col items-center gap-1">
           <input
             type="range"
             min="0"
@@ -104,6 +76,7 @@ export default function ControlBar({
             className="w-16 sm:w-24 h-2 bg-[#2a4a6a] rounded-lg appearance-none cursor-pointer slider"
             aria-label="Harmony volume"
           />
+          <span className="text-[10px] sm:text-xs text-[#fff1dc]/70">harmony</span>
         </div>
       </div>
 
