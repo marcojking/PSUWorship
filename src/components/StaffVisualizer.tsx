@@ -261,16 +261,6 @@ export default function StaffVisualizer({
       ctx.globalAlpha = 1;
     }
 
-    // DEBUG: Draw BIG OBVIOUS marker at the now-line center - should ALWAYS be visible
-    ctx.fillStyle = '#ff0000';
-    ctx.beginPath();
-    ctx.arc(nowLineX, staffCenter, 30, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#00ff00';
-    ctx.beginPath();
-    ctx.arc(nowLineX, staffCenter, 15, 0, Math.PI * 2);
-    ctx.fill();
-
     // Current user pitch marker
     if (userPitch !== null && userPitch > 0) {
       const y = getY(userPitch);
