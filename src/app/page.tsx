@@ -48,7 +48,9 @@ export default function Home() {
 
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPianoLoading, setIsPianoLoading] = useState(true);
+  const [loadProgress, setLoadProgress] = useState(0);
   const [currentBeat, setCurrentBeat] = useState(0);
 
   // Menu state
@@ -123,24 +125,35 @@ export default function Home() {
     setCurrentBeat(0);
   }, [selectedKey, scaleType, measures, rangeMin, rangeMax, complexity, melodyType, harmonyInterval]);
 
-  // Initialize on mount
+  // Register service worker for caching piano samples
   useEffect(() => {
-    const init = async () => {
-      setIsLoading(true);
-      try {
-        // Load piano samples
-        const piano = getPianoPlayer();
-        await piano.load();
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((error) => {
+        console.log('Service worker registration failed:', error);
+      });
+    }
+  }, []);
 
-        // Generate initial melody
-        generateNewMelody();
-      } catch (error) {
-        console.error('Failed to initialize:', error);
-      }
-      setIsLoading(false);
-    };
+  // Initialize on mount - generate melody immediately, load piano in background
+  useEffect(() => {
+    // Generate melody immediately (no waiting for piano)
+    generateNewMelody();
 
-    init();
+    // Load piano samples in background with progress updates
+    const piano = getPianoPlayer();
+    piano.onProgress((progress) => {
+      setLoadProgress(progress);
+    });
+
+    piano.load()
+      .then(() => {
+        setIsPianoLoading(false);
+        setLoadProgress(1);
+      })
+      .catch((error) => {
+        console.error('Failed to load piano samples:', error);
+        setIsPianoLoading(false);
+      });
   }, []);
 
   // Update volumes when they change
@@ -338,6 +351,8 @@ export default function Home() {
         onHarmonyVolumeChange={setHarmonyVolume}
         onSettingsClick={() => setSettingsOpen(true)}
         isLoading={isLoading}
+        isPianoLoading={isPianoLoading}
+        loadProgress={loadProgress}
       />
 
       {/* Settings menu */}

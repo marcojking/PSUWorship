@@ -9,6 +9,8 @@ interface ControlBarProps {
   onHarmonyVolumeChange: (volume: number) => void;
   onSettingsClick: () => void;
   isLoading: boolean;
+  isPianoLoading?: boolean;
+  loadProgress?: number;
 }
 
 export default function ControlBar({
@@ -20,9 +22,21 @@ export default function ControlBar({
   onHarmonyVolumeChange,
   onSettingsClick,
   isLoading,
+  isPianoLoading = false,
+  loadProgress = 0,
 }: ControlBarProps) {
   return (
-    <div className="flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-[#1b354e] border-t border-[#2a4a6a]">
+    <div className="relative">
+      {/* Piano loading progress bar */}
+      {isPianoLoading && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-[#2a4a6a] overflow-hidden">
+          <div
+            className="h-full bg-[#fff1dc] transition-all duration-300 ease-out"
+            style={{ width: `${loadProgress * 100}%` }}
+          />
+        </div>
+      )}
+      <div className="flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-[#1b354e] border-t border-[#2a4a6a]">
       {/* Play/Pause button */}
       <button
         onClick={onPlayPause}
@@ -92,6 +106,7 @@ export default function ControlBar({
           <circle cx="12" cy="19" r="1" />
         </svg>
       </button>
+      </div>
     </div>
   );
 }
