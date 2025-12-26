@@ -66,6 +66,43 @@ export default function Home() {
   const playbackStartRef = useRef<number>(0);
   const animationRef = useRef<number | null>(null);
 
+  // Haptic feedback state
+  const onPitchStartRef = useRef<number | null>(null);
+  const lastVibrationRef = useRef<number>(0);
+
+  // Haptic feedback for correct pitch (mobile only)
+  const triggerHapticFeedback = useCallback((isOnPitch: boolean) => {
+    // Check if vibration is supported
+    if (typeof navigator === 'undefined' || !navigator.vibrate) return;
+
+    const now = performance.now();
+
+    if (isOnPitch) {
+      // Start tracking if just got on pitch
+      if (onPitchStartRef.current === null) {
+        onPitchStartRef.current = now;
+      }
+
+      // Calculate how long user has been on pitch (max 3 seconds for full intensity)
+      const onPitchDuration = Math.min((now - onPitchStartRef.current) / 1000, 3);
+
+      // Only vibrate every 100-300ms depending on intensity (more frequent = more intense feel)
+      const vibrationInterval = 300 - (onPitchDuration / 3) * 200; // 300ms -> 100ms
+
+      if (now - lastVibrationRef.current > vibrationInterval) {
+        // Vibration duration increases with time on pitch (10ms -> 50ms)
+        const vibrationDuration = 10 + (onPitchDuration / 3) * 40;
+        navigator.vibrate(vibrationDuration);
+        lastVibrationRef.current = now;
+      }
+    } else {
+      // Reset when off pitch
+      onPitchStartRef.current = null;
+      // Stop any ongoing vibration
+      navigator.vibrate(0);
+    }
+  }, []);
+
   // Generate new melody
   const generateNewMelody = useCallback(() => {
     const newMelody = generateMelody({
@@ -116,6 +153,28 @@ export default function Home() {
     const piano = getPianoPlayer();
     piano.setHarmonyVolume(harmonyVolume);
   }, [harmonyVolume]);
+
+  // Haptic feedback when pitch accuracy changes
+  useEffect(() => {
+    if (!isPlaying || userPitch === null) {
+      triggerHapticFeedback(false);
+      return;
+    }
+
+    // Find current target harmony note
+    const targetNote = harmony.find(
+      n => n.startBeat <= currentBeat && n.startBeat + n.duration > currentBeat
+    );
+
+    if (targetNote) {
+      // Check if within 50 cents (half semitone) of target
+      const centsDiff = Math.abs((userPitch - targetNote.midi) * 100);
+      const isOnPitch = centsDiff < 50;
+      triggerHapticFeedback(isOnPitch);
+    } else {
+      triggerHapticFeedback(false);
+    }
+  }, [userPitch, harmony, currentBeat, isPlaying, triggerHapticFeedback]);
 
   // Playback loop
   useEffect(() => {
@@ -181,6 +240,11 @@ export default function Home() {
       // Stop pitch detection
       const detector = getPitchDetector();
       detector.stop();
+
+      // Stop vibration
+      if (navigator.vibrate) {
+        navigator.vibrate(0);
+      }
     } else {
       // Play
       const ctx = getAudioContext();
