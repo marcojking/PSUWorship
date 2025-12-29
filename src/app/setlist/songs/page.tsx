@@ -4,15 +4,24 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 import { getAllSongs, deleteSong, type Song } from '@/lib/db';
+import { useSync } from '@/hooks/useSync';
 
 export default function SongsLibraryPage() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const { status, sync } = useSync();
 
   useEffect(() => {
     loadSongs();
   }, []);
+
+  // Sync on mount and reload songs after
+  useEffect(() => {
+    if (status.isConfigured && !status.isSyncing) {
+      sync().then(() => loadSongs());
+    }
+  }, [status.isConfigured]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function loadSongs() {
     const data = await getAllSongs();
@@ -40,12 +49,25 @@ export default function SongsLibraryPage() {
           <span className="text-xl">←</span>
           <Logo />
         </Link>
-        <Link
-          href="/setlist/songs/import"
-          className="bg-primary text-secondary px-4 py-2 rounded-lg text-sm font-semibold"
-        >
-          + Import
-        </Link>
+        <div className="flex items-center gap-2">
+          {status.isConfigured && (
+            <button
+              onClick={() => sync().then(() => loadSongs())}
+              disabled={status.isSyncing}
+              className="bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
+              title={status.lastSyncedAt ? `Last synced: ${status.lastSyncedAt.toLocaleTimeString()}` : 'Sync with Airtable'}
+            >
+              <span className={status.isSyncing ? 'animate-spin' : ''}>⟳</span>
+              {status.isSyncing ? 'Syncing...' : 'Sync'}
+            </button>
+          )}
+          <Link
+            href="/setlist/songs/import"
+            className="bg-primary text-secondary px-4 py-2 rounded-lg text-sm font-semibold"
+          >
+            + Import
+          </Link>
+        </div>
       </header>
 
       <h1 className="text-2xl font-bold mb-6">Song Library</h1>
