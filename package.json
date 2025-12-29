@@ -9,7 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "dexie": "^4.2.1",
+    "jspdf": "^3.0.4",
     "next": "16.1.1",
+    "pdfjs-dist": "^5.4.449",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "smplr": "^0.16.3"
