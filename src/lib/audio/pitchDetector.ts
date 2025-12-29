@@ -14,7 +14,7 @@ const MIN_FREQUENCY = 80;   // ~E2
 const MAX_FREQUENCY = 1000; // ~B5
 
 // YIN pitch detection
-function yin(buffer: Float32Array, sampleRate: number): { frequency: number; clarity: number } {
+function yin(buffer: Float32Array<ArrayBuffer>, sampleRate: number): { frequency: number; clarity: number } {
   const bufferSize = buffer.length;
   const halfBuffer = Math.floor(bufferSize / 2);
 
@@ -139,6 +139,7 @@ export class PitchDetector {
 
     this.analyser = null;
     this.onPitchCallback = null;
+    this.buffer = null;
   }
 
   // Detection loop

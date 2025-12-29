@@ -22,8 +22,7 @@ const getStaffConfig = (width: number) => {
     noteWidth: isMobile ? 12 : 16,            // Smaller note heads on mobile
     nowLinePercent: 0.3,                      // Now-line position
     beatsVisible: isMobile ? 6 : 8,           // Fewer beats on mobile = less crowded
-    clefSize: isMobile ? 3 : 4,               // Smaller clef on mobile
-    leftPadding: isMobile ? 30 : 40,          // Less padding on mobile
+    leftPadding: isMobile ? 20 : 30,          // Less padding since no clef
   };
 };
 
@@ -31,20 +30,30 @@ const getStaffConfig = (width: number) => {
 // Returns vertical offset from staff center (middle line = B4) in pixels
 // Staff lines: E4 (bottom), G4, B4 (middle), D5, F5 (top)
 function getMidiStaffPosition(midi: number, lineSpacing: number): number {
-  // Semitone offsets for natural notes within octave (C=0)
-  const naturalNoteOffsets = [0, 2, 4, 5, 7, 9, 11]; // C, D, E, F, G, A, B
+  // Map semitone (0-11) to natural note index (0=C, 1=D, 2=E, 3=F, 4=G, 5=A, 6=B)
+  // Accidentals are mapped to the NEAREST natural note for correct diatonic display
+  // Flats (Db, Eb, Ab, Bb) map UP to their letter name
+  // Sharps (C#, F#, G#) map DOWN to their letter name
+  const semitoneToNaturalNote = [
+    0, // 0: C
+    1, // 1: C#/Db → D (round up for visual correctness in flat keys)
+    1, // 2: D
+    2, // 3: D#/Eb → E (Eb is more common, display on E line)
+    2, // 4: E
+    3, // 5: F
+    3, // 6: F#/Gb → F (F# is more common, display on F line)
+    4, // 7: G
+    5, // 8: G#/Ab → A (Ab is more common, display on A space)
+    5, // 9: A
+    6, // 10: A#/Bb → B (Bb is more common, display on B line)
+    6, // 11: B
+  ];
 
-  // Get octave and semitone within octave
-  const octave = Math.floor(midi / 12) - 1;
-  const semitone = midi % 12;
-
-  // Find the natural note index (0=C, 1=D, 2=E, 3=F, 4=G, 5=A, 6=B)
-  let noteIndex = 0;
-  for (let i = 0; i < naturalNoteOffsets.length; i++) {
-    if (semitone >= naturalNoteOffsets[i]) {
-      noteIndex = i;
-    }
-  }
+  // Get octave and semitone within octave (round midi for fractional pitches)
+  const midiRounded = Math.round(midi);
+  const octave = Math.floor(midiRounded / 12) - 1;
+  const semitone = midiRounded % 12;
+  const noteIndex = semitoneToNaturalNote[semitone];
 
   // Calculate diatonic steps from middle line (B4)
   // B4 is octave 4, note index 6
@@ -128,11 +137,6 @@ export default function StaffVisualizer({
       ctx.lineTo(width - 20, y);
       ctx.stroke();
     }
-
-    // Treble clef - responsive size
-    ctx.fillStyle = '#1b354e';
-    ctx.font = `${config.lineSpacing * config.clefSize}px serif`;
-    ctx.fillText('𝄞', config.leftPadding + 10, staffTop + staffHeight + config.lineSpacing * 0.5);
 
     // Now-line - prominent glow effect
     ctx.shadowColor = '#1b354e';
@@ -258,24 +262,23 @@ export default function StaffVisualizer({
       const clampedY = Math.max(staffTop - 60, Math.min(staffTop + staffHeight + 60, y));
       const isOutOfRange = Math.abs(y - clampedY) > 1;
 
+      // Find target harmony note to compare against
       const targetNote = harmony.find(
         n => n.startBeat <= currentBeat && n.startBeat + n.duration > currentBeat
       );
 
-      let color = '#4ade80';
+      // Color based on accuracy to target note
+      let color = '#4ade80'; // Default green
       if (targetNote) {
         const centsDiff = (userPitch - targetNote.midi) * 100;
         color = getAccuracyColor(centsDiff);
       }
 
-      // Glow effect
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 15;
+      // Draw pitch marker
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.ellipse(nowLineX, clampedY, config.noteWidth + 4, (config.noteWidth + 4) * 0.75, -0.2, 0, Math.PI * 2);
+      ctx.arc(nowLineX, clampedY, config.noteWidth + 4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.shadowBlur = 0;
 
       // Arrow if out of range
       if (isOutOfRange) {

@@ -9,33 +9,8 @@ interface ControlBarProps {
   onHarmonyVolumeChange: (volume: number) => void;
   onSettingsClick: () => void;
   isLoading: boolean;
-}
-
-// Volume icon component
-function VolumeIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-    </svg>
-  );
-}
-
-// Music note icon for melody
-function MelodyIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-    </svg>
-  );
-}
-
-// Harmony icon (two notes)
-function HarmonyIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm2-5.65V7h4v2h-2v5.35c-.63-.22-1.3-.35-2-.35s-1.37.13-2 .35z" />
-    </svg>
-  );
+  isPianoLoading?: boolean;
+  loadProgress?: number;
 }
 
 export default function ControlBar({
@@ -47,9 +22,24 @@ export default function ControlBar({
   onHarmonyVolumeChange,
   onSettingsClick,
   isLoading,
+  isPianoLoading = false,
+  loadProgress = 0,
 }: ControlBarProps) {
   return (
-    <div className="flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-[#1b354e] border-t border-[#2a4a6a]">
+    <div className="relative">
+      {/* Piano loading progress bar */}
+      {isPianoLoading && (
+        <div className="absolute -top-6 left-0 right-0">
+          <div className="text-center text-[10px] text-[#1b354e]/60 mb-1">loading piano...</div>
+          <div className="h-1 bg-[#2a4a6a] overflow-hidden">
+            <div
+              className="h-full bg-[#fff1dc] transition-all duration-300 ease-out"
+              style={{ width: `${loadProgress * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+      <div className="flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-[#1b354e] border-t border-[#2a4a6a]">
       {/* Play/Pause button */}
       <button
         onClick={onPlayPause}
@@ -75,10 +65,9 @@ export default function ControlBar({
       </button>
 
       {/* Volume sliders - compact on mobile */}
-      <div className="flex-1 flex items-center justify-center gap-2 sm:gap-6 min-w-0">
+      <div className="flex-1 flex items-center justify-center gap-4 sm:gap-8 min-w-0">
         {/* Melody volume */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          <MelodyIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#fff1dc] flex-shrink-0" />
+        <div className="flex flex-col items-center gap-1">
           <input
             type="range"
             min="0"
@@ -89,11 +78,11 @@ export default function ControlBar({
             className="w-16 sm:w-24 h-2 bg-[#2a4a6a] rounded-lg appearance-none cursor-pointer slider"
             aria-label="Melody volume"
           />
+          <span className="text-[10px] sm:text-xs text-[#fff1dc]/70">melody</span>
         </div>
 
         {/* Harmony volume */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          <HarmonyIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#fff1dc] flex-shrink-0" />
+        <div className="flex flex-col items-center gap-1">
           <input
             type="range"
             min="0"
@@ -104,6 +93,7 @@ export default function ControlBar({
             className="w-16 sm:w-24 h-2 bg-[#2a4a6a] rounded-lg appearance-none cursor-pointer slider"
             aria-label="Harmony volume"
           />
+          <span className="text-[10px] sm:text-xs text-[#fff1dc]/70">harmony</span>
         </div>
       </div>
 
@@ -119,6 +109,7 @@ export default function ControlBar({
           <circle cx="12" cy="19" r="1" />
         </svg>
       </button>
+      </div>
     </div>
   );
 }
