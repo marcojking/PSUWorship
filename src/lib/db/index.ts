@@ -1,5 +1,14 @@
 import Dexie, { type Table } from 'dexie';
 
+// Import sync functions (lazy loaded to avoid circular dependencies)
+let syncModule: typeof import('./sync') | null = null;
+async function getSyncModule() {
+  if (!syncModule) {
+    syncModule = await import('./sync');
+  }
+  return syncModule;
+}
+
 // Types for our data models
 export interface Song {
   id?: number;
@@ -71,11 +80,19 @@ export async function getSong(id: number): Promise<Song | undefined> {
 
 export async function addSong(song: Omit<Song, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
   const now = new Date();
-  return db.songs.add({
+  const id = await db.songs.add({
     ...song,
     createdAt: now,
     updatedAt: now,
   });
+
+  // Sync to Airtable in background
+  const newSong = await db.songs.get(id);
+  if (newSong) {
+    getSyncModule().then(sync => sync.syncSongToAirtable(newSong)).catch(console.error);
+  }
+
+  return id;
 }
 
 export async function updateSong(id: number, updates: Partial<Song>): Promise<void> {
@@ -83,10 +100,19 @@ export async function updateSong(id: number, updates: Partial<Song>): Promise<vo
     ...updates,
     updatedAt: new Date(),
   });
+
+  // Sync to Airtable in background
+  const updatedSong = await db.songs.get(id);
+  if (updatedSong) {
+    getSyncModule().then(sync => sync.syncSongToAirtable(updatedSong)).catch(console.error);
+  }
 }
 
 export async function deleteSong(id: number): Promise<void> {
   await db.songs.delete(id);
+
+  // Delete from Airtable in background
+  getSyncModule().then(sync => sync.deleteSongFromAirtable(id)).catch(console.error);
 }
 
 export async function getAllSetlists(): Promise<Setlist[]> {
@@ -99,11 +125,19 @@ export async function getSetlist(id: number): Promise<Setlist | undefined> {
 
 export async function addSetlist(setlist: Omit<Setlist, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
   const now = new Date();
-  return db.setlists.add({
+  const id = await db.setlists.add({
     ...setlist,
     createdAt: now,
     updatedAt: now,
   });
+
+  // Sync to Airtable in background
+  const newSetlist = await db.setlists.get(id);
+  if (newSetlist) {
+    getSyncModule().then(sync => sync.syncSetlistToAirtable(newSetlist)).catch(console.error);
+  }
+
+  return id;
 }
 
 export async function updateSetlist(id: number, updates: Partial<Setlist>): Promise<void> {
@@ -111,10 +145,19 @@ export async function updateSetlist(id: number, updates: Partial<Setlist>): Prom
     ...updates,
     updatedAt: new Date(),
   });
+
+  // Sync to Airtable in background
+  const updatedSetlist = await db.setlists.get(id);
+  if (updatedSetlist) {
+    getSyncModule().then(sync => sync.syncSetlistToAirtable(updatedSetlist)).catch(console.error);
+  }
 }
 
 export async function deleteSetlist(id: number): Promise<void> {
   await db.setlists.delete(id);
+
+  // Delete from Airtable in background
+  getSyncModule().then(sync => sync.deleteSetlistFromAirtable(id)).catch(console.error);
 }
 
 // Get songs for a setlist with full data
