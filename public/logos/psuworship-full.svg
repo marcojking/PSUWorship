@@ -1,0 +1,10 @@
+<svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Ripples -->
+  <circle cx="100" cy="45" r="35" stroke="#4A3F6B" stroke-width="1" fill="none" opacity="0.18"/>
+  <circle cx="100" cy="45" r="26" stroke="#4A3F6B" stroke-width="1.3" fill="none" opacity="0.35"/>
+  <circle cx="100" cy="45" r="17" stroke="#4A3F6B" stroke-width="1.6" fill="none" opacity="0.55"/>
+  <!-- Notehead -->
+  <ellipse cx="100" cy="45" rx="8" ry="6" fill="#4A3F6B" transform="rotate(-18 100 45)"/>
+  <!-- Text -->
+  <text x="100" y="100" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" letter-spacing="2" fill="#1a1a2e">PSUWORSHIP</text>
+</svg>
