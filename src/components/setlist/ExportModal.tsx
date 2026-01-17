@@ -32,14 +32,15 @@ interface FormatSettings {
   pageBreaks: boolean;
   showKey: boolean;
   pamphletMode: boolean;
+  flipAlternatePages: boolean;
 }
 
 export default function ExportModal({ setlist, songs, onClose }: ExportModalProps) {
   const [selectedFormats, setSelectedFormats] = useState<Set<string>>(new Set(['letters']));
   const [formatSettings, setFormatSettings] = useState<Record<string, FormatSettings>>({
-    lyrics: { pageBreaks: true, showKey: true, pamphletMode: false },
-    letters: { pageBreaks: true, showKey: true, pamphletMode: false },
-    numerals: { pageBreaks: true, showKey: true, pamphletMode: false },
+    lyrics: { pageBreaks: true, showKey: true, pamphletMode: false, flipAlternatePages: false },
+    letters: { pageBreaks: true, showKey: true, pamphletMode: false, flipAlternatePages: false },
+    numerals: { pageBreaks: true, showKey: true, pamphletMode: false, flipAlternatePages: false },
   });
   const [exporting, setExporting] = useState(false);
 
@@ -76,7 +77,7 @@ export default function ExportModal({ setlist, songs, onClose }: ExportModalProp
         } else {
           const settings = formatSettings[fmt];
           if (fmt === 'lyrics' && settings.pamphletMode) {
-            await exportPamphlet();
+            await exportPamphlet(settings.flipAlternatePages);
           } else {
             exportSingleFormat(fmt as 'lyrics' | 'letters' | 'numerals', settings);
           }
@@ -294,7 +295,7 @@ export default function ExportModal({ setlist, songs, onClose }: ExportModalProp
   };
 
   // Export pamphlet (booklet format with cover and bible verse)
-  const exportPamphlet = async () => {
+  const exportPamphlet = async (flipAlternatePages: boolean = false) => {
     // Font settings for readability
     const TITLE_FONT_SIZE = 13;
     const LYRICS_FONT_SIZE = 11;
@@ -421,17 +422,39 @@ export default function ExportModal({ setlist, songs, onClose }: ExportModalProp
     const pageWidth = doc.internal.pageSize.getWidth();
 
     // Render each physical page (2 columns per page)
+    let physicalPageIndex = 0;
     for (let i = 0; i < impositionOrder.length; i += 2) {
       if (i > 0) doc.addPage();
 
       const leftPanelIdx = impositionOrder[i];
       const rightPanelIdx = impositionOrder[i + 1];
 
-      // Render left column
-      await renderPanel(doc, contentPages[leftPanelIdx], 0, margin, contentWidth, pageHeight, margin);
+      // For duplex printing compatibility: rotate every other page 180°
+      const shouldFlip = flipAlternatePages && (physicalPageIndex % 2 === 1);
 
-      // Render right column
-      await renderPanel(doc, contentPages[rightPanelIdx], columnWidth, margin, contentWidth, pageHeight, margin);
+      if (shouldFlip) {
+        // Apply 180° rotation transformation around page center
+        // Use internal PDF commands for rotation via type assertion (jsPDF types don't expose 'write')
+        // Transformation matrix for 180° rotation around (pageWidth/2, pageHeight/2):
+        // cos(180°) = -1, sin(180°) = 0
+        // Matrix: [-1, 0, 0, -1, pageWidth, pageHeight]
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const internal = doc.internal as any;
+        internal.write('q'); // Save graphics state
+        internal.write(`-1 0 0 -1 ${pageWidth.toFixed(2)} ${pageHeight.toFixed(2)} cm`);
+
+        // Render panels (same order - the rotation handles the flip)
+        await renderPanel(doc, contentPages[leftPanelIdx], 0, margin, contentWidth, pageHeight, margin, false);
+        await renderPanel(doc, contentPages[rightPanelIdx], columnWidth, margin, contentWidth, pageHeight, margin, false);
+
+        internal.write('Q'); // Restore graphics state
+      } else {
+        // Normal rendering
+        await renderPanel(doc, contentPages[leftPanelIdx], 0, margin, contentWidth, pageHeight, margin, false);
+        await renderPanel(doc, contentPages[rightPanelIdx], columnWidth, margin, contentWidth, pageHeight, margin, false);
+      }
+
+      physicalPageIndex++;
     }
 
     doc.save(`${setlist.name || 'setlist'}-pamphlet.pdf`);
@@ -444,7 +467,9 @@ export default function ExportModal({ setlist, songs, onClose }: ExportModalProp
       yMargin: number,
       width: number,
       height: number,
-      xMargin: number
+      xMargin: number,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _flipped: boolean = false  // Flipping now handled via PDF transformation matrix
     ) {
       const x = xOffset + xMargin;
 
@@ -723,14 +748,26 @@ export default function ExportModal({ setlist, songs, onClose }: ExportModalProp
                   {isSelected && (opt.hasPageBreaks || opt.hasShowKey || opt.hasPamphlet) && (
                     <div className="px-3 pb-3 pt-1 ml-6 space-y-2 border-t border-primary/10">
                       {opt.hasPamphlet && (
-                        <label className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={settings?.pamphletMode ?? false}
-                            onChange={(e) => updateSetting(opt.id, 'pamphletMode', e.target.checked)}
-                          />
-                          Foldable pamphlet (booklet format)
-                        </label>
+                        <>
+                          <label className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={settings?.pamphletMode ?? false}
+                              onChange={(e) => updateSetting(opt.id, 'pamphletMode', e.target.checked)}
+                            />
+                            Foldable pamphlet (booklet format)
+                          </label>
+                          {settings?.pamphletMode && (
+                            <label className="flex items-center gap-2 text-sm ml-4 opacity-75">
+                              <input
+                                type="checkbox"
+                                checked={settings?.flipAlternatePages ?? false}
+                                onChange={(e) => updateSetting(opt.id, 'flipAlternatePages', e.target.checked)}
+                              />
+                              Flip alternate pages (for short-edge duplex)
+                            </label>
+                          )}
+                        </>
                       )}
                       {opt.hasPageBreaks && !settings?.pamphletMode && (
                         <label className="flex items-center gap-2 text-sm">
