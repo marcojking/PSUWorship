@@ -1,15 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import { getAllSongs, deleteSong, type Song } from '@/lib/db';
 import { useSync } from '@/hooks/useSync';
 
 export default function SongsLibraryPage() {
+  const router = useRouter();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const addMenuRef = useRef<HTMLDivElement>(null);
   const { status, sync } = useSync();
 
   useEffect(() => {
@@ -22,6 +26,17 @@ export default function SongsLibraryPage() {
       sync().then(() => loadSongs());
     }
   }, [status.isConfigured]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Close menu on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+        setShowAddMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   async function loadSongs() {
     const data = await getAllSongs();
@@ -61,12 +76,52 @@ export default function SongsLibraryPage() {
               {status.isSyncing ? 'Syncing...' : 'Sync'}
             </button>
           )}
-          <Link
-            href="/setlist/songs/import"
-            className="bg-primary text-secondary px-4 py-2 rounded-lg text-sm font-semibold"
-          >
-            + Import
-          </Link>
+
+          {/* Add Song Dropdown */}
+          <div className="relative" ref={addMenuRef}>
+            <button
+              onClick={() => setShowAddMenu(!showAddMenu)}
+              className="bg-primary text-secondary px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2"
+            >
+              + Add Song
+              <span className={`transition-transform ${showAddMenu ? 'rotate-180' : ''}`}>▾</span>
+            </button>
+
+            {showAddMenu && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-primary/10 overflow-hidden z-50">
+                <button
+                  onClick={() => {
+                    setShowAddMenu(false);
+                    router.push('/setlist/songs/create');
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors border-b border-primary/10"
+                >
+                  <div className="font-medium">Create New</div>
+                  <div className="text-xs text-primary/60">Start from scratch with lyrics</div>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddMenu(false);
+                    router.push('/setlist/songs/import?source=url');
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors border-b border-primary/10"
+                >
+                  <div className="font-medium">From Guitar Tabs Link</div>
+                  <div className="text-xs text-primary/60">Import from Ultimate Guitar URL</div>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddMenu(false);
+                    router.push('/setlist/songs/import?source=file');
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors"
+                >
+                  <div className="font-medium">From File</div>
+                  <div className="text-xs text-primary/60">Import ChordPro (.cho) or PDF</div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -89,13 +144,27 @@ export default function SongsLibraryPage() {
         <div className="bg-primary/5 rounded-lg p-8 text-center">
           {songs.length === 0 ? (
             <>
-              <p className="opacity-60 mb-4">No songs in your library</p>
-              <Link
-                href="/setlist/songs/import"
-                className="text-primary font-semibold hover:underline"
-              >
-                Import your first song
-              </Link>
+              <p className="text-primary/60 mb-6">No songs in your library yet</p>
+              <div className="grid gap-3 max-w-md mx-auto">
+                <Link
+                  href="/setlist/songs/create"
+                  className="bg-primary text-secondary px-4 py-3 rounded-lg font-semibold text-center"
+                >
+                  Create New Song
+                </Link>
+                <Link
+                  href="/setlist/songs/import?source=url"
+                  className="bg-primary/10 text-primary px-4 py-3 rounded-lg font-semibold text-center"
+                >
+                  Import from Guitar Tabs
+                </Link>
+                <Link
+                  href="/setlist/songs/import?source=file"
+                  className="bg-primary/10 text-primary px-4 py-3 rounded-lg font-semibold text-center"
+                >
+                  Import from File
+                </Link>
+              </div>
             </>
           ) : (
             <p className="opacity-60">No songs match "{search}"</p>
