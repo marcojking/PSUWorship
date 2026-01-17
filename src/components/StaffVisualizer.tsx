@@ -117,7 +117,7 @@ export default function StaffVisualizer({
     const config = getStaffConfig(width);
 
     // Background - cream
-    ctx.fillStyle = '#fff1dc';
+    ctx.fillStyle = '#fff7eb';
     ctx.fillRect(0, 0, width, height);
 
     // Staff dimensions
@@ -128,7 +128,7 @@ export default function StaffVisualizer({
     const pixelsPerBeat = (width * 0.9) / config.beatsVisible;
 
     // Draw staff lines - brand color
-    ctx.strokeStyle = '#1b354e';
+    ctx.strokeStyle = '#003049';
     ctx.lineWidth = 2;
     for (let i = 0; i < 5; i++) {
       const y = staffTop + i * config.lineSpacing;
@@ -139,9 +139,9 @@ export default function StaffVisualizer({
     }
 
     // Now-line - prominent glow effect
-    ctx.shadowColor = '#1b354e';
+    ctx.shadowColor = '#003049';
     ctx.shadowBlur = 20;
-    ctx.strokeStyle = '#1b354e';
+    ctx.strokeStyle = '#003049';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(nowLineX, staffTop - 40);
@@ -163,7 +163,7 @@ export default function StaffVisualizer({
       ctx.globalAlpha = alpha;
 
       // Draw ledger lines first
-      ctx.strokeStyle = '#1b354e';
+      ctx.strokeStyle = '#003049';
       ctx.lineWidth = 2;
 
       // Above staff
@@ -204,12 +204,12 @@ export default function StaffVisualizer({
 
     // Draw harmony notes (ghost outline)
     for (const note of harmony) {
-      drawNote(note, '#3a5a7a', 0.6, false);
+      drawNote(note, '#7fa0af', 0.6, false);
     }
 
     // Draw melody notes (solid main color)
     for (const note of melody) {
-      drawNote(note, '#1b354e', 1, true);
+      drawNote(note, '#003049', 1, true);
     }
 
     // User pitch trail
@@ -237,7 +237,7 @@ export default function StaffVisualizer({
           n => n.startBeat <= beatAtPoint && n.startBeat + n.duration > beatAtPoint
         );
 
-        let color = '#1b354e';
+        let color = '#003049';
         if (targetNote) {
           const centsDiff = (curr.midi - targetNote.midi) * 100;
           color = getAccuracyColor(centsDiff);
@@ -282,14 +282,14 @@ export default function StaffVisualizer({
 
       // Arrow if out of range
       if (isOutOfRange) {
-        ctx.fillStyle = '#1b354e';
+        ctx.fillStyle = '#003049';
         ctx.font = `bold ${width < 640 ? 16 : 20}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(y < clampedY ? '▲' : '▼', nowLineX, clampedY + 6);
       }
 
       // Note label
-      ctx.fillStyle = '#1b354e';
+      ctx.fillStyle = '#003049';
       ctx.font = `bold ${width < 640 ? 12 : 16}px monospace`;
       ctx.textAlign = 'left';
       ctx.fillText(midiToNoteName(Math.round(userPitch)), nowLineX + config.noteWidth + 12, clampedY + 6);

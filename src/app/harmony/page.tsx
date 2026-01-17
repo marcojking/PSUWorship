@@ -323,7 +323,7 @@ export default function Home() {
   }, [harmonyInterval, melody, selectedKey, scaleType]);
 
   return (
-    <div className="flex flex-col h-dvh bg-[#fff1dc] text-[#1b354e] overflow-hidden">
+    <div className="flex flex-col h-dvh bg-[#fff7eb] text-[#003049] overflow-hidden">
       {/* Logo with home link */}
       <Link href="/" className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 hover:opacity-80 transition-opacity">
         <Logo />
