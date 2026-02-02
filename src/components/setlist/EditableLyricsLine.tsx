@@ -17,47 +17,70 @@ interface EditableLyricsLineProps {
   totalBeats?: number;
 }
 
-// Build chord line string with proper spacing (same logic as ChordChart)
+// Build chord line string with proper spacing
+// If chord positions are beyond lyrics length, redistribute them proportionally
 function buildChordLine(
   chords: ChordPosition[],
-  minLength: number
+  lyricsLength: number
 ): { line: string; chordPositions: Map<number, { start: number; end: number; chord: string }> } {
   const chordPositions = new Map<number, { start: number; end: number; chord: string }>();
+  const minLength = Math.max(lyricsLength, 1);
 
   if (chords.length === 0) {
-    return { line: ' '.repeat(Math.max(minLength, 1)), chordPositions };
+    return { line: ' '.repeat(minLength), chordPositions };
   }
 
   // Sort chords by position
   const sortedChords = [...chords].sort((a, b) => a.position - b.position);
 
-  // Build chord placements, pushing right if overlap would occur
-  const placements: { chord: string; position: number; originalPosition: number }[] = [];
+  // Check if any chord position is beyond lyrics length - if so, redistribute
+  const maxStoredPos = Math.max(...sortedChords.map(c => c.position));
+  const needsRedistribution = maxStoredPos >= lyricsLength && lyricsLength > 0;
+
+  // Calculate display positions
+  const placements: { chord: string; displayPosition: number; originalPosition: number }[] = [];
   let nextAvailablePosition = 0;
   const MIN_GAP = 1;
 
-  for (const { chord, position } of sortedChords) {
-    const actualPosition = Math.max(position, nextAvailablePosition);
-    placements.push({ chord, position: actualPosition, originalPosition: position });
-    nextAvailablePosition = actualPosition + chord.length + MIN_GAP;
+  for (let i = 0; i < sortedChords.length; i++) {
+    const { chord, position } = sortedChords[i];
+
+    let targetPosition: number;
+    if (needsRedistribution) {
+      // Redistribute: spread chords evenly across the lyrics
+      // First chord at 0, last chord near end, others proportionally spaced
+      if (sortedChords.length === 1) {
+        targetPosition = 0;
+      } else {
+        const maxDisplayPos = Math.max(0, lyricsLength - chord.length);
+        targetPosition = Math.round((i / (sortedChords.length - 1)) * maxDisplayPos);
+      }
+    } else {
+      targetPosition = position;
+    }
+
+    // Ensure no overlap with previous chord
+    const displayPosition = Math.max(targetPosition, nextAvailablePosition);
+    placements.push({ chord, displayPosition, originalPosition: position });
+    nextAvailablePosition = displayPosition + chord.length + MIN_GAP;
   }
 
-  // Calculate required length
+  // Calculate line length
   const lastPlacement = placements[placements.length - 1];
-  const requiredLength = lastPlacement.position + lastPlacement.chord.length;
-  const maxLength = Math.max(minLength, requiredLength, 1);
+  const requiredLength = lastPlacement.displayPosition + lastPlacement.chord.length;
+  const lineLength = Math.max(minLength, requiredLength, 1);
 
   // Build the chord line
-  const chars: string[] = new Array(maxLength).fill(' ');
+  const chars: string[] = new Array(lineLength).fill(' ');
 
-  for (const { chord, position, originalPosition } of placements) {
-    for (let i = 0; i < chord.length && position + i < maxLength; i++) {
-      chars[position + i] = chord[i];
+  for (const { chord, displayPosition, originalPosition } of placements) {
+    for (let i = 0; i < chord.length && displayPosition + i < lineLength; i++) {
+      chars[displayPosition + i] = chord[i];
     }
     // Map the original position to where it's displayed
     chordPositions.set(originalPosition, {
-      start: position,
-      end: position + chord.length - 1,
+      start: displayPosition,
+      end: displayPosition + chord.length - 1,
       chord,
     });
   }
