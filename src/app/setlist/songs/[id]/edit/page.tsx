@@ -93,7 +93,7 @@ export default function EditSongPage({ params }: PageProps) {
   }
 
   return (
-    <div className="setlist-page min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-32">
+    <div className="setlist-page min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-40">
       {/* Header */}
       <header className="flex items-center justify-between mb-6">
         <Link href={`/setlist/songs/${id}`} className="flex items-center gap-2">
