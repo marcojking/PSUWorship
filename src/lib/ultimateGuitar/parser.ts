@@ -1,4 +1,5 @@
 import type { Section, ChordLine, ChordPosition } from '../db';
+import { getWordBoundaries, snapToWordBoundary } from '../lyrics/parser';
 
 interface UGParseResult {
   title: string;
@@ -152,16 +153,26 @@ export function parseUGContent(
       if (!nextHasChords && !nextIsSection && !nextIsEmpty && !nextIsMetadata) {
         // Next line is lyrics - associate chords with it
         const lyrics = decodeHtmlEntities(nextLine.trim());
+
+        // Map chord positions to word boundaries in the lyrics
+        // This ensures chords snap to word starts for the visual editor
+        const mappedChords = mapChordsToLyrics(chordLine.chords, lyrics);
+
         currentSection.lines.push({
           lyrics,
-          chords: chordLine.chords,
+          chords: mappedChords,
         });
         i++; // Skip the lyric line since we processed it
       } else {
         // Chord-only line (like intro/outro/instrumental)
+        // Keep positions as beat markers (0, 1, 2, 3...)
+        const beatChords = chordLine.chords.map((chord, idx) => ({
+          chord: chord.chord,
+          position: idx, // Sequential beat positions for instrumental sections
+        }));
         currentSection.lines.push({
           lyrics: '',
-          chords: chordLine.chords,
+          chords: beatChords,
         });
       }
     } else {
@@ -184,6 +195,66 @@ export function parseUGContent(
     key,
     sections,
   };
+}
+
+/**
+ * Map chord positions from the chord line to word boundaries in the lyrics.
+ * The chord line positions represent spacing, but the editor needs positions
+ * at word starts in the lyrics for proper display and editing.
+ */
+function mapChordsToLyrics(
+  chords: ChordPosition[],
+  lyrics: string
+): ChordPosition[] {
+  if (chords.length === 0 || !lyrics.trim()) {
+    return chords;
+  }
+
+  const wordBoundaries = getWordBoundaries(lyrics);
+  if (wordBoundaries.length === 0) {
+    return chords;
+  }
+
+  const mappedChords: ChordPosition[] = [];
+  const usedPositions = new Set<number>();
+
+  for (const chord of chords) {
+    // Map the chord's position proportionally from the chord line to the lyrics
+    // Use the position relative to a max reasonable line length
+    const maxChordLineLength = Math.max(
+      ...chords.map(c => c.position),
+      lyrics.length
+    ) + 1;
+    const proportionalPos = Math.round(
+      (chord.position / maxChordLineLength) * lyrics.length
+    );
+
+    // Snap to the nearest word boundary
+    const snappedPos = snapToWordBoundary(proportionalPos, lyrics);
+
+    // Avoid duplicate positions - if already used, try to find the next word
+    let finalPos = snappedPos;
+    if (usedPositions.has(finalPos)) {
+      // Find the next available word boundary
+      const nextWord = wordBoundaries.find(
+        w => w.start > finalPos && !usedPositions.has(w.start)
+      );
+      if (nextWord) {
+        finalPos = nextWord.start;
+      }
+    }
+
+    usedPositions.add(finalPos);
+    mappedChords.push({
+      chord: chord.chord,
+      position: finalPos,
+    });
+  }
+
+  // Sort by position to maintain order
+  mappedChords.sort((a, b) => a.position - b.position);
+
+  return mappedChords;
 }
 
 // Check if a token is a valid chord (not just a dash or number)
