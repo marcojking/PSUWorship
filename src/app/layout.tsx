@@ -11,6 +11,10 @@ const sourceSans = Source_Sans_3({
 export const metadata: Metadata = {
   title: "PSUWorship",
   description: "Learn to sing vocal harmonies with real-time pitch feedback",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

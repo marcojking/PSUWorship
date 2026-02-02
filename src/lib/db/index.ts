@@ -42,6 +42,7 @@ export interface Setlist {
   date: string;
   time: string;
   location: string;
+  bibleVerse?: string; // For pamphlet back cover
   songs: SetlistSong[];
   createdAt: Date;
   updatedAt: Date;

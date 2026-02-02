@@ -152,16 +152,26 @@ export function parseUGContent(
       if (!nextHasChords && !nextIsSection && !nextIsEmpty && !nextIsMetadata) {
         // Next line is lyrics - associate chords with it
         const lyrics = decodeHtmlEntities(nextLine.trim());
+
+        // Map chord positions to word boundaries in the lyrics
+        // This ensures chords snap to word starts for the visual editor
+        const mappedChords = mapChordsToLyrics(chordLine.chords, lyrics);
+
         currentSection.lines.push({
           lyrics,
-          chords: chordLine.chords,
+          chords: mappedChords,
         });
         i++; // Skip the lyric line since we processed it
       } else {
         // Chord-only line (like intro/outro/instrumental)
+        // Keep positions as beat markers (0, 1, 2, 3...)
+        const beatChords = chordLine.chords.map((chord, idx) => ({
+          chord: chord.chord,
+          position: idx, // Sequential beat positions for instrumental sections
+        }));
         currentSection.lines.push({
           lyrics: '',
-          chords: chordLine.chords,
+          chords: beatChords,
         });
       }
     } else {
@@ -184,6 +194,55 @@ export function parseUGContent(
     key,
     sections,
   };
+}
+
+/**
+ * Map chord positions from the chord line to the lyrics line.
+ * The chord line positions represent spacing in the chord line,
+ * so we map them proportionally to the lyrics length.
+ */
+function mapChordsToLyrics(
+  chords: ChordPosition[],
+  lyrics: string
+): ChordPosition[] {
+  if (chords.length === 0 || !lyrics.trim()) {
+    return chords;
+  }
+
+  // Find the max position in the chord line to use as reference
+  const maxChordPos = Math.max(...chords.map(c => c.position), 0);
+  const chordLineLength = maxChordPos + 1;
+
+  // If lyrics are longer than chord line positions, use lyrics length as reference
+  // Otherwise scale proportionally
+  const scaleFactor = lyrics.length > chordLineLength
+    ? 1
+    : lyrics.length / Math.max(chordLineLength, 1);
+
+  const mappedChords: ChordPosition[] = [];
+  const usedPositions = new Set<number>();
+
+  for (const chord of chords) {
+    // Map position proportionally, clamped to lyrics length
+    let mappedPos = Math.round(chord.position * scaleFactor);
+    mappedPos = Math.min(mappedPos, Math.max(0, lyrics.length - 1));
+
+    // Avoid duplicate positions - shift right if needed
+    while (usedPositions.has(mappedPos) && mappedPos < lyrics.length) {
+      mappedPos++;
+    }
+
+    usedPositions.add(mappedPos);
+    mappedChords.push({
+      chord: chord.chord,
+      position: mappedPos,
+    });
+  }
+
+  // Sort by position to maintain order
+  mappedChords.sort((a, b) => a.position - b.position);
+
+  return mappedChords;
 }
 
 // Check if a token is a valid chord (not just a dash or number)

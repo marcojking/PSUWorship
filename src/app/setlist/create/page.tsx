@@ -17,6 +17,7 @@ export default function CreateSetlistPage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState('');
   const [location, setLocation] = useState('');
+  const [bibleVerse, setBibleVerse] = useState('');
   const [selectedSongs, setSelectedSongs] = useState<SetlistSong[]>([]);
   const [search, setSearch] = useState('');
 
@@ -71,6 +72,7 @@ export default function CreateSetlistPage() {
       date,
       time,
       location,
+      bibleVerse: bibleVerse.trim() || undefined,
       songs: selectedSongs,
     });
 
@@ -80,7 +82,7 @@ export default function CreateSetlistPage() {
   const filteredSongs = songs.filter(song =>
     !selectedSongs.find(s => s.songId === song.id) &&
     (song.title.toLowerCase().includes(search.toLowerCase()) ||
-     song.artist.toLowerCase().includes(search.toLowerCase()))
+      song.artist.toLowerCase().includes(search.toLowerCase()))
   );
 
   const getSongById = (id: number) => songs.find(s => s.id === id);
@@ -138,6 +140,16 @@ export default function CreateSetlistPage() {
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g., 143 W. Park Ave."
               className="w-full bg-white border border-primary/20 rounded-lg px-3 py-2"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium mb-1">Bible Verse (for pamphlet back)</label>
+            <textarea
+              value={bibleVerse}
+              onChange={(e) => setBibleVerse(e.target.value)}
+              placeholder="e.g., John 3:16 - For God so loved the world..."
+              rows={3}
+              className="w-full bg-white border border-primary/20 rounded-lg px-3 py-2 resize-none"
             />
           </div>
         </div>

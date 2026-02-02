@@ -115,6 +115,7 @@ function setlistToAirtable(setlist: Setlist): airtable.AirtableSetlist['fields']
     date: setlist.date,
     time: setlist.time,
     location: setlist.location,
+    bibleVerse: setlist.bibleVerse,
     songs: JSON.stringify(setlist.songs),
     createdAt: setlist.createdAt.toISOString(),
     updatedAt: setlist.updatedAt.toISOString(),
@@ -129,6 +130,7 @@ function airtableToSetlist(record: airtable.AirtableSetlist): Omit<Setlist, 'id'
     date: record.fields.date,
     time: record.fields.time,
     location: record.fields.location,
+    bibleVerse: record.fields.bibleVerse,
     songs: JSON.parse(record.fields.songs || '[]'),
     createdAt: new Date(record.fields.createdAt),
     updatedAt: new Date(record.fields.updatedAt),
@@ -214,16 +216,20 @@ export async function deleteSetlistFromAirtable(localId: number): Promise<void> 
 }
 
 // Pull all songs from Airtable and update local database
-export async function pullSongsFromAirtable(): Promise<{ added: number; updated: number }> {
+export async function pullSongsFromAirtable(): Promise<{ added: number; updated: number; deleted: number }> {
   if (!airtable.isAirtableConfigured()) {
-    return { added: 0, updated: 0 };
+    return { added: 0, updated: 0, deleted: 0 };
   }
 
   let added = 0;
   let updated = 0;
+  let deleted = 0;
 
   try {
     const remoteSongs = await airtable.fetchAllSongs();
+
+    // Build a set of Airtable IDs from remote for quick lookup
+    const remoteAirtableIds = new Set(remoteSongs.map(s => s.id));
 
     for (const remoteSong of remoteSongs) {
       const localSong = airtableToSong(remoteSong);
@@ -261,25 +267,43 @@ export async function pullSongsFromAirtable(): Promise<{ added: number; updated:
         added++;
       }
     }
+
+    // Delete local songs that no longer exist in Airtable
+    const localSongs = await db.songs.toArray();
+    for (const localSong of localSongs) {
+      if (!localSong.id) continue;
+
+      const airtableId = await SyncDB.getAirtableId('songs', localSong.id);
+      if (airtableId && !remoteAirtableIds.has(airtableId)) {
+        // This song was synced to Airtable but no longer exists there - delete locally
+        await db.songs.delete(localSong.id);
+        await SyncDB.removeAirtableId('songs', localSong.id);
+        deleted++;
+      }
+    }
   } catch (error) {
     console.error('Failed to pull songs from Airtable:', error);
     throw error;
   }
 
-  return { added, updated };
+  return { added, updated, deleted };
 }
 
 // Pull all setlists from Airtable and update local database
-export async function pullSetlistsFromAirtable(): Promise<{ added: number; updated: number }> {
+export async function pullSetlistsFromAirtable(): Promise<{ added: number; updated: number; deleted: number }> {
   if (!airtable.isAirtableConfigured()) {
-    return { added: 0, updated: 0 };
+    return { added: 0, updated: 0, deleted: 0 };
   }
 
   let added = 0;
   let updated = 0;
+  let deleted = 0;
 
   try {
     const remoteSetlists = await airtable.fetchAllSetlists();
+
+    // Build a set of Airtable IDs from remote for quick lookup
+    const remoteAirtableIds = new Set(remoteSetlists.map(s => s.id));
 
     for (const remoteSetlist of remoteSetlists) {
       const localSetlist = airtableToSetlist(remoteSetlist);
@@ -317,12 +341,26 @@ export async function pullSetlistsFromAirtable(): Promise<{ added: number; updat
         added++;
       }
     }
+
+    // Delete local setlists that no longer exist in Airtable
+    const localSetlists = await db.setlists.toArray();
+    for (const localSetlist of localSetlists) {
+      if (!localSetlist.id) continue;
+
+      const airtableId = await SyncDB.getAirtableId('setlists', localSetlist.id);
+      if (airtableId && !remoteAirtableIds.has(airtableId)) {
+        // This setlist was synced to Airtable but no longer exists there - delete locally
+        await db.setlists.delete(localSetlist.id);
+        await SyncDB.removeAirtableId('setlists', localSetlist.id);
+        deleted++;
+      }
+    }
   } catch (error) {
     console.error('Failed to pull setlists from Airtable:', error);
     throw error;
   }
 
-  return { added, updated };
+  return { added, updated, deleted };
 }
 
 // Push all local songs to Airtable
@@ -373,13 +411,13 @@ export async function pushAllSetlistsToAirtable(): Promise<{ synced: number }> {
 
 // Full sync - pull then push
 export async function fullSync(): Promise<{
-  songs: { added: number; updated: number; pushed: number };
-  setlists: { added: number; updated: number; pushed: number };
+  songs: { added: number; updated: number; deleted: number; pushed: number };
+  setlists: { added: number; updated: number; deleted: number; pushed: number };
 }> {
   if (!airtable.isAirtableConfigured()) {
     return {
-      songs: { added: 0, updated: 0, pushed: 0 },
-      setlists: { added: 0, updated: 0, pushed: 0 },
+      songs: { added: 0, updated: 0, deleted: 0, pushed: 0 },
+      setlists: { added: 0, updated: 0, deleted: 0, pushed: 0 },
     };
   }
 

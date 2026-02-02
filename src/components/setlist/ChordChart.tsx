@@ -93,6 +93,7 @@ function ChordLineDisplay({ line, getDisplayChord }: ChordLineDisplayProps) {
 }
 
 // Build a chord line string with proper spacing, preventing overlaps
+// If chord positions are beyond lyrics length, redistribute them proportionally
 function buildChordLine(
   chords: { chord: string; position: number }[],
   lyricLength: number,
@@ -103,16 +104,34 @@ function buildChordLine(
   // Sort chords by position
   const sortedChords = [...chords].sort((a, b) => a.position - b.position);
 
+  // Check if any chord position is beyond lyrics length - if so, redistribute
+  const maxStoredPos = Math.max(...sortedChords.map(c => c.position));
+  const needsRedistribution = maxStoredPos >= lyricLength && lyricLength > 0;
+
   // Build chord placements, pushing right if overlap would occur
   const placements: { chord: string; position: number }[] = [];
   let nextAvailablePosition = 0;
   const MIN_GAP = 1; // Minimum space between chords
 
-  for (const { chord, position } of sortedChords) {
+  for (let i = 0; i < sortedChords.length; i++) {
+    const { chord, position } = sortedChords[i];
     const displayChord = getDisplayChord(chord);
 
+    let targetPosition: number;
+    if (needsRedistribution) {
+      // Redistribute: spread chords evenly across the lyrics
+      if (sortedChords.length === 1) {
+        targetPosition = 0;
+      } else {
+        const maxDisplayPos = Math.max(0, lyricLength - displayChord.length);
+        targetPosition = Math.round((i / (sortedChords.length - 1)) * maxDisplayPos);
+      }
+    } else {
+      targetPosition = position;
+    }
+
     // Determine actual position (push right if would overlap)
-    const actualPosition = Math.max(position, nextAvailablePosition);
+    const actualPosition = Math.max(targetPosition, nextAvailablePosition);
 
     placements.push({ chord: displayChord, position: actualPosition });
 

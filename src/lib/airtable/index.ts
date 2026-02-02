@@ -27,6 +27,7 @@ export interface AirtableSetlist {
     date: string;
     time: string;
     location: string;
+    bibleVerse?: string;
     songs: string; // JSON stringified SetlistSong[]
     createdAt: string;
     updatedAt: string;
