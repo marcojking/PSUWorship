@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import type { Section } from '@/lib/db';
-import { getWordBoundaries, getPositionForWordIndex, mergeChordAtPosition } from '@/lib/lyrics/parser';
+import { mergeChordAtPosition } from '@/lib/lyrics/parser';
 import EditableLyricsLine from './EditableLyricsLine';
 import ChordPicker from './ChordPicker';
 
@@ -16,12 +16,11 @@ interface VisualChordEditorProps {
   onChange: (sections: Section[]) => void;
 }
 
-interface ActiveWord {
+interface ActiveChord {
   sectionIndex: number;
   lineIndex: number;
-  wordIndex: number;
+  position: number; // Character position (or beat index for instrumental)
   screenPosition: { x: number; y: number };
-  isBeatMode?: boolean; // true when clicking on beat markers in instrumental sections
 }
 
 export default function VisualChordEditor({
@@ -29,7 +28,7 @@ export default function VisualChordEditor({
   songKey,
   onChange,
 }: VisualChordEditorProps) {
-  const [activeWord, setActiveWord] = useState<ActiveWord | null>(null);
+  const [activeChord, setActiveChord] = useState<ActiveChord | null>(null);
 
   // Collect all chords used in the song for "recent" suggestions
   const recentChords = useMemo(() => {
@@ -44,90 +43,61 @@ export default function VisualChordEditor({
     return Array.from(chords);
   }, [sections]);
 
-  // Get current chord at active word/beat position
+  // Get current chord at active position
   const getCurrentChord = useCallback((): string | null => {
-    if (!activeWord) return null;
+    if (!activeChord) return null;
 
-    const section = sections[activeWord.sectionIndex];
+    const section = sections[activeChord.sectionIndex];
     if (!section) return null;
 
-    const line = section.lines[activeWord.lineIndex];
+    const line = section.lines[activeChord.lineIndex];
     if (!line) return null;
 
-    // In beat mode, wordIndex IS the position directly
-    if (activeWord.isBeatMode) {
-      const chord = line.chords.find(c => c.position === activeWord.wordIndex);
-      return chord?.chord || null;
-    }
-
-    // In word mode, convert word index to character position
-    const position = getPositionForWordIndex(activeWord.wordIndex, line.lyrics);
-    const chord = line.chords.find(c => c.position === position);
-
+    const chord = line.chords.find(c => c.position === activeChord.position);
     return chord?.chord || null;
-  }, [activeWord, sections]);
+  }, [activeChord, sections]);
 
-  // Handle word click - open chord picker (lyrics mode)
-  const handleWordClick = useCallback((
+  // Handle click on lyrics/chord line - open chord picker
+  const handleChordClick = useCallback((
     sectionIndex: number,
     lineIndex: number,
-    wordIndex: number,
+    position: number,
     screenPosition: { x: number; y: number }
   ) => {
-    setActiveWord({ sectionIndex, lineIndex, wordIndex, screenPosition, isBeatMode: false });
-  }, []);
-
-  // Handle beat click - open chord picker (instrumental mode)
-  const handleBeatClick = useCallback((
-    sectionIndex: number,
-    lineIndex: number,
-    beatIndex: number,
-    screenPosition: { x: number; y: number }
-  ) => {
-    setActiveWord({ sectionIndex, lineIndex, wordIndex: beatIndex, screenPosition, isBeatMode: true });
+    setActiveChord({ sectionIndex, lineIndex, position, screenPosition });
   }, []);
 
   // Handle chord selection from picker
   const handleChordSelect = useCallback((chord: string) => {
-    if (!activeWord) return;
+    if (!activeChord) return;
 
     const newSections = [...sections];
-    const section = newSections[activeWord.sectionIndex];
-    const line = section.lines[activeWord.lineIndex];
+    const section = newSections[activeChord.sectionIndex];
+    const line = section.lines[activeChord.lineIndex];
 
-    // In beat mode, wordIndex IS the position directly
-    const position = activeWord.isBeatMode
-      ? activeWord.wordIndex
-      : getPositionForWordIndex(activeWord.wordIndex, line.lyrics);
-
-    line.chords = mergeChordAtPosition(line.chords, chord, position);
+    line.chords = mergeChordAtPosition(line.chords, chord, activeChord.position);
 
     onChange(newSections);
-    setActiveWord(null);
-  }, [activeWord, sections, onChange]);
+    setActiveChord(null);
+  }, [activeChord, sections, onChange]);
 
   // Handle chord removal
   const handleChordRemove = useCallback(() => {
-    if (!activeWord) return;
+    if (!activeChord) return;
 
     const newSections = [...sections];
-    const section = newSections[activeWord.sectionIndex];
-    const line = section.lines[activeWord.lineIndex];
+    const section = newSections[activeChord.sectionIndex];
+    const line = section.lines[activeChord.lineIndex];
 
-    // In beat mode, wordIndex IS the position directly
-    const position = activeWord.isBeatMode
-      ? activeWord.wordIndex
-      : getPositionForWordIndex(activeWord.wordIndex, line.lyrics);
-
-    line.chords = mergeChordAtPosition(line.chords, '', position);
+    line.chords = mergeChordAtPosition(line.chords, '', activeChord.position);
 
     onChange(newSections);
-    setActiveWord(null);
-  }, [activeWord, sections, onChange]);
+    setActiveChord(null);
+  }, [activeChord, sections, onChange]);
 
   // Close chord picker
   const handleClosePicker = useCallback(() => {
-    setActiveWord(null);
+    setActiveChord(null);
   }, []);
 
   // Section management
@@ -170,23 +140,11 @@ export default function VisualChordEditor({
     const newSections = [...sections];
     const line = newSections[sectionIndex].lines[lineIndex];
 
-    // When lyrics change, we need to re-map chord positions to new word boundaries
-    const oldBoundaries = getWordBoundaries(line.lyrics);
-    const newBoundaries = getWordBoundaries(lyrics);
-
-    // Try to preserve chords by matching word indices
-    const newChords: { chord: string; position: number }[] = [];
-    for (const chord of line.chords) {
-      // Find which old word this chord was on
-      const oldWordIndex = oldBoundaries.findIndex(b => b.start === chord.position);
-      if (oldWordIndex !== -1 && oldWordIndex < newBoundaries.length) {
-        // Map to same word index in new lyrics
-        newChords.push({
-          chord: chord.chord,
-          position: newBoundaries[oldWordIndex].start
-        });
-      }
-    }
+    // Keep chords that are still within the new lyrics length
+    // (or keep all if new lyrics is longer)
+    const newChords = line.chords.filter(chord =>
+      chord.position < lyrics.length || lyrics.length >= line.lyrics.length
+    );
 
     line.lyrics = lyrics;
     line.chords = newChords;
@@ -203,7 +161,7 @@ export default function VisualChordEditor({
     <div className="space-y-4">
       {/* Instructions */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
-        <strong>Tip:</strong> Click on any word to place a chord above it. For instrumental sections (intro/outro/instrumental), click on beat markers to place chords with bar lines.
+        <strong>Tip:</strong> Click anywhere on the lyrics or chord line to place/edit a chord at that position. For instrumental sections, click on beat markers.
       </div>
 
       {/* Sections */}
@@ -270,15 +228,12 @@ export default function VisualChordEditor({
                       <EditableLyricsLine
                         lyrics={line.lyrics}
                         chords={line.chords}
-                        onWordClick={(wordIndex, screenPosition) =>
-                          handleWordClick(sIdx, lIdx, wordIndex, screenPosition)
+                        onChordClick={(position, screenPosition) =>
+                          handleChordClick(sIdx, lIdx, position, screenPosition)
                         }
-                        onBeatClick={(beatIndex, screenPosition) =>
-                          handleBeatClick(sIdx, lIdx, beatIndex, screenPosition)
-                        }
-                        activeWordIndex={
-                          activeWord?.sectionIndex === sIdx && activeWord?.lineIndex === lIdx
-                            ? activeWord.wordIndex
+                        activePosition={
+                          activeChord?.sectionIndex === sIdx && activeChord?.lineIndex === lIdx
+                            ? activeChord.position
                             : null
                         }
                         isInstrumental={showBeatMarkers}
@@ -291,7 +246,7 @@ export default function VisualChordEditor({
                           value={line.lyrics}
                           onChange={(e) => updateLineLyrics(sIdx, lIdx, e.target.value)}
                           placeholder={isInstrumentalSection ? "Add lyrics (optional) or leave empty for beat markers" : "Enter lyrics..."}
-                          className="w-full mt-1 bg-primary/5 border-0 rounded px-2 py-1 text-sm"
+                          className="w-full mt-1 bg-primary/5 border-0 rounded px-2 py-1 text-sm font-mono"
                         />
                       )}
                       {showBeatMarkers && (
@@ -338,12 +293,12 @@ export default function VisualChordEditor({
       </button>
 
       {/* Chord Picker (portal-style, positioned absolutely) */}
-      {activeWord && (
+      {activeChord && (
         <ChordPicker
           songKey={songKey}
           currentChord={getCurrentChord()}
           recentChords={recentChords}
-          position={activeWord.screenPosition}
+          position={activeChord.screenPosition}
           onSelect={handleChordSelect}
           onRemove={handleChordRemove}
           onClose={handleClosePicker}

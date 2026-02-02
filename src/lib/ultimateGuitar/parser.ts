@@ -1,5 +1,4 @@
 import type { Section, ChordLine, ChordPosition } from '../db';
-import { getWordBoundaries, snapToWordBoundary } from '../lyrics/parser';
 
 interface UGParseResult {
   title: string;
@@ -198,9 +197,9 @@ export function parseUGContent(
 }
 
 /**
- * Map chord positions from the chord line to word boundaries in the lyrics.
- * The chord line positions represent spacing, but the editor needs positions
- * at word starts in the lyrics for proper display and editing.
+ * Map chord positions from the chord line to the lyrics line.
+ * The chord line positions represent spacing in the chord line,
+ * so we map them proportionally to the lyrics length.
  */
 function mapChordsToLyrics(
   chords: ChordPosition[],
@@ -210,44 +209,33 @@ function mapChordsToLyrics(
     return chords;
   }
 
-  const wordBoundaries = getWordBoundaries(lyrics);
-  if (wordBoundaries.length === 0) {
-    return chords;
-  }
+  // Find the max position in the chord line to use as reference
+  const maxChordPos = Math.max(...chords.map(c => c.position), 0);
+  const chordLineLength = maxChordPos + 1;
+
+  // If lyrics are longer than chord line positions, use lyrics length as reference
+  // Otherwise scale proportionally
+  const scaleFactor = lyrics.length > chordLineLength
+    ? 1
+    : lyrics.length / Math.max(chordLineLength, 1);
 
   const mappedChords: ChordPosition[] = [];
   const usedPositions = new Set<number>();
 
   for (const chord of chords) {
-    // Map the chord's position proportionally from the chord line to the lyrics
-    // Use the position relative to a max reasonable line length
-    const maxChordLineLength = Math.max(
-      ...chords.map(c => c.position),
-      lyrics.length
-    ) + 1;
-    const proportionalPos = Math.round(
-      (chord.position / maxChordLineLength) * lyrics.length
-    );
+    // Map position proportionally, clamped to lyrics length
+    let mappedPos = Math.round(chord.position * scaleFactor);
+    mappedPos = Math.min(mappedPos, Math.max(0, lyrics.length - 1));
 
-    // Snap to the nearest word boundary
-    const snappedPos = snapToWordBoundary(proportionalPos, lyrics);
-
-    // Avoid duplicate positions - if already used, try to find the next word
-    let finalPos = snappedPos;
-    if (usedPositions.has(finalPos)) {
-      // Find the next available word boundary
-      const nextWord = wordBoundaries.find(
-        w => w.start > finalPos && !usedPositions.has(w.start)
-      );
-      if (nextWord) {
-        finalPos = nextWord.start;
-      }
+    // Avoid duplicate positions - shift right if needed
+    while (usedPositions.has(mappedPos) && mappedPos < lyrics.length) {
+      mappedPos++;
     }
 
-    usedPositions.add(finalPos);
+    usedPositions.add(mappedPos);
     mappedChords.push({
       chord: chord.chord,
-      position: finalPos,
+      position: mappedPos,
     });
   }
 
