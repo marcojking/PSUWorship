@@ -25,7 +25,7 @@ export default function ProductCard({
   const [phase, setPhase] = useState<"idle" | "hovering" | "slideshow">("idle");
   const [slideIndex, setSlideIndex] = useState(0);
   const [glarePos, setGlarePos] = useState({ x: 50, y: 50 });
-  const delayRef = useRef<ReturnType<typeof setTimeout>>();
+  const delayRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const hovering = phase !== "idle";
   const showSlideshow = phase === "slideshow" && hasSlideshow;
