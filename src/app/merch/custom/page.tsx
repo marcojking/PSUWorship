@@ -125,7 +125,7 @@ function CustomizeEditor() {
   const handleAddToCart = () => {
     const clothingLabel = selectedClothing?.name ?? "Custom Item";
     addItem({
-      type: "embroidered",
+      type: "embroidery",
       name: `Embroidered ${clothingLabel}`,
       clothingItemId: selectedClothingId ?? undefined,
       placements: designConfigs.map((c) => ({
