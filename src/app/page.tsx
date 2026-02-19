@@ -13,6 +13,14 @@ const HarmonyIcon = () => (
   </svg>
 );
 
+// SVG icon for Merch Store - shopping tag
+const MerchIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 sm:w-10 sm:h-10">
+    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="#fff7eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <circle cx="7" cy="7" r="1.5" fill="#fff7eb" />
+  </svg>
+);
+
 // SVG icon for Setlist Manager - document with lines
 const SetlistIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 sm:w-10 sm:h-10">
@@ -38,6 +46,14 @@ const tools = [
     description: 'Import chord charts, build setlists, and export for worship nights',
     icon: <SetlistIcon />,
     href: '/setlist',
+    color: 'bg-primary',
+  },
+  {
+    id: 'merch',
+    title: 'Merch Store',
+    description: 'Patches, stickers, and custom embroidered gear',
+    icon: <MerchIcon />,
+    href: '/merch',
     color: 'bg-primary',
   },
 ];
@@ -88,7 +104,7 @@ export default function HomePage() {
         </div>
 
         {/* Coming Soon placeholder */}
-        <div className="mt-8 p-6 border-2 border-dashed border-primary/20 rounded-2xl text-center">
+        <div className="mt-6 p-4 border-2 border-dashed border-primary/20 rounded-2xl text-center">
           <p className="text-sm opacity-40">More tools coming soon...</p>
         </div>
       </main>

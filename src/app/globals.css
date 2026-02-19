@@ -13,6 +13,10 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
   --font-sans: var(--font-source-sans);
 }
 
@@ -32,6 +36,30 @@ html, body {
 html:has(.setlist-page), body:has(.setlist-page) {
   overflow: auto;
   position: static;
+}
+
+/* ── Merch Store Theme ── */
+.merch-theme {
+  --background: #1a1714;
+  --foreground: #f5ead6;
+  --primary: #f5ead6;
+  --secondary: #c4793a;
+  --accent: #8b7355;
+  --card: #242019;
+  --border: #3a3228;
+  --muted: #968a78;
+}
+
+html:has(.merch-theme), body:has(.merch-theme) {
+  overflow: auto;
+  position: static;
+  background: #1a1714;
+  color: #f5ead6;
+}
+
+.merch-theme ::selection {
+  background: #c4793a;
+  color: #1a1714;
 }
 
 /* Mobile-specific fixes */
