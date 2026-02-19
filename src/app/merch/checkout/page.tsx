@@ -128,162 +128,26 @@ export default function CheckoutPage() {
         </div>
       </section>
 
-      {/* Email */}
-      <section className="mb-6">
-        <label className="mb-1 block text-sm font-medium">Email</label>
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
-          className={inputCls}
-        />
+      {/* Coming soon notice */}
+      <section className="mb-8">
+        <StickyNote rotation={-1}>
+          <p className="font-medium">Almost there!</p>
+          <p className="mt-1">
+            We&apos;re putting a couple of finishing touches on the store before
+            accepting orders. This should be ready in the next couple of days!
+          </p>
+          <p className="mt-2 text-xs text-[#968a78]">
+            In the meantime, your cart is saved so you won&apos;t lose anything.
+          </p>
+        </StickyNote>
       </section>
 
-      {/* Delivery type */}
-      <section className="mb-6">
-        <label className="mb-3 block text-sm font-medium">Delivery</label>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setDeliveryType("shipping")}
-            className={`flex-1 rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
-              deliveryType === "shipping"
-                ? "border-secondary bg-secondary/10 text-secondary"
-                : "border-border text-muted hover:border-secondary/40"
-            }`}
-          >
-            Ship to me
-          </button>
-          <button
-            onClick={() => setDeliveryType("local_pickup")}
-            className={`flex-1 rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
-              deliveryType === "local_pickup"
-                ? "border-secondary bg-secondary/10 text-secondary"
-                : "border-border text-muted hover:border-secondary/40"
-            }`}
-          >
-            Local Pickup
-          </button>
-        </div>
-
-        {deliveryType === "local_pickup" && (
-          <div className="mt-4 max-w-xs">
-            <StickyNote rotation={1}>
-              <p className="text-sm">
-                Sweet! I&apos;ll reach out to coordinate pickup in State College.
-              </p>
-            </StickyNote>
-          </div>
-        )}
-      </section>
-
-      {/* Shipping address */}
-      {deliveryType === "shipping" && (
-        <section className="mb-6">
-          <label className="mb-3 block text-sm font-medium">
-            Shipping Address
-          </label>
-          <div className="space-y-3">
-            <input value={address.name} onChange={(e) => setAddress((a) => ({ ...a, name: e.target.value }))} placeholder="Full name" className={inputCls} />
-            <input value={address.line1} onChange={(e) => setAddress((a) => ({ ...a, line1: e.target.value }))} placeholder="Address line 1" className={inputCls} />
-            <input value={address.line2} onChange={(e) => setAddress((a) => ({ ...a, line2: e.target.value }))} placeholder="Address line 2 (optional)" className={inputCls} />
-            <div className="grid grid-cols-3 gap-3">
-              <input value={address.city} onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))} placeholder="City" className={inputCls} />
-              <input value={address.state} onChange={(e) => setAddress((a) => ({ ...a, state: e.target.value }))} placeholder="State" className={inputCls} />
-              <input value={address.postalCode} onChange={(e) => setAddress((a) => ({ ...a, postalCode: e.target.value }))} placeholder="ZIP" className={inputCls} />
-            </div>
-            <button
-              onClick={fetchShippingRates}
-              disabled={loadingRates || !address.line1 || !address.city}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:border-secondary/40 disabled:opacity-50"
-            >
-              {loadingRates ? "Calculating..." : "Calculate Shipping"}
-            </button>
-          </div>
-
-          {/* Shipping rates */}
-          {shippingRates.length > 0 && (
-            <div className="mt-4 space-y-2">
-              {shippingRates.map((rate) => (
-                <label
-                  key={rate.id}
-                  className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                    selectedRate === rate.id
-                      ? "border-secondary bg-secondary/10"
-                      : "border-border hover:border-secondary/40"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      checked={selectedRate === rate.id}
-                      onChange={() => setSelectedRate(rate.id)}
-                      className="accent-secondary"
-                    />
-                    <div>
-                      <span className="text-sm font-medium">{rate.carrier} — {rate.service}</span>
-                      <span className="block text-xs text-muted">{rate.days}</span>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium">
-                    ${(rate.amount / 100).toFixed(2)}
-                  </span>
-                </label>
-              ))}
-            </div>
-          )}
-
-          {/* Sticky note about local pickup */}
-          <div className="mt-4 max-w-xs">
-            <StickyNote rotation={-1.5}>
-              <p className="text-xs">
-                Live in State College or going to see Marco around? Switch to
-                &quot;Local Pickup&quot; above and save on shipping!
-              </p>
-            </StickyNote>
-          </div>
-        </section>
-      )}
-
-      {/* Total & Pay */}
-      <section className="rounded-xl border border-border bg-card p-4">
-        <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-muted">Subtotal</span>
-          <span>${(total / 100).toFixed(2)}</span>
-        </div>
-        <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-muted">Shipping</span>
-          <span>
-            {deliveryType === "local_pickup"
-              ? "Free"
-              : shippingCost > 0
-                ? `$${(shippingCost / 100).toFixed(2)}`
-                : "—"}
-          </span>
-        </div>
-        <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-muted">Tax</span>
-          <span className="text-xs text-muted">Calculated by Stripe</span>
-        </div>
-        <div className="mt-3 flex items-center justify-between border-t border-border pt-3 text-lg font-bold">
-          <span>Total</span>
-          <span>${(grandTotal / 100).toFixed(2)}+tax</span>
-        </div>
-
-        <button
-          onClick={handleCheckout}
-          disabled={
-            submitting ||
-            !email ||
-            (deliveryType === "shipping" && (!selectedRate || !address.line1))
-          }
-          className="mt-4 w-full rounded-lg bg-secondary py-3 font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
-          {submitting ? "Redirecting to payment..." : "Pay with Stripe"}
-        </button>
-      </section>
+      <Link
+        href="/merch"
+        className="block w-full rounded-lg border border-border py-3 text-center text-sm font-medium transition-colors hover:border-secondary/40"
+      >
+        ← Keep Browsing
+      </Link>
     </div>
   );
 }
