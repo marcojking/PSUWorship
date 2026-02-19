@@ -113,20 +113,15 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
       </Link>
 
       <div className="grid gap-8 md:grid-cols-2">
-        {/* Left: Hero tilt card — image swaps with selected tab */}
+        {/* Left: Hero tilt card — alpha channel defines shape, same as catalog */}
         <div>
-          <TiltCard maxTilt={12}>
-            <div className="aspect-square overflow-hidden rounded-2xl bg-card">
+          <TiltCard maxTilt={12} shaped>
+            <div className="relative aspect-square">
               {heroImageUrl ? (
                 <img
                   src={heroImageUrl}
                   alt={design.name}
-                  className="h-full w-full object-contain p-6 transition-opacity duration-300"
-                  style={
-                    design.shapePath && activeType !== "embroidery"
-                      ? { clipPath: `path("${design.shapePath}")` }
-                      : undefined
-                  }
+                  className="absolute inset-0 h-full w-full object-contain transition-opacity duration-300"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-muted">
