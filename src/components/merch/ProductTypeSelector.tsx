@@ -112,18 +112,21 @@ export default function ProductTypeSelector({
           </div>
         )}
 
-        {/* Patch */}
+        {/* Patch — customize flow */}
         {active === "patch" && availableTypes.patch && (
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold">
+          <div>
+            <p className="mb-4 text-2xl font-bold">
               ${(availableTypes.patch.price / 100).toFixed(2)}
-            </span>
-            <button
-              onClick={() => onAddToCart("patch", availableTypes.patch!.price)}
-              className="rounded-lg bg-secondary px-6 py-2.5 font-medium text-background transition-opacity hover:opacity-90"
+            </p>
+            <Link
+              href={`/merch/custom?design=${designId}&type=patch`}
+              className="block w-full rounded-lg bg-secondary py-2.5 text-center font-medium text-background transition-opacity hover:opacity-90"
             >
-              Add to Cart
-            </button>
+              Customize →
+            </Link>
+            <p className="mt-2 text-center text-xs text-muted">
+              Choose placement and preview before ordering
+            </p>
           </div>
         )}
 

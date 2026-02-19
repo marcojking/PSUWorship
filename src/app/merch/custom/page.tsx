@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "convex/react";
@@ -175,26 +177,28 @@ function CustomizeEditor() {
               ))}
             </div>
 
-            {/* Or upload your own */}
-            <div className="max-w-sm">
-              <ImageUpload
-                label="Upload your own clothing"
-                onUpload={(file, previewUrl) => {
-                  setUploadedClothing({ file, previewUrl });
-                  setSelectedClothingId(null);
-                }}
-              />
-              {uploadedClothing && (
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="h-12 w-12 overflow-hidden rounded-lg border border-secondary bg-card">
-                    <img src={uploadedClothing.previewUrl} alt="Your clothing" className="h-full w-full object-contain" />
-                  </div>
-                  <span className="text-sm text-secondary">Your upload selected</span>
-                  <span className="text-xs text-muted">
-                    (base: ${(defaultBasePrice / 100).toFixed(2)})
-                  </span>
-                </div>
-              )}
+            {/* Upload your own — coming soon */}
+            <div className="relative max-w-sm select-none">
+              <div className="pointer-events-none opacity-40">
+                <ImageUpload
+                  label="Upload your own clothing"
+                  onUpload={() => {}}
+                />
+              </div>
+              {/* Hand-stamped "Coming Soon" badge */}
+              <div
+                className="absolute inset-0 flex items-center justify-center"
+                style={{ transform: "rotate(-6deg)" }}
+              >
+                <span
+                  className="rounded-sm border-2 border-dashed border-secondary px-4 py-1.5 text-sm font-bold uppercase tracking-widest text-secondary"
+                  style={{
+                    textShadow: "0 0 8px rgba(196, 121, 58, 0.3)",
+                  }}
+                >
+                  Coming Soon
+                </span>
+              </div>
             </div>
           </>
         )}

@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { use, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -7,6 +9,7 @@ import { Id } from "../../../../convex/_generated/dataModel";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import TiltCard from "@/components/merch/TiltCard";
 import ProductTypeSelector, { type ProductType } from "@/components/merch/ProductTypeSelector";
+import { useCart } from "@/lib/merch/cart";
 import Link from "next/link";
 
 export default function DesignDetailPage({
@@ -40,6 +43,7 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
 
   // Must be before early returns — hooks can't be conditional
   const [activeType, setActiveType] = useState<ProductType>("sticker");
+  const { addItem } = useCart();
 
   if (!design) {
     return (
@@ -92,7 +96,13 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
         : mainImageUrl;
 
   const handleAddToCart = (type: ProductType, price: number) => {
-    console.log("Add to cart:", { designId, type, price });
+    addItem({
+      type,
+      designId,
+      name: `${design.name} — ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+      quantity: 1,
+      unitPrice: price,
+    });
   };
 
   return (

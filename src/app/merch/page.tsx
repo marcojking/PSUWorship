@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -48,12 +50,29 @@ function MerchCatalog() {
         <section className="py-12">
           <h2 className="mb-8 text-2xl font-semibold">The Workshop</h2>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-            {/* Featured one-off: Cross Ring */}
-            <Ring3DCard
-              name="Double Cross Ring"
-              price={1499}
-              href="/merch/product/cross-ring"
-            />
+            {/* Featured one-off: Cross Ring — coming soon */}
+            <div className="relative select-none">
+              <div className="pointer-events-none">
+                <Ring3DCard
+                  name="Double Cross Ring"
+                  price={1499}
+                  href="/merch/product/cross-ring"
+                />
+              </div>
+              <div
+                className="absolute inset-0 flex items-center justify-center rounded-2xl"
+                style={{ transform: "rotate(-8deg)" }}
+              >
+                <span
+                  className="rounded-sm border-2 border-dashed border-secondary px-5 py-2 text-sm font-bold uppercase tracking-widest text-secondary backdrop-blur-sm"
+                  style={{
+                    textShadow: "0 0 8px rgba(196, 121, 58, 0.3)",
+                  }}
+                >
+                  Coming Soon
+                </span>
+              </div>
+            </div>
             {products?.map((product) => (
               <StandaloneCardWrapper key={product._id} product={product} />
             ))}
