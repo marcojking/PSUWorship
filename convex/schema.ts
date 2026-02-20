@@ -26,7 +26,11 @@ export default defineSchema({
     patchImageStorageId: v.optional(v.id("_storage")),
     embroideryImageStorageId: v.optional(v.id("_storage")),
 
-    mockupStorageIds: v.optional(v.array(v.id("_storage"))), // hover slideshow photos
+    // Per-type slideshow / mockup images
+    mockupStorageIds: v.optional(v.array(v.id("_storage"))),           // legacy
+    stickerMockupIds: v.optional(v.array(v.id("_storage"))),
+    patchMockupIds: v.optional(v.array(v.id("_storage"))),
+    embroideryMockupIds: v.optional(v.array(v.id("_storage"))),
 
     // Legacy field — kept so existing documents don't fail validation
     embroideryStickerPrice: v.optional(v.number()),

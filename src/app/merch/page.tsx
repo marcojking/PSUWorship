@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
@@ -27,6 +26,7 @@ function MerchCatalog() {
       {/* Parallax hero */}
       <HeroCollage />
 
+      <div className="relative bg-background" style={{ zIndex: 1 }}>
       <div className="mx-auto max-w-6xl px-4">
         {/* Designs section */}
         <section className="py-12">
@@ -95,25 +95,9 @@ function MerchCatalog() {
           </div>
         </section>
       </div>
+      </div>
     </div>
   );
-}
-
-/** Resolves a single storage ID to a URL — used to build hoverImages array */
-function MockupUrlResolver({
-  storageId,
-  onResolved,
-}: {
-  storageId: Id<"_storage">;
-  onResolved: (url: string) => void;
-}) {
-  const url = useQuery(api.storage.getUrl, { storageId });
-  const cbRef = useRef(onResolved);
-  cbRef.current = onResolved;
-  useEffect(() => {
-    if (url) cbRef.current(url);
-  }, [url]);
-  return null;
 }
 
 /** Wrapper to resolve design image URL from Convex storage */
@@ -126,6 +110,9 @@ function DesignCardWrapper({
     imageStorageId: Id<"_storage">;
     shapePath?: string;
     mockupStorageIds?: Id<"_storage">[];
+    stickerMockupIds?: Id<"_storage">[];
+    patchMockupIds?: Id<"_storage">[];
+    embroideryMockupIds?: Id<"_storage">[];
     stickerEnabled?: boolean;
     patchEnabled?: boolean;
     embroideryEnabled?: boolean;
@@ -137,7 +124,20 @@ function DesignCardWrapper({
   const imageUrl = useQuery(api.storage.getUrl, {
     storageId: design.imageStorageId,
   });
-  const [hoverImages, setHoverImages] = useState<string[]>([]);
+
+  // Combine all per-type mockup IDs + legacy field
+  const allMockupIds = [
+    ...(design.stickerMockupIds ?? []),
+    ...(design.patchMockupIds ?? []),
+    ...(design.embroideryMockupIds ?? []),
+    ...(design.mockupStorageIds ?? []),
+  ];
+
+  // Single batch query to resolve all mockup URLs
+  const hoverImages = useQuery(
+    api.storage.getUrls,
+    allMockupIds.length > 0 ? { storageIds: allMockupIds } : "skip",
+  ) ?? [];
 
   if (!imageUrl) return <div className="aspect-square animate-pulse rounded-2xl bg-card" />;
 
@@ -149,30 +149,14 @@ function DesignCardWrapper({
   const startingPrice = enabledPrices.length > 0 ? Math.min(...enabledPrices) : design.stickerPrice;
 
   return (
-    <>
-      {/* Resolve each mockup storage ID to a URL in the background */}
-      {(design.mockupStorageIds ?? []).map((sid, i) => (
-        <MockupUrlResolver
-          key={sid}
-          storageId={sid}
-          onResolved={(url) =>
-            setHoverImages((prev) => {
-              const next = [...prev];
-              next[i] = url;
-              return next.filter(Boolean);
-            })
-          }
-        />
-      ))}
-      <ProductCard
-        id={design._id}
-        name={design.name}
-        imageUrl={imageUrl}
-        shapePath={design.shapePath}
-        startingPrice={startingPrice}
-        hoverImages={hoverImages}
-      />
-    </>
+    <ProductCard
+      id={design._id}
+      name={design.name}
+      imageUrl={imageUrl}
+      shapePath={design.shapePath}
+      startingPrice={startingPrice}
+      hoverImages={hoverImages}
+    />
   );
 }
 

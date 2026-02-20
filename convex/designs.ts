@@ -79,6 +79,9 @@ export const update = mutation({
     patchImageStorageId: v.optional(v.id("_storage")),
     embroideryImageStorageId: v.optional(v.id("_storage")),
     mockupStorageIds: v.optional(v.array(v.id("_storage"))),
+    stickerMockupIds: v.optional(v.array(v.id("_storage"))),
+    patchMockupIds: v.optional(v.array(v.id("_storage"))),
+    embroideryMockupIds: v.optional(v.array(v.id("_storage"))),
   },
   handler: async (ctx, args) => {
     const { id, ...fields } = args;
@@ -100,6 +103,9 @@ export const update = mutation({
       ...(fields.patchImageStorageId !== undefined ? { patchImageStorageId: fields.patchImageStorageId } : {}),
       ...(fields.embroideryImageStorageId !== undefined ? { embroideryImageStorageId: fields.embroideryImageStorageId } : {}),
       ...(fields.mockupStorageIds !== undefined ? { mockupStorageIds: fields.mockupStorageIds } : {}),
+      ...(fields.stickerMockupIds !== undefined ? { stickerMockupIds: fields.stickerMockupIds } : {}),
+      ...(fields.patchMockupIds !== undefined ? { patchMockupIds: fields.patchMockupIds } : {}),
+      ...(fields.embroideryMockupIds !== undefined ? { embroideryMockupIds: fields.embroideryMockupIds } : {}),
     });
   },
 });

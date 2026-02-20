@@ -15,6 +15,16 @@ export const getUrl = query({
   },
 });
 
+export const getUrls = query({
+  args: { storageIds: v.array(v.id("_storage")) },
+  handler: async (ctx, args) => {
+    const urls = await Promise.all(
+      args.storageIds.map((id) => ctx.storage.getUrl(id)),
+    );
+    return urls.filter((u): u is string => u !== null);
+  },
+});
+
 export const deleteFile = mutation({
   args: { storageId: v.id("_storage") },
   handler: async (ctx, args) => {

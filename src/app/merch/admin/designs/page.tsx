@@ -95,6 +95,9 @@ function DesignCard({
     imageStorageId: Id<"_storage">;
     shapePath?: string;
     mockupStorageIds?: Id<"_storage">[];
+    stickerMockupIds?: Id<"_storage">[];
+    patchMockupIds?: Id<"_storage">[];
+    embroideryMockupIds?: Id<"_storage">[];
   };
   onEdit: () => void;
   onToggleActive: () => void;
@@ -103,13 +106,14 @@ function DesignCard({
   const imageUrl = useQuery(api.storage.getUrl, { storageId: design.imageStorageId });
   const updateDesign = useMutation(api.designs.update);
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
-  const mockupFileRef = useRef<HTMLInputElement>(null);
-  const [uploadingMockup, setUploadingMockup] = useState(false);
+  const [uploadingType, setUploadingType] = useState<string | null>(null);
 
-  const handleMockupUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+  const uploadMockups = async (
+    files: File[],
+    field: "stickerMockupIds" | "patchMockupIds" | "embroideryMockupIds",
+  ) => {
     if (files.length === 0) return;
-    setUploadingMockup(true);
+    setUploadingType(field);
     try {
       const newIds: Id<"_storage">[] = [];
       for (const file of files) {
@@ -118,21 +122,29 @@ function DesignCard({
         const { storageId } = await res.json();
         newIds.push(storageId as Id<"_storage">);
       }
-      const existing = design.mockupStorageIds ?? [];
-      await updateDesign({ id: design._id, mockupStorageIds: [...existing, ...newIds] });
+      const existing = design[field] ?? [];
+      await updateDesign({ id: design._id, [field]: [...existing, ...newIds] });
     } catch (err) {
       console.error("Mockup upload failed:", err);
     }
-    setUploadingMockup(false);
-    if (mockupFileRef.current) mockupFileRef.current.value = "";
+    setUploadingType(null);
   };
 
-  const removeMockup = async (storageId: Id<"_storage">) => {
-    const updated = (design.mockupStorageIds ?? []).filter((id) => id !== storageId);
-    await updateDesign({ id: design._id, mockupStorageIds: updated });
+  const removeMockup = async (
+    storageId: Id<"_storage">,
+    field: "stickerMockupIds" | "patchMockupIds" | "embroideryMockupIds",
+  ) => {
+    const updated = (design[field] ?? []).filter((id) => id !== storageId);
+    await updateDesign({ id: design._id, [field]: updated });
   };
 
   const cents = (c: number) => `$${(c / 100).toFixed(2)}`;
+
+  const mockupSections: { label: string; field: "stickerMockupIds" | "patchMockupIds" | "embroideryMockupIds"; enabled: boolean }[] = [
+    { label: "Sticker", field: "stickerMockupIds", enabled: design.stickerEnabled ?? true },
+    { label: "Patch", field: "patchMockupIds", enabled: design.patchEnabled ?? true },
+    { label: "Embroidery", field: "embroideryMockupIds", enabled: design.embroideryEnabled ?? false },
+  ];
 
   return (
     <div
@@ -147,27 +159,28 @@ function DesignCard({
         </div>
       )}
 
-      {/* Mockup slideshow photos */}
-      <div className="mb-3">
-        <p className="mb-1.5 text-xs font-medium text-muted">Hover Slideshow Photos</p>
-        <div className="flex flex-wrap gap-2">
-          {(design.mockupStorageIds ?? []).map((sid) => (
-            <MockupThumb key={sid} storageId={sid} onRemove={() => removeMockup(sid)} />
-          ))}
-          <label className={`flex h-14 w-14 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border text-muted transition-colors hover:border-secondary/60 hover:text-secondary ${uploadingMockup ? "opacity-50 pointer-events-none" : ""}`}>
-            <span className="text-lg leading-none">{uploadingMockup ? "…" : "+"}</span>
-            <span className="mt-0.5 text-[9px]">add</span>
-            <input
-              ref={mockupFileRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={handleMockupUpload}
-            />
-          </label>
+      {/* Per-type mockup slideshow photos */}
+      {mockupSections.filter((s) => s.enabled).map((section) => (
+        <div key={section.field} className="mb-3">
+          <p className="mb-1.5 text-xs font-medium text-muted">{section.label} Slideshow</p>
+          <div className="flex flex-wrap gap-2">
+            {(design[section.field] ?? []).map((sid) => (
+              <MockupThumb key={sid} storageId={sid} onRemove={() => removeMockup(sid, section.field)} />
+            ))}
+            <label className={`flex h-14 w-14 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border text-muted transition-colors hover:border-secondary/60 hover:text-secondary ${uploadingType === section.field ? "opacity-50 pointer-events-none" : ""}`}>
+              <span className="text-lg leading-none">{uploadingType === section.field ? "…" : "+"}</span>
+              <span className="mt-0.5 text-[9px]">add</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => uploadMockups(Array.from(e.target.files ?? []), section.field)}
+              />
+            </label>
+          </div>
         </div>
-      </div>
+      ))}
 
       <div className="mb-1 flex items-center gap-2">
         <h3 className="font-semibold">{design.name}</h3>

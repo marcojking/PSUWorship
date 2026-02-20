@@ -39,9 +39,25 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
     design?.embroideryImageStorageId ? { storageId: design.embroideryImageStorageId } : "skip",
   );
 
-  // Must be before early returns — hooks can't be conditional
+  // ALL hooks must be before any early returns
   const [activeType, setActiveType] = useState<ProductType>("sticker");
+  const [selectedMockup, setSelectedMockup] = useState<string | null>(null);
   const { addItem } = useCart();
+
+  // Compute mockup IDs safely — design may be undefined/null while loading
+  const mockupIds: Id<"_storage">[] = design
+    ? (activeType === "sticker"
+        ? design.stickerMockupIds
+        : activeType === "patch"
+          ? design.patchMockupIds
+          : design.embroideryMockupIds) ?? []
+    : [];
+
+  // Batch resolve mockup URLs — must be before early returns
+  const mockupUrls = useQuery(
+    api.storage.getUrls,
+    mockupIds.length > 0 ? { storageIds: mockupIds } : "skip",
+  ) ?? [];
 
   if (!design) {
     return (
@@ -113,23 +129,74 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
       </Link>
 
       <div className="grid gap-8 md:grid-cols-2">
-        {/* Left: Hero tilt card — alpha channel defines shape, same as catalog */}
+        {/* Left: Hero + mockup gallery */}
         <div>
-          <TiltCard maxTilt={12} shaped>
-            <div className="relative aspect-square">
-              {heroImageUrl ? (
+          {/* Hero image — design shape or selected mockup */}
+          {selectedMockup ? (
+            <TiltCard maxTilt={12}>
+              <div className="relative aspect-square overflow-hidden rounded-2xl bg-card">
                 <img
-                  src={heroImageUrl}
-                  alt={design.name}
-                  className="absolute inset-0 h-full w-full object-contain transition-opacity duration-300"
+                  src={selectedMockup}
+                  alt={`${design.name} mockup`}
+                  className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
                 />
-              ) : (
-                <div className="flex h-full items-center justify-center text-muted">
-                  Loading image...
-                </div>
-              )}
+              </div>
+            </TiltCard>
+          ) : (
+            <TiltCard maxTilt={12} shaped>
+              <div className="relative aspect-square">
+                {heroImageUrl ? (
+                  <img
+                    src={heroImageUrl}
+                    alt={design.name}
+                    className="absolute inset-0 h-full w-full object-contain transition-opacity duration-300"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-muted">
+                    Loading image...
+                  </div>
+                )}
+              </div>
+            </TiltCard>
+          )}
+
+          {/* Thumbnail row: design image + mockups */}
+          {mockupUrls.length > 0 && (
+            <div className="mt-4 flex gap-2">
+              {/* Design thumbnail */}
+              <button
+                onClick={() => setSelectedMockup(null)}
+                className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
+                  selectedMockup === null
+                    ? "border-secondary"
+                    : "border-border hover:border-secondary/40"
+                }`}
+              >
+                {heroImageUrl && (
+                  <img
+                    src={heroImageUrl}
+                    alt={design.name}
+                    className="h-full w-full object-contain"
+                  />
+                )}
+              </button>
+
+              {/* Mockup thumbnails */}
+              {mockupUrls.map((url) => (
+                <button
+                  key={url}
+                  onClick={() => setSelectedMockup(url)}
+                  className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
+                    selectedMockup === url
+                      ? "border-secondary"
+                      : "border-border hover:border-secondary/40"
+                  }`}
+                >
+                  <img src={url} alt={`${design.name} mockup`} className="h-full w-full object-cover" />
+                </button>
+              ))}
             </div>
-          </TiltCard>
+          )}
         </div>
 
         {/* Right: Info + product type selector */}
@@ -142,7 +209,10 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
             availableTypes={availableTypes}
             defaultImageUrl={mainImageUrl ?? ""}
             onAddToCart={handleAddToCart}
-            onActiveChange={setActiveType}
+            onActiveChange={(type) => {
+              setActiveType(type);
+              setSelectedMockup(null); // reset to design image on tab switch
+            }}
           />
         </div>
       </div>

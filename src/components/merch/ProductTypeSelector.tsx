@@ -122,7 +122,7 @@ export default function ProductTypeSelector({
               href={`/merch/custom?design=${designId}&type=patch`}
               className="block w-full rounded-lg bg-secondary py-2.5 text-center font-medium text-background transition-opacity hover:opacity-90"
             >
-              Customize →
+              Customize on Clothing →
             </Link>
             <p className="mt-2 text-center text-xs text-muted">
               Choose placement and preview before ordering
@@ -167,7 +167,7 @@ export default function ProductTypeSelector({
               Customize on Clothing →
             </Link>
             <p className="mt-2 text-center text-xs text-muted">
-              Added to your clothing order in the customizer
+              Choose placement and preview before ordering
             </p>
           </div>
         )}

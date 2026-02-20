@@ -53,6 +53,7 @@ html:has(.setlist-page), body:has(.setlist-page) {
 html:has(.merch-theme), body:has(.merch-theme) {
   overflow: auto;
   position: static;
+  height: auto;
   background: #1a1714;
   color: #f5ead6;
 }

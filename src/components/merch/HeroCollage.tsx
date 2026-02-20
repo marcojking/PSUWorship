@@ -3,61 +3,71 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function HeroCollage() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState(0);
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
-    const handleScroll = () => setScroll(window.scrollY);
+    const handleScroll = () => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => setScroll(window.scrollY));
+    };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
+  // Hero scrolls up at 1.4x normal speed — lifts off like fabric being pulled up
+  const pullUp = scroll * 1.4;
+
   return (
-    <section
-      ref={containerRef}
-      className="relative flex min-h-screen items-center justify-center overflow-visible"
-      style={{ zIndex: 1 }}
-    >
-      {/* Fabric texture — object-position bottom so the fray edge is always
-          fully visible. The image extends 120px below the section. */}
-      <img
-        src="/merch/fabric-texture.png"
-        alt=""
-        aria-hidden
-        draggable={false}
-        className="pointer-events-none absolute left-0 top-0 w-full select-none"
-        style={{
-          height: "calc(100% + 120px)",
-          objectFit: "cover",
-          objectPosition: "center bottom",
-        }}
-      />
+    <div className="relative" style={{ zIndex: 2 }}>
+      {/* Spacer — reserves viewport height in document flow */}
+      <div className="h-screen" />
 
-      {/* Soft fade at the very bottom of the fray into --background */}
+      {/* Hero layer — fixed to viewport, translates up faster on scroll */}
       <div
-        className="pointer-events-none absolute left-0 w-full"
+        className="pointer-events-none fixed inset-x-0 top-0 flex h-screen items-center justify-center"
         style={{
-          bottom: -120,
-          height: 80,
-          background: "linear-gradient(to bottom, transparent, hsl(var(--background)))",
-        }}
-      />
-
-      {/* Center branding — logo only */}
-      <div
-        className="relative z-10 text-center"
-        style={{
-          transform: `translateY(${scroll * -0.1}px)`,
+          transform: `translateY(${-pullUp}px)`,
           willChange: "transform",
         }}
       >
+        {/* Fabric texture */}
         <img
-          src="/logos/psuworship-patchwork.png"
-          alt="PSUWorship"
-          className="mx-auto w-[min(82vw,720px)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+          src="/merch/fabric-texture.png"
+          alt=""
+          aria-hidden
           draggable={false}
+          className="pointer-events-none absolute left-0 top-0 w-full select-none"
+          style={{
+            height: "calc(100% + 120px)",
+            objectFit: "cover",
+            objectPosition: "center bottom",
+          }}
         />
+
+        {/* Soft fade at the bottom of the fray */}
+        <div
+          className="pointer-events-none absolute left-0 w-full"
+          style={{
+            bottom: -120,
+            height: 80,
+            background: "linear-gradient(to bottom, transparent, hsl(var(--background)))",
+          }}
+        />
+
+        {/* Logo — moves with the fabric */}
+        <div className="relative z-10 text-center">
+          <img
+            src="/logos/psuworship-patchwork.png"
+            alt="PSUWorship"
+            className="mx-auto w-[min(82vw,720px)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+            draggable={false}
+          />
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

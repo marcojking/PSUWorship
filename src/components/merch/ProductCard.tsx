@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import TiltCard from "./TiltCard";
 
@@ -21,36 +21,39 @@ export default function ProductCard({
   startingPrice,
   hoverImages = [],
 }: ProductCardProps) {
-  const hasSlideshow = hoverImages.length > 0;
   const [phase, setPhase] = useState<"idle" | "hovering" | "slideshow">("idle");
   const [slideIndex, setSlideIndex] = useState(0);
   const [glarePos, setGlarePos] = useState({ x: 50, y: 50 });
   const delayRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const hoverImagesRef = useRef(hoverImages);
+  hoverImagesRef.current = hoverImages;
 
+  const hasSlideshow = hoverImages.length > 0;
   const hovering = phase !== "idle";
   const showSlideshow = phase === "slideshow" && hasSlideshow;
 
-  // 1-second delay before slideshow activates
-  const handleEnter = useCallback(() => {
+  const handleEnter = () => {
     setPhase("hovering");
     setSlideIndex(0);
-    if (hasSlideshow) {
-      delayRef.current = setTimeout(() => setPhase("slideshow"), 1000);
-    }
-  }, [hasSlideshow]);
+    clearTimeout(delayRef.current);
+    // Check latest hoverImages via ref to avoid stale closure
+    delayRef.current = setTimeout(() => {
+      if (hoverImagesRef.current.length > 0) setPhase("slideshow");
+    }, 1000);
+  };
 
-  const handleLeave = useCallback(() => {
+  const handleLeave = () => {
     setPhase("idle");
     clearTimeout(delayRef.current);
-  }, []);
+  };
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setGlarePos({
       x: ((e.clientX - rect.left) / rect.width) * 100,
       y: ((e.clientY - rect.top) / rect.height) * 100,
     });
-  }, []);
+  };
 
   // Advance slideshow frames
   useEffect(() => {
