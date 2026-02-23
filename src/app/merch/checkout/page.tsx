@@ -6,7 +6,17 @@ import { useCart } from "@/lib/merch/cart";
 import StickyNote from "@/components/merch/StickyNote";
 import Link from "next/link";
 
+import { Suspense } from "react";
+
 export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-muted">Loading checkout...</div>}>
+      <CheckoutContent />
+    </Suspense>
+  );
+}
+
+function CheckoutContent() {
   const { items, total, removeItem, updateQuantity, clearCart } = useCart();
 
   const [email, setEmail] = useState("");
