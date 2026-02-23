@@ -129,18 +129,24 @@ export default function MerchBuilder({ draftId }: { draftId?: string }) {
         }));
     }, []);
 
-    const selectCustomClothing = useCallback((files: File[]) => {
-        const urls = files.map((f) => ({
-            label: f.name,
-            url: URL.createObjectURL(f),
-        }));
+    const toggleCustomClothing = useCallback(() => {
         setState((prev) => ({
             ...prev,
             clothingItemId: null,
             isCustomClothing: true,
-            customViewUrls: urls,
             selectedSize: null,
         }));
+    }, []);
+
+    const handleCustomFile = useCallback((view: "front" | "back", file: File) => {
+        const url = URL.createObjectURL(file);
+        setState((prev) => {
+            const existing = prev.customViewUrls.filter((v) => v.label !== view);
+            return {
+                ...prev,
+                customViewUrls: [...existing, { label: view, url }],
+            };
+        });
     }, []);
 
     const addDesign = useCallback((designId: Id<"designs">) => {
@@ -205,6 +211,8 @@ export default function MerchBuilder({ draftId }: { draftId?: string }) {
     }, [selectedClothing, state, aiPreviewUrl, total, addItem]);
 
     // ─── Render helpers ────────────────────────────────────────────────────
+    const customFrontUrl = state.customViewUrls.find((v) => v.label === "front")?.url;
+    const customBackUrl = state.customViewUrls.find((v) => v.label === "back")?.url;
     const hasClothing = state.clothingItemId !== null || state.isCustomClothing;
     const hasDesigns = state.placements.length > 0;
     const hasLogo = state.logoVariantId !== null;
@@ -238,8 +246,11 @@ export default function MerchBuilder({ draftId }: { draftId?: string }) {
                         items={clothingItems ?? []}
                         selectedId={state.clothingItemId}
                         onSelect={(id) => { selectClothing(id); setStep(1); }}
-                        onUploadOwn={(files) => { selectCustomClothing(files); setStep(1); }}
+                        onToggleCustom={toggleCustomClothing}
+                        onCustomFile={handleCustomFile}
                         isCustomClothing={state.isCustomClothing}
+                        customFrontUrl={customFrontUrl}
+                        customBackUrl={customBackUrl}
                         selectedSize={state.selectedSize}
                         onSizeChange={(size) => setState(prev => ({ ...prev, selectedSize: size }))}
                     />
@@ -324,9 +335,11 @@ export default function MerchBuilder({ draftId }: { draftId?: string }) {
                         items={clothingItems ?? []}
                         selectedId={state.clothingItemId}
                         onSelect={selectClothing}
-                        onUploadOwn={selectCustomClothing}
+                        onToggleCustom={toggleCustomClothing}
+                        onCustomFile={handleCustomFile}
                         isCustomClothing={state.isCustomClothing}
-                        customThumbnail={state.customViewUrls[0]?.url}
+                        customFrontUrl={customFrontUrl}
+                        customBackUrl={customBackUrl}
                         selectedSize={state.selectedSize}
                         onSizeChange={(size) => setState(prev => ({ ...prev, selectedSize: size }))}
                     />

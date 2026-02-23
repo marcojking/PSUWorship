@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import TiltCard from "./TiltCard";
@@ -37,6 +37,25 @@ export default function StandaloneCard({
   const [isHovered, setIsHovered] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasCycled, setHasCycled] = useState(false);
+  const cardRef = useRef<HTMLAnchorElement>(null);
+
+  // Mobile scroll-focus detection
+  useEffect(() => {
+    // Only detect scroll focus on mobile devices
+    if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsHovered(entry.isIntersecting);
+        },
+        { threshold: 0.7 } // trigger when 70% of the card is visible
+      );
+
+      if (cardRef.current) {
+        observer.observe(cardRef.current);
+      }
+      return () => observer.disconnect();
+    }
+  }, []);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -61,8 +80,10 @@ export default function StandaloneCard({
 
   return (
     <Link
+      ref={cardRef}
       href={`/merch/product/${id}`}
-      className="group block"
+      className={`group block transition-transform duration-500 ease-out ${isHovered ? "scale-[1.05] sm:scale-100" : "scale-100"
+        }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

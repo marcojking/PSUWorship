@@ -73,7 +73,7 @@ export default function DesignCanvas({
     const backUrl = useQuery(api.storage.getUrl, backStorageId ? { storageId: backStorageId } : "skip");
 
     // Use custom uploaded image if available, otherwise use Convex clothing image
-    const customUrl = customViewUrls?.[0]?.url;
+    const customUrl = customViewUrls?.find((v) => v.label === activeView)?.url;
     const clothingUrl = customUrl ?? (activeView === "front" ? frontUrl : backUrl);
     const [clothingImage] = useImage(clothingUrl ?? "", "anonymous");
 

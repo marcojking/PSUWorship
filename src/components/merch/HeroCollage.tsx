@@ -59,14 +59,12 @@ export default function HeroCollage() {
 
         {/* Logo — moves with the fabric */}
         <div className="relative z-10 text-center">
-          <Image
+          <img
             src="/logos/psuworship-patchwork.png"
             alt="PSUWorship"
-            priority
-            width={720}
-            height={240}
-            sizes="(max-width: 768px) 82vw, 720px"
-            className="mx-auto h-auto w-[min(82vw,720px)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+            // @ts-ignore - React 18 supports fetchPriority but TS might complain
+            fetchpriority="high"
+            className="mx-auto h-auto w-[min(90vw,720px)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
             draggable={false}
           />
         </div>
