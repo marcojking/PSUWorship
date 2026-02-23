@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 export default function HeroCollage() {
   const [scroll, setScroll] = useState(0);
@@ -35,17 +36,14 @@ export default function HeroCollage() {
         }}
       >
         {/* Fabric texture */}
-        <img
+        <Image
           src="/merch/fabric-texture.png"
           alt=""
-          aria-hidden
-          draggable={false}
-          className="pointer-events-none absolute left-0 top-0 w-full select-none"
-          style={{
-            height: "calc(100% + 120px)",
-            objectFit: "cover",
-            objectPosition: "center bottom",
-          }}
+          priority
+          sizes="100vw"
+          fill
+          className="pointer-events-none select-none object-cover object-[center_bottom]"
+          style={{ height: "calc(100% + 120px)" }}
         />
 
         {/* Soft fade at the bottom of the fray */}
@@ -59,11 +57,14 @@ export default function HeroCollage() {
         />
 
         {/* Logo — moves with the fabric */}
-        <div className="relative z-10 text-center">
-          <img
+        <div className="relative z-10 text-center w-[min(82vw,720px)] mx-auto aspect-[3/1]">
+          <Image
             src="/logos/psuworship-patchwork.png"
             alt="PSUWorship"
-            className="mx-auto w-[min(82vw,720px)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+            priority
+            sizes="(max-width: 768px) 82vw, 720px"
+            fill
+            className="drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)] object-contain"
             draggable={false}
           />
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import TiltCard from "./TiltCard";
 
@@ -83,11 +84,14 @@ export default function StandaloneCard({
             {/* Images */}
             <div className="relative aspect-square overflow-hidden bg-background/50">
               {imageUrls.map((url, index) => (
-                <img
+                <Image
                   key={url}
                   src={url}
                   alt={`${name} ${index + 1}`}
-                  className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 group-hover:scale-105 ${index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+                  priority={true}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  fill
+                  className={`absolute inset-0 object-cover transition-all duration-500 group-hover:scale-105 ${index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
                     }`}
                 />
               ))}

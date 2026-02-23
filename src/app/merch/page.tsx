@@ -8,6 +8,7 @@ import HeroCollage from "@/components/merch/HeroCollage";
 import StandaloneCard from "@/components/merch/StandaloneCard";
 import TiltCard from "@/components/merch/TiltCard";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function MerchPage() {
   return (
@@ -73,10 +74,13 @@ function EmbroideryCard() {
             {/* Image or placeholder */}
             <div className="relative aspect-square overflow-hidden bg-background/50">
               {imageUrl ? (
-                <img
+                <Image
                   src={imageUrl}
                   alt="Custom Embroidery"
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  priority
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted/40">
