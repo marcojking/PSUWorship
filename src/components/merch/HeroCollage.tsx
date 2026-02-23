@@ -70,7 +70,7 @@ export default function HeroCollage() {
 
           {/* Artsy "MERCH" tag — stitched under the logo */}
           <div
-            className="relative -mt-6 sm:-mt-10 lg:-mt-14 z-0 bg-[#f5ead6] text-[#1a1714] px-6 sm:px-8 py-1.5 sm:py-2 shadow-[0_4px_16px_rgba(0,0,0,0.6)] transform rotate-[-2deg] flex items-center gap-3"
+            className="relative -mt-10 sm:-mt-16 lg:-mt-20 z-0 bg-[#f5ead6] text-[#1a1714] px-6 sm:px-8 py-1.5 sm:py-2 shadow-[0_4px_16px_rgba(0,0,0,0.6)] transform rotate-[-2deg] flex items-center gap-3"
             style={{ fontFamily: "'Courier New', Courier, monospace" }}
           >
             {/* Fake dashed stitching border inside */}
