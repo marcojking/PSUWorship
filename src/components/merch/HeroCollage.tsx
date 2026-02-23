@@ -41,7 +41,7 @@ export default function HeroCollage() {
             src="/merch/fabric-texture.png"
             alt=""
             priority
-            sizes="100vw"
+            sizes="(max-width: 768px) 300vw, 100vw"
             fill
             className="pointer-events-none select-none object-cover object-[center_bottom]"
           />
@@ -58,14 +58,15 @@ export default function HeroCollage() {
         />
 
         {/* Logo — moves with the fabric */}
-        <div className="relative z-10 text-center w-[min(82vw,720px)] mx-auto aspect-[3/1]">
+        <div className="relative z-10 text-center">
           <Image
             src="/logos/psuworship-patchwork.png"
             alt="PSUWorship"
             priority
+            width={720}
+            height={240}
             sizes="(max-width: 768px) 82vw, 720px"
-            fill
-            className="drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)] object-contain"
+            className="mx-auto h-auto w-[min(82vw,720px)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
             draggable={false}
           />
         </div>
