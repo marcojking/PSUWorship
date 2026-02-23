@@ -35,16 +35,17 @@ export default function HeroCollage() {
           willChange: "transform",
         }}
       >
-        {/* Fabric texture */}
-        <Image
-          src="/merch/fabric-texture.png"
-          alt=""
-          priority
-          sizes="100vw"
-          fill
-          className="pointer-events-none select-none object-cover object-[center_bottom]"
-          style={{ height: "calc(100% + 120px)" }}
-        />
+        {/* Fabric texture — Wrapped in oversized container to handle the parallax lift */}
+        <div className="absolute left-0 top-0 w-full" style={{ height: "calc(100% + 120px)" }}>
+          <Image
+            src="/merch/fabric-texture.png"
+            alt=""
+            priority
+            sizes="100vw"
+            fill
+            className="pointer-events-none select-none object-cover object-[center_bottom]"
+          />
+        </div>
 
         {/* Soft fade at the bottom of the fray */}
         <div
