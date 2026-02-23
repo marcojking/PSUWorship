@@ -34,6 +34,8 @@ export const getByStripeSession = query({
 export const create = mutation({
   args: {
     email: v.string(),
+    contactPhone: v.optional(v.string()),
+    savedDesignSnapshot: v.optional(v.any()),
     items: v.array(
       v.object({
         type: v.string(),
@@ -52,8 +54,10 @@ export const create = mutation({
     total: v.number(),
     shippingCost: v.number(),
     shippingMethod: v.string(),
-    stripeSessionId: v.string(),
     deliveryType: v.union(v.literal("shipping"), v.literal("local_pickup")),
+    stripeSessionId: v.optional(v.string()),
+    stripePaymentIntentId: v.optional(v.string()),
+    adminNote: v.optional(v.string()),
     shippingAddress: v.optional(
       v.object({
         name: v.string(),
@@ -80,12 +84,56 @@ export const updateStatus = mutation({
     id: v.id("orders"),
     status: v.union(
       v.literal("pending"),
+      v.literal("abandoned"),
+      v.literal("pending_approval"),
+      v.literal("approved"),
+      v.literal("rejected"),
       v.literal("paid"),
       v.literal("fulfilled"),
       v.literal("cancelled"),
     ),
+    adminNote: v.optional(v.string()),
+    stripeReceiptUrl: v.optional(v.string()), // Added
+    stripePaymentIntentId: v.optional(v.string()), // Added
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, { status: args.status });
+    const { id, ...fields } = args;
+    await ctx.db.patch(id, fields);
+  },
+});
+
+export const remove = mutation({
+  args: { id: v.id("orders") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
+// Called when user cancels or abandons checkout.
+// If they entered contact info, mark as abandoned.
+// If they're completely anonymous, delete the order.
+export const cleanupAbandoned = mutation({
+  args: { stripeSessionId: v.string() },
+  handler: async (ctx, args) => {
+    const order = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeSession", (q) => q.eq("stripeSessionId", args.stripeSessionId))
+      .first();
+
+    if (!order) return null;
+
+    // NEVER touch an order that has been paid/approved/fulfilled etc.
+    const safeStatuses = ["pending", "abandoned"];
+    if (!safeStatuses.includes(order.status)) return null;
+
+    // If they provided contact info, keep the order but mark it abandoned
+    if (order.email) {
+      await ctx.db.patch(order._id, { status: "abandoned" });
+      return "abandoned";
+    }
+
+    // Otherwise silently delete it
+    await ctx.db.delete(order._id);
+    return "deleted";
   },
 });

@@ -48,14 +48,23 @@ export async function POST(request: Request) {
       });
     }
 
+    const requiresApproval = items.some(
+      (i: any) => i.placements && i.placements.length > 0
+    );
+
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: email,
       line_items: lineItems,
       automatic_tax: { enabled: true },
+      ...(requiresApproval && {
+        payment_intent_data: {
+          capture_method: "manual",
+        },
+      }),
       success_url: `${origin}/merch/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/merch/checkout`,
+      cancel_url: `${origin}/merch/checkout?cancelled=1&session_id={CHECKOUT_SESSION_ID}`,
     });
 
     // Create pending order in Convex
@@ -68,6 +77,7 @@ export async function POST(request: Request) {
     const convex = getConvex();
     await convex.mutation(api.orders.create, {
       email,
+      contactPhone: body.phone ?? undefined,
       items: items.map(
         (item: {
           type: string;
@@ -85,18 +95,17 @@ export async function POST(request: Request) {
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           size: item.size,
-          // Note: Convex IDs need to be properly typed; pass as-is for now
           ...(item.designId ? { designId: item.designId as never } : {}),
           ...(item.clothingItemId ? { clothingItemId: item.clothingItemId as never } : {}),
           ...(item.standaloneProductId ? { standaloneProductId: item.standaloneProductId as never } : {}),
           ...(item.placements
             ? {
-                placements: item.placements.map((p) => ({
-                  designId: p.designId as never,
-                  size: p.size,
-                  position: p.position,
-                })),
-              }
+              placements: item.placements.map((p) => ({
+                designId: p.designId as never,
+                size: p.size,
+                position: p.position,
+              })),
+            }
             : {}),
         }),
       ),

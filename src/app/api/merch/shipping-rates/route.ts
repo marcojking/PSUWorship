@@ -3,10 +3,14 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const shippoKey = process.env.SHIPPO_API_KEY;
   if (!shippoKey) {
-    return NextResponse.json(
-      { error: "Shippo API key not configured" },
-      { status: 500 },
-    );
+    // Return mock rates for development when Shippo isn't configured
+    return NextResponse.json({
+      rates: [
+        { id: "mock_priority", carrier: "USPS", service: "Priority Mail", amount: 895, days: "2-3 business days" },
+        { id: "mock_first", carrier: "USPS", service: "First Class", amount: 495, days: "5-7 business days" },
+        { id: "mock_ups", carrier: "UPS", service: "Ground", amount: 1195, days: "3-5 business days" },
+      ],
+    });
   }
 
   const { address } = await request.json();
@@ -60,7 +64,8 @@ export async function POST(request: Request) {
 
     const rates = (data.rates ?? [])
       .filter((rate: { amount: string }) => rate.amount)
-      .slice(0, 5) // Top 5 options
+      .sort((a: { amount: string }, b: { amount: string }) => parseFloat(a.amount) - parseFloat(b.amount))
+      .slice(0, 2) // Top 2 options
       .map(
         (rate: {
           object_id: string;

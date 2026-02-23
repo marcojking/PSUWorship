@@ -89,8 +89,7 @@ function DesignCard({
     embroideryEnabled?: boolean;
     patchPrice: number;
     stickerPrice: number;
-    embroideryPriceLarge: number;
-    embroideryPriceSmall: number;
+    embroideryPrice?: number;
     fixedSizeOnly: boolean;
     imageStorageId: Id<"_storage">;
     shapePath?: string;
@@ -148,9 +147,8 @@ function DesignCard({
 
   return (
     <div
-      className={`rounded-xl border bg-card p-4 ${
-        design.active ? "border-border" : "border-border/50 opacity-60"
-      }`}
+      className={`rounded-xl border bg-card p-4 ${design.active ? "border-border" : "border-border/50 opacity-60"
+        }`}
     >
       {/* Design image */}
       {imageUrl && (
@@ -193,7 +191,7 @@ function DesignCard({
         {(design.stickerEnabled ?? true) && <span>Sticker {cents(design.stickerPrice)}</span>}
         {(design.patchEnabled ?? true) && <span>Patch {cents(design.patchPrice)}</span>}
         {(design.embroideryEnabled ?? false) && (
-          <span>Embroidery L{cents(design.embroideryPriceLarge)} / S{cents(design.embroideryPriceSmall)}</span>
+          <span>Embroidery {cents(design.embroideryPrice ?? 0)}</span>
         )}
       </div>
       <div className="flex gap-2">

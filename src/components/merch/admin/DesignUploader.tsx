@@ -19,8 +19,8 @@ interface ExistingDesign {
   embroideryEnabled?: boolean;
   stickerPrice: number;
   patchPrice: number;
-  embroideryPriceLarge: number;
-  embroideryPriceSmall: number;
+  embroideryPrice?: number;
+  fixedSize?: number;
   fixedSizeOnly: boolean;
   patchImageStorageId?: Id<"_storage">;
   embroideryImageStorageId?: Id<"_storage">;
@@ -99,8 +99,7 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
     category: editDesign?.category ?? "",
     stickerPrice: editDesign ? cents(editDesign.stickerPrice) : "",
     patchPrice: editDesign ? cents(editDesign.patchPrice) : "",
-    embroideryPriceLarge: editDesign ? cents(editDesign.embroideryPriceLarge) : "",
-    embroideryPriceSmall: editDesign ? cents(editDesign.embroideryPriceSmall) : "",
+    embroideryPrice: editDesign ? cents(editDesign.embroideryPrice ?? 0) : "",
     fixedSizeOnly: editDesign?.fixedSizeOnly ?? false,
   });
 
@@ -123,12 +122,12 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
       setFile: (f: File) => void,
       setPreview: (url: string) => void,
     ) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const f = e.target.files?.[0];
-      if (!f) return;
-      setFile(f);
-      setPreview(URL.createObjectURL(f));
-    };
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        setFile(f);
+        setPreview(URL.createObjectURL(f));
+      };
 
   const uploadFile = async (file: File): Promise<Id<"_storage">> => {
     const uploadUrl = await generateUploadUrl();
@@ -165,8 +164,7 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
         embroideryEnabled,
         stickerPrice: toCents(form.stickerPrice),
         patchPrice: toCents(form.patchPrice),
-        embroideryPriceLarge: toCents(form.embroideryPriceLarge),
-        embroideryPriceSmall: toCents(form.embroideryPriceSmall),
+        embroideryPrice: toCents(form.embroideryPrice),
         fixedSizeOnly: form.fixedSizeOnly,
         ...(patchStorageId ? { patchImageStorageId: patchStorageId } : {}),
         ...(embroideryStorageId ? { embroideryImageStorageId: embroideryStorageId } : {}),
@@ -193,7 +191,7 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
         setForm({
           name: "", description: "", category: "",
           stickerPrice: "", patchPrice: "",
-          embroideryPriceLarge: "", embroideryPriceSmall: "",
+          embroideryPrice: "",
           fixedSizeOnly: false,
         });
         if (mainFileRef.current) mainFileRef.current.value = "";
@@ -336,27 +334,11 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
         enabled={embroideryEnabled}
         onToggle={setEmbroideryEnabled}
       >
-        <div className="grid grid-cols-2 gap-3">
-          <PriceInput
-            label="Large price"
-            value={form.embroideryPriceLarge}
-            onChange={(v) => setForm((f) => ({ ...f, embroideryPriceLarge: v }))}
-          />
-          <PriceInput
-            label="Small price"
-            value={form.embroideryPriceSmall}
-            onChange={(v) => setForm((f) => ({ ...f, embroideryPriceSmall: v }))}
-          />
-        </div>
-        <label className="mt-3 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.fixedSizeOnly}
-            onChange={(e) => setForm((f) => ({ ...f, fixedSizeOnly: e.target.checked }))}
-            className="rounded border-border"
-          />
-          <span className="text-muted">Fixed size only (hide large/small toggle)</span>
-        </label>
+        <PriceInput
+          label="Embroidery price"
+          value={form.embroideryPrice}
+          onChange={(v) => setForm((f) => ({ ...f, embroideryPrice: v }))}
+        />
         <div className="mt-3">
           <label className="mb-1 block text-sm text-muted">
             Embroidery Image (PNG — design without background patch) — optional, falls back to main

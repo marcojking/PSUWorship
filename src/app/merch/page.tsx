@@ -5,9 +5,9 @@ import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import HeroCollage from "@/components/merch/HeroCollage";
-import ProductCard from "@/components/merch/ProductCard";
 import StandaloneCard from "@/components/merch/StandaloneCard";
-import Ring3DCard from "@/components/merch/Ring3DCard";
+import TiltCard from "@/components/merch/TiltCard";
+import Link from "next/link";
 
 export default function MerchPage() {
   return (
@@ -18,7 +18,6 @@ export default function MerchPage() {
 }
 
 function MerchCatalog() {
-  const designs = useQuery(api.designs.list, { activeOnly: true });
   const products = useQuery(api.products.list, { activeOnly: true });
 
   return (
@@ -27,136 +26,104 @@ function MerchCatalog() {
       <HeroCollage />
 
       <div className="relative bg-background" style={{ zIndex: 1 }}>
-      <div className="mx-auto max-w-6xl px-4">
-        {/* Designs section */}
-        <section className="py-12">
-          <h2 className="mb-8 text-2xl font-semibold">Designs</h2>
-          {!designs ? (
-            <SkeletonGrid />
-          ) : designs.length === 0 ? (
-            <EmptyPlaceholder text="Designs coming soon" />
-          ) : (
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-              {designs.map((design) => (
-                <DesignCardWrapper key={design._id} design={design} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* The Workshop section */}
-        <section className="py-12">
-          <h2 className="mb-8 text-2xl font-semibold">The Workshop</h2>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-            {/* Featured one-off: Cross Ring — coming soon */}
-            <div className="relative select-none">
-              <div className="pointer-events-none">
-                <Ring3DCard
-                  name="Double Cross Ring"
-                  price={1499}
-                  href="/merch/product/cross-ring"
-                />
+        <div className="mx-auto max-w-6xl px-4">
+          <section className="relative z-10 -mt-12 pb-72 sm:-mt-16 md:-mt-24 lg:-mt-32">
+            {!products ? (
+              <SkeletonGrid />
+            ) : (
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                {products.map((product) => (
+                  <StandaloneCardWrapper key={product._id} product={product} />
+                ))}
+                <EmbroideryCard />
               </div>
-              <div
-                className="absolute inset-0 flex items-center justify-center rounded-2xl"
-                style={{ transform: "rotate(-8deg)" }}
-              >
-                <span
-                  className="rounded-sm border-2 border-dashed border-secondary px-5 py-2 text-sm font-bold uppercase tracking-widest text-secondary backdrop-blur-sm"
-                  style={{
-                    textShadow: "0 0 8px rgba(196, 121, 58, 0.3)",
-                  }}
-                >
-                  Coming Soon
-                </span>
-              </div>
-            </div>
-            {products?.map((product) => (
-              <StandaloneCardWrapper key={product._id} product={product} />
-            ))}
-          </div>
-          {!products && <SkeletonGrid />}
-        </section>
-
-        {/* Customize CTA */}
-        <section className="py-12 text-center">
-          <div className="mx-auto max-w-lg rounded-2xl border border-border bg-card p-8">
-            <h3 className="mb-2 text-xl font-semibold">Custom Embroidery</h3>
-            <p className="mb-6 text-sm text-muted">
-              Pick a clothing item, choose your designs, and we&apos;ll embroider
-              them for you.
-            </p>
-            <a
-              href="/merch/custom"
-              className="inline-block rounded-lg bg-secondary px-6 py-3 font-medium text-background transition-opacity hover:opacity-90"
-            >
-              Start Customizing →
-            </a>
-          </div>
-        </section>
-      </div>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );
 }
 
-/** Wrapper to resolve design image URL from Convex storage */
-function DesignCardWrapper({
-  design,
-}: {
-  design: {
-    _id: string;
-    name: string;
-    imageStorageId: Id<"_storage">;
-    shapePath?: string;
-    mockupStorageIds?: Id<"_storage">[];
-    stickerMockupIds?: Id<"_storage">[];
-    patchMockupIds?: Id<"_storage">[];
-    embroideryMockupIds?: Id<"_storage">[];
-    stickerEnabled?: boolean;
-    patchEnabled?: boolean;
-    embroideryEnabled?: boolean;
-    stickerPrice: number;
-    patchPrice: number;
-    embroideryPriceLarge: number;
-  };
-}) {
-  const imageUrl = useQuery(api.storage.getUrl, {
-    storageId: design.imageStorageId,
-  });
-
-  // Combine all per-type mockup IDs + legacy field
-  const allMockupIds = [
-    ...(design.stickerMockupIds ?? []),
-    ...(design.patchMockupIds ?? []),
-    ...(design.embroideryMockupIds ?? []),
-    ...(design.mockupStorageIds ?? []),
-  ];
-
-  // Single batch query to resolve all mockup URLs
-  const hoverImages = useQuery(
-    api.storage.getUrls,
-    allMockupIds.length > 0 ? { storageIds: allMockupIds } : "skip",
-  ) ?? [];
-
-  if (!imageUrl) return <div className="aspect-square animate-pulse rounded-2xl bg-card" />;
-
-  const enabledPrices = [
-    (design.stickerEnabled ?? true) ? design.stickerPrice : null,
-    (design.patchEnabled ?? true) ? design.patchPrice : null,
-    (design.embroideryEnabled ?? false) ? design.embroideryPriceLarge : null,
-  ].filter((p): p is number => p !== null);
-  const startingPrice = enabledPrices.length > 0 ? Math.min(...enabledPrices) : design.stickerPrice;
+/** Custom Embroidery card — polaroid style, settable image, links to /merch/custom */
+function EmbroideryCard() {
+  const cardImageId = useQuery(api.settings.get, { key: "embroidery_card_image" });
+  const imageUrl = useQuery(
+    api.storage.getUrl,
+    cardImageId ? { storageId: cardImageId as Id<"_storage"> } : "skip",
+  );
 
   return (
-    <ProductCard
-      id={design._id}
-      name={design.name}
-      imageUrl={imageUrl}
-      shapePath={design.shapePath}
-      startingPrice={startingPrice}
-      hoverImages={hoverImages}
-    />
+    <Link href="/merch/custom" className="group block">
+      <TiltCard className="mb-3">
+        <div className="relative">
+          {/* Polaroid-style card */}
+          <div
+            className="relative overflow-hidden rounded-2xl border border-border bg-card"
+            style={{ transform: "translateZ(0)" }}
+          >
+            {/* Torn edge top */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1 bg-gradient-to-r from-card via-border/50 to-card" />
+
+            {/* "Custom" badge */}
+            <div className="absolute right-2 top-2 z-20 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-background">
+              Custom
+            </div>
+
+            {/* Image or placeholder */}
+            <div className="relative aspect-square overflow-hidden bg-background/50">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt="Custom Embroidery"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted/40">
+                  {/* Thread spool icon */}
+                  <svg
+                    className="h-12 w-12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.2}
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 3 Q15 7 12 12 Q9 7 12 3" />
+                    <path d="M12 21 Q15 17 12 12 Q9 17 12 21" />
+                    <path d="M3 12 Q7 9 12 12 Q7 15 3 12" />
+                    <path d="M21 12 Q17 9 12 12 Q17 15 21 12" />
+                  </svg>
+                  <span className="text-[10px] font-medium uppercase tracking-widest">
+                    Embroidery
+                  </span>
+                </div>
+              )}
+
+              {/* Paper texture overlay */}
+              <div
+                className="pointer-events-none absolute inset-0 opacity-[0.03]"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+                  backgroundSize: "200px",
+                }}
+              />
+            </div>
+
+            {/* Bottom label area - Glassmorphic overlay */}
+            <div className="absolute inset-x-0 -bottom-1 z-20 border-t border-border/50 bg-background/70 px-3 pt-2 pb-3 backdrop-blur-md transition-colors group-hover:bg-background/80">
+              <h3 className="truncate text-sm font-semibold transition-colors group-hover:text-secondary">
+                Custom Embroidery
+              </h3>
+              <div className="mt-1 flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold text-secondary">Customize →</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </TiltCard>
+    </Link>
   );
 }
 
@@ -171,44 +138,38 @@ function StandaloneCardWrapper({
     price: number;
     type: "premade" | "bundle" | "limited";
     quantity: number;
+    sizeInventory?: { size: string; quantity: number }[];
   };
 }) {
-  const imageUrl = useQuery(
-    api.storage.getUrl,
+  const imageUrls = useQuery(
+    api.storage.getUrls,
     product.imageStorageIds.length > 0
-      ? { storageId: product.imageStorageIds[0] }
+      ? { storageIds: product.imageStorageIds }
       : "skip",
   );
 
-  if (!imageUrl) return <div className="aspect-square animate-pulse rounded-2xl bg-card" />;
+  if (!imageUrls || imageUrls.length === 0) return <div className="aspect-square animate-pulse rounded-2xl bg-card" />;
 
   return (
     <StandaloneCard
       id={product._id}
       name={product.name}
-      imageUrl={imageUrl}
+      imageUrls={imageUrls}
       price={product.price}
       type={product.type}
       quantity={product.quantity}
       imageCount={product.imageStorageIds.length}
+      sizeInventory={product.sizeInventory}
     />
   );
 }
 
 function SkeletonGrid() {
   return (
-    <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="aspect-square animate-pulse rounded-2xl bg-card" />
       ))}
-    </div>
-  );
-}
-
-function EmptyPlaceholder({ text }: { text: string }) {
-  return (
-    <div className="flex h-48 items-center justify-center rounded-xl border-2 border-dashed border-border text-sm text-muted">
-      {text}
     </div>
   );
 }

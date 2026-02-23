@@ -20,9 +20,18 @@ function SuccessContent() {
   const { clearCart } = useCart();
 
   useEffect(() => {
-    // Clear cart after successful payment
+    // Clear cart locally
     clearCart();
-  }, [clearCart]);
+
+    // Verify Stripe payment and upgrade order status from "pending"
+    if (sessionId) {
+      fetch("/api/merch/verify-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      }).catch(console.error);
+    }
+  }, [clearCart, sessionId]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16 text-center">
@@ -33,11 +42,6 @@ function SuccessContent() {
         shortly.
       </p>
 
-      {sessionId && (
-        <p className="mb-6 break-all rounded-lg bg-card px-4 py-2 font-mono text-xs text-muted">
-          Session: {sessionId}
-        </p>
-      )}
 
       <Link
         href="/merch"

@@ -10,6 +10,7 @@ interface TiltCardProps {
   glare?: boolean;
   scale?: number; // hover scale, default 1.02
   shaped?: boolean; // use drop-shadow (follows alpha) instead of box-shadow
+  baseRotation?: number; // static rotation, default 0
 }
 
 export default function TiltCard({
@@ -20,6 +21,7 @@ export default function TiltCard({
   glare = true,
   scale = 1.02,
   shaped = false,
+  baseRotation = 0,
 }: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -137,9 +139,9 @@ export default function TiltCard({
       }}
     >
       <div
-        className="relative transition-transform duration-200 ease-out"
+        className="relative rounded-2xl transition-transform duration-200 ease-out"
         style={{
-          transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) scale(${hovering ? scale : 1})`,
+          transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) rotateZ(${baseRotation}deg) scale(${hovering ? scale : 1})`,
           ...shadowStyle,
         }}
       >
@@ -148,7 +150,7 @@ export default function TiltCard({
         {/* Glare overlay — disabled when shaped (ProductCard renders its own masked glare) */}
         {glare && !shaped && (
           <div
-            className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-200"
+            className="pointer-events-none absolute inset-0 z-50 rounded-2xl transition-opacity duration-200"
             style={{
               background: `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.12) 0%, transparent 60%)`,
               opacity: hovering || gyroAvailable ? 1 : 0,

@@ -47,10 +47,10 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
   // Compute mockup IDs safely — design may be undefined/null while loading
   const mockupIds: Id<"_storage">[] = design
     ? (activeType === "sticker"
-        ? design.stickerMockupIds
-        : activeType === "patch"
-          ? design.patchMockupIds
-          : design.embroideryMockupIds) ?? []
+      ? design.stickerMockupIds
+      : activeType === "patch"
+        ? design.patchMockupIds
+        : design.embroideryMockupIds) ?? []
     : [];
 
   // Batch resolve mockup URLs — must be before early returns
@@ -91,13 +91,11 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
       : {}),
     ...(embroideryEnabled
       ? {
-          embroidery: {
-            priceLarge: design.embroideryPriceLarge,
-            priceSmall: design.embroideryPriceSmall,
-            fixedSizeOnly: design.fixedSizeOnly,
-            imageUrl: embroideryImageUrl ?? undefined,
-          },
-        }
+        embroidery: {
+          price: design.embroideryPrice ?? 0,
+          imageUrl: embroideryImageUrl ?? undefined,
+        },
+      }
       : {}),
   };
 
@@ -166,11 +164,10 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
               {/* Design thumbnail */}
               <button
                 onClick={() => setSelectedMockup(null)}
-                className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
-                  selectedMockup === null
+                className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${selectedMockup === null
                     ? "border-secondary"
                     : "border-border hover:border-secondary/40"
-                }`}
+                  }`}
               >
                 {heroImageUrl && (
                   <img
@@ -186,11 +183,10 @@ function DesignDetail({ designId }: { designId: Id<"designs"> }) {
                 <button
                   key={url}
                   onClick={() => setSelectedMockup(url)}
-                  className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
-                    selectedMockup === url
+                  className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${selectedMockup === url
                       ? "border-secondary"
                       : "border-border hover:border-secondary/40"
-                  }`}
+                    }`}
                 >
                   <img src={url} alt={`${design.name} mockup`} className="h-full w-full object-cover" />
                 </button>

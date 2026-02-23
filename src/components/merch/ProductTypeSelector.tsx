@@ -35,14 +35,12 @@ interface ProductTypeSelectorProps {
     sticker?: { price: number; imageUrl?: string };
     patch?: { price: number; imageUrl?: string };
     embroidery?: {
-      priceLarge: number;
-      priceSmall: number;
-      fixedSizeOnly: boolean;
+      price: number;
       imageUrl?: string;
     };
   };
   defaultImageUrl: string;
-  onAddToCart: (type: ProductType, price: number, size?: "large" | "small") => void;
+  onAddToCart: (type: ProductType, price: number) => void;
   onActiveChange?: (type: ProductType) => void;
 }
 
@@ -55,7 +53,6 @@ export default function ProductTypeSelector({
 }: ProductTypeSelectorProps) {
   const enabledTabs = TYPE_INFO.filter((t) => availableTypes[t.key] !== undefined);
   const [active, setActive] = useState<ProductType>(enabledTabs[0]?.key ?? "sticker");
-  const [embroiderySize, setEmbroiderySize] = useState<"large" | "small">("large");
 
   const switchTab = (type: ProductType) => {
     setActive(type);
@@ -133,35 +130,11 @@ export default function ProductTypeSelector({
         {/* Embroidery — links to custom flow */}
         {active === "embroidery" && availableTypes.embroidery && (
           <div>
-            {!availableTypes.embroidery.fixedSizeOnly && (
-              <div className="mb-4 flex gap-2">
-                {(["large", "small"] as const).map((sz) => (
-                  <button
-                    key={sz}
-                    onClick={() => setEmbroiderySize(sz)}
-                    className={`flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition-colors capitalize ${
-                      embroiderySize === sz
-                        ? "border-secondary bg-secondary/10 text-secondary"
-                        : "border-border text-muted hover:text-foreground"
-                    }`}
-                  >
-                    {sz} · $
-                    {(
-                      (sz === "large"
-                        ? availableTypes.embroidery!.priceLarge
-                        : availableTypes.embroidery!.priceSmall) / 100
-                    ).toFixed(2)}
-                  </button>
-                ))}
-              </div>
-            )}
-            {availableTypes.embroidery.fixedSizeOnly && (
-              <p className="mb-4 text-2xl font-bold">
-                ${(availableTypes.embroidery.priceLarge / 100).toFixed(2)}
-              </p>
-            )}
+            <p className="mb-4 text-2xl font-bold">
+              ${(availableTypes.embroidery.price / 100).toFixed(2)}
+            </p>
             <Link
-              href={`/merch/custom?design=${designId}&size=${embroiderySize}`}
+              href={`/merch/custom?design=${designId}`}
               className="block w-full rounded-lg bg-secondary py-2.5 text-center font-medium text-background transition-opacity hover:opacity-90"
             >
               Customize on Clothing →

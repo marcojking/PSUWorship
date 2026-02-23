@@ -62,10 +62,13 @@ export async function POST(request: Request) {
       });
       if (clothing) {
         clothingName = clothing.name;
-        const storageUrl = await convex.query(api.storage.getUrl, {
-          storageId: clothing.imageStorageId,
-        });
-        if (storageUrl) clothingDataUrl = await toDataUrl(storageUrl);
+        const imgId = clothing.frontImageStorageId ?? clothing.imageStorageId;
+        if (imgId) {
+          const storageUrl = await convex.query(api.storage.getUrl, {
+            storageId: imgId,
+          });
+          if (storageUrl) clothingDataUrl = await toDataUrl(storageUrl);
+        }
       }
     }
 

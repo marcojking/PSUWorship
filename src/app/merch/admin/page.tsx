@@ -38,16 +38,29 @@ export default function AdminDashboard() {
   const clothing = useQuery(api.clothing.list, {});
   const products = useQuery(api.products.list, {});
 
+  const pendingCount = orders?.filter((o) => o.status === "pending_approval").length ?? 0;
+
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold">Merch Admin</h1>
 
+      {/* Pending review alert */}
+      {pendingCount > 0 && (
+        <Link
+          href="/merch/admin/orders"
+          className="mb-6 block rounded-lg border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-sm text-orange-400 transition-colors hover:bg-orange-500/20"
+        >
+          ⚠ <strong>{pendingCount}</strong> order{pendingCount > 1 ? "s" : ""} awaiting review →
+        </Link>
+      )}
+
       {/* Quick stats */}
-      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
         <StatCard label="Designs" value={designs?.length} />
         <StatCard label="Clothing" value={clothing?.length} />
         <StatCard label="Products" value={products?.length} />
         <StatCard label="Orders" value={orders?.length} />
+        <StatCard label="Pending" value={pendingCount} highlight={pendingCount > 0} />
       </div>
 
       {/* Section links */}
@@ -69,10 +82,10 @@ export default function AdminDashboard() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value?: number }) {
+function StatCard({ label, value, highlight }: { label: string; value?: number; highlight?: boolean }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="text-2xl font-bold">{value ?? "—"}</div>
+    <div className={`rounded-xl border p-4 ${highlight ? "border-orange-500/40 bg-orange-500/5" : "border-border bg-card"}`}>
+      <div className={`text-2xl font-bold ${highlight ? "text-orange-400" : ""}`}>{value ?? "—"}</div>
       <div className="text-sm text-muted">{label}</div>
     </div>
   );

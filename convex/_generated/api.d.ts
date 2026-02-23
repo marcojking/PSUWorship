@@ -8,11 +8,15 @@
  * @module
  */
 
+import type * as aiRenderCache from "../aiRenderCache.js";
+import type * as carts from "../carts.js";
 import type * as clothing from "../clothing.js";
 import type * as designs from "../designs.js";
+import type * as logoVariants from "../logoVariants.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
 import type * as promptTemplates from "../promptTemplates.js";
+import type * as savedDesigns from "../savedDesigns.js";
 import type * as settings from "../settings.js";
 import type * as storage from "../storage.js";
 
@@ -23,11 +27,15 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  aiRenderCache: typeof aiRenderCache;
+  carts: typeof carts;
   clothing: typeof clothing;
   designs: typeof designs;
+  logoVariants: typeof logoVariants;
   orders: typeof orders;
   products: typeof products;
   promptTemplates: typeof promptTemplates;
+  savedDesigns: typeof savedDesigns;
   settings: typeof settings;
   storage: typeof storage;
 }>;

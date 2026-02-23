@@ -21,9 +21,21 @@ export const get = query({
 export const create = mutation({
   args: {
     name: v.string(),
-    imageStorageId: v.id("_storage"),
+    frontImageStorageId: v.id("_storage"),
+    backImageStorageId: v.id("_storage"),
+    description: v.string(),
     basePrice: v.number(),
-    placements: v.array(v.object({ id: v.string(), name: v.string() })),
+    availableSizes: v.array(v.string()),
+    stock: v.any(),
+    placements: v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      type: v.union(v.literal("main"), v.literal("logo")),
+      view: v.string(),
+      x: v.number(),
+      y: v.number(),
+      defaultSize: v.number(),
+    })),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("clothingItems", { ...args, active: true });
@@ -34,9 +46,21 @@ export const update = mutation({
   args: {
     id: v.id("clothingItems"),
     name: v.optional(v.string()),
-    imageStorageId: v.optional(v.id("_storage")),
+    frontImageStorageId: v.optional(v.id("_storage")),
+    backImageStorageId: v.optional(v.id("_storage")),
+    description: v.optional(v.string()),
     basePrice: v.optional(v.number()),
-    placements: v.optional(v.array(v.object({ id: v.string(), name: v.string() }))),
+    availableSizes: v.optional(v.array(v.string())),
+    stock: v.optional(v.any()),
+    placements: v.optional(v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      type: v.union(v.literal("main"), v.literal("logo")),
+      view: v.string(),
+      x: v.number(),
+      y: v.number(),
+      defaultSize: v.number(),
+    }))),
     active: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {

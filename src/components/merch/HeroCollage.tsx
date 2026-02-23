@@ -22,7 +22,7 @@ export default function HeroCollage() {
   const pullUp = scroll * 1.4;
 
   return (
-    <div className="relative" style={{ zIndex: 2 }}>
+    <div className="relative pointer-events-none" style={{ zIndex: 2 }}>
       {/* Spacer — reserves viewport height in document flow */}
       <div className="h-screen" />
 

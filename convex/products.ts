@@ -27,6 +27,7 @@ export const create = mutation({
     type: v.union(v.literal("premade"), v.literal("bundle"), v.literal("limited")),
     bundleContents: v.optional(v.array(v.string())),
     quantity: v.number(),
+    sizeInventory: v.optional(v.array(v.object({ size: v.string(), quantity: v.number() }))),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("standaloneProducts", { ...args, active: true });
@@ -43,6 +44,7 @@ export const update = mutation({
     type: v.optional(v.union(v.literal("premade"), v.literal("bundle"), v.literal("limited"))),
     bundleContents: v.optional(v.array(v.string())),
     quantity: v.optional(v.number()),
+    sizeInventory: v.optional(v.array(v.object({ size: v.string(), quantity: v.number() }))),
     active: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {

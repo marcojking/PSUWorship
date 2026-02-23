@@ -47,12 +47,24 @@ export default function ClothingAdminPage() {
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean)
-        .map((name, i) => ({ id: `p${i}`, name }));
+        .map((name, i) => ({
+          id: `p${i}`,
+          name,
+          type: "main" as const,
+          view: "front",
+          x: 0.3 + i * 0.1,
+          y: 0.3,
+          defaultSize: 30,
+        }));
 
       await createItem({
         name: form.name,
-        imageStorageId: storageId as Id<"_storage">,
+        frontImageStorageId: storageId as Id<"_storage">,
+        backImageStorageId: storageId as Id<"_storage">,
+        description: form.name,
         basePrice: Math.round(parseFloat(form.basePrice) * 100),
+        availableSizes: ["S", "M", "L", "XL"],
+        stock: { S: 0, M: 0, L: 0, XL: 0 },
         placements,
       });
 
@@ -181,12 +193,14 @@ function ClothingCard({
     basePrice: number;
     placements: { id: string; name: string }[];
     active: boolean;
-    imageStorageId: Id<"_storage">;
+    imageStorageId?: Id<"_storage">;
+    frontImageStorageId?: Id<"_storage">;
   };
   onToggleActive: () => void;
   onDelete: () => void;
 }) {
-  const imageUrl = useQuery(api.storage.getUrl, { storageId: item.imageStorageId });
+  const imgId = item.frontImageStorageId ?? item.imageStorageId;
+  const imageUrl = useQuery(api.storage.getUrl, imgId ? { storageId: imgId } : "skip");
 
   return (
     <div className={`rounded-xl border bg-card p-4 ${item.active ? "border-border" : "border-border/50 opacity-60"}`}>

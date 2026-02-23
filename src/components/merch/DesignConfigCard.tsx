@@ -6,7 +6,6 @@ import { Id } from "../../../convex/_generated/dataModel";
 
 export interface DesignConfig {
   designId: Id<"designs">;
-  size: "large" | "small";
   position: string;
 }
 
@@ -33,10 +32,7 @@ export default function DesignConfigCard({
     );
   }
 
-  const price =
-    config.size === "large"
-      ? design.embroideryPriceLarge
-      : design.embroideryPriceSmall;
+  const price = design.embroideryPrice ?? 0;
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -57,39 +53,6 @@ export default function DesignConfigCard({
             >
               Remove
             </button>
-          </div>
-
-          {/* Size toggle */}
-          <div className="mb-2 flex items-center gap-2">
-            <span className="text-xs text-muted">Size:</span>
-            {design.fixedSizeOnly ? (
-              <span className="rounded bg-accent/20 px-2 py-0.5 text-xs text-accent">
-                Fixed
-              </span>
-            ) : (
-              <div className="flex gap-1">
-                <button
-                  onClick={() => onChange({ ...config, size: "large" })}
-                  className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${
-                    config.size === "large"
-                      ? "bg-secondary/20 text-secondary"
-                      : "text-muted hover:text-foreground"
-                  }`}
-                >
-                  Large (${(design.embroideryPriceLarge / 100).toFixed(2)})
-                </button>
-                <button
-                  onClick={() => onChange({ ...config, size: "small" })}
-                  className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${
-                    config.size === "small"
-                      ? "bg-secondary/20 text-secondary"
-                      : "text-muted hover:text-foreground"
-                  }`}
-                >
-                  Small (${(design.embroideryPriceSmall / 100).toFixed(2)})
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Position text input */}
