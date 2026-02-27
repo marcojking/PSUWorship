@@ -263,16 +263,26 @@ export default function MerchBuilder({ draftId }: { draftId?: string }) {
         if (frontMockupBase64) frontMockupId = (await uploadBase64ToStorage(frontMockupBase64)) || undefined;
         if (backMockupBase64) backMockupId = (await uploadBase64ToStorage(backMockupBase64)) || undefined;
 
+        const checkoutPlacements = state.placements.map((p) => ({
+            designId: p.designId as string,
+            size: `${Math.round(p.width * 100)}%`,
+            position: `${p.view} (${Math.round(p.x * 100)}%, ${Math.round(p.y * 100)}%)`,
+        }));
+
+        if (state.logoVariantId && state.logoPlacement) {
+            checkoutPlacements.push({
+                designId: state.logoVariantId, // Store logo ID here for admin text rendering
+                size: `${Math.round(state.logoPlacement.width * 100)}%`,
+                position: `${state.logoPlacement.view} (${Math.round(state.logoPlacement.x * 100)}%, ${Math.round(state.logoPlacement.y * 100)}%)`,
+            });
+        }
+
         const clothingLabel = selectedClothing.name;
         addItem({
             type: "embroidery",
             name: `Embroidered ${clothingLabel}`,
             clothingItemId: state.clothingItemId,
-            placements: state.placements.map((p) => ({
-                designId: p.designId as string,
-                size: `${Math.round(p.width * 100)}%`,
-                position: `${p.view} (${Math.round(p.x * 100)}%, ${Math.round(p.y * 100)}%)`,
-            })),
+            placements: checkoutPlacements,
             size: state.selectedSize ?? undefined,
             frontMockupId,
             backMockupId,
@@ -603,7 +613,7 @@ export default function MerchBuilder({ draftId }: { draftId?: string }) {
                                                                         view: state.activeView,
                                                                         x: 0.1,
                                                                         y: 0.15,
-                                                                        width: 0.15,
+                                                                        width: selectedLogo.fixedSize ? (selectedLogo.fixedSize / 100) : 0.15,
                                                                         height: 0, // Auto-calculated in DesignCanvas based on aspect ratio
                                                                     }
                                                                 }));
