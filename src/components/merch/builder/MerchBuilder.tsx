@@ -365,7 +365,11 @@ export default function MerchBuilder({ draftId }: { draftId?: string }) {
     const hasClothing = state.clothingItemId !== null || state.isCustomClothing;
     const hasDesigns = state.placements.length > 0;
     const hasLogo = state.logoVariantId !== null;
-    const canBuild = hasClothing && hasDesigns && hasLogo;
+
+    // Strict Size Enforcement
+    const requiresSize = hasClothing && !state.isCustomClothing && selectedClothing?.availableSizes && selectedClothing.availableSizes.length > 0;
+    const hasSize = state.selectedSize !== null;
+    const canBuild = hasClothing && hasDesigns && hasLogo && (!requiresSize || hasSize);
 
     // ─── Unified Responsive Layout ─────────────────────────────────────────
     return (
@@ -641,14 +645,10 @@ export default function MerchBuilder({ draftId }: { draftId?: string }) {
                                         <p className="text-xs font-medium text-muted mb-1">To add to cart, you still need to:</p>
                                         <ul className="text-xs text-muted/80 space-y-0.5 list-disc list-inside">
                                             {!hasClothing && <li>Select a garment (Step 1)</li>}
+                                            {requiresSize && !hasSize && <li>Select an apparel size (Step 1)</li>}
                                             {!hasDesigns && <li>Add at least one design to the canvas (Step 2)</li>}
                                             {!hasLogo && <li>Choose a logo placement (Step 3)</li>}
                                         </ul>
-                                    </div>
-                                )}
-                                {hasClothing && !state.selectedSize && (
-                                    <div className="mb-3 rounded-md bg-muted/10 border border-border/50 px-3 py-2">
-                                        <p className="text-xs text-muted">⚠️ Don&apos;t forget to select a size!</p>
                                     </div>
                                 )}
                                 <button

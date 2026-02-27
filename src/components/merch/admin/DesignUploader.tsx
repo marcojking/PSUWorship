@@ -7,23 +7,16 @@ import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { detectShape } from "@/lib/merch/shapeDetector";
 
-interface ExistingDesign {
+export interface ExistingDesign {
   _id: Id<"designs">;
   name: string;
   description: string;
   category?: string;
   imageStorageId: Id<"_storage">;
   shapePath?: string;
-  stickerEnabled?: boolean;
-  patchEnabled?: boolean;
-  embroideryEnabled?: boolean;
-  stickerPrice: number;
-  patchPrice: number;
   embroideryPrice?: number;
   fixedSize?: number;
   fixedSizeOnly: boolean;
-  patchImageStorageId?: Id<"_storage">;
-  embroideryImageStorageId?: Id<"_storage">;
 }
 
 interface DesignUploaderProps {
@@ -35,8 +28,8 @@ const inputCls =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-colors";
 
 function toCents(dollars: string): number {
-  const val = parseFloat(dollars);
-  return isNaN(val) ? 0 : Math.round(val * 100);
+  if (!dollars) return 0;
+  return Math.round(parseFloat(dollars) * 100);
 }
 
 function cents(n: number) {
@@ -44,64 +37,33 @@ function cents(n: number) {
 }
 
 export default function DesignUploader({ onCreated, editDesign }: DesignUploaderProps) {
-  const isEditing = !!editDesign;
   const router = useRouter();
+  const isEditing = !!editDesign;
 
-  const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
   const createDesign = useMutation(api.designs.create);
   const updateDesign = useMutation(api.designs.update);
+  const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
 
-  // Main image
   const existingImageUrl = useQuery(
     api.storage.getUrl,
-    editDesign ? { storageId: editDesign.imageStorageId } : "skip",
+    isEditing ? { storageId: editDesign!.imageStorageId } : "skip",
   );
+
   const mainFileRef = useRef<HTMLInputElement>(null);
   const [mainFile, setMainFile] = useState<File | null>(null);
   const [mainPreview, setMainPreview] = useState<string | null>(null);
   const [shapePath, setShapePath] = useState<string>(editDesign?.shapePath ?? "");
   const [detecting, setDetecting] = useState(false);
 
-  // Patch image
-  const existingPatchUrl = useQuery(
-    api.storage.getUrl,
-    editDesign?.patchImageStorageId ? { storageId: editDesign.patchImageStorageId } : "skip",
-  );
-  const patchFileRef = useRef<HTMLInputElement>(null);
-  const [patchFile, setPatchFile] = useState<File | null>(null);
-  const [patchPreview, setPatchPreview] = useState<string | null>(null);
-
-  // Embroidery image
-  const existingEmbroideryUrl = useQuery(
-    api.storage.getUrl,
-    editDesign?.embroideryImageStorageId
-      ? { storageId: editDesign.embroideryImageStorageId }
-      : "skip",
-  );
-  const embroideryFileRef = useRef<HTMLInputElement>(null);
-  const [embroideryFile, setEmbroideryFile] = useState<File | null>(null);
-  const [embroideryPreview, setEmbroideryPreview] = useState<string | null>(null);
-
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Type toggles
-  const [stickerEnabled, setStickerEnabled] = useState(editDesign?.stickerEnabled ?? true);
-  const [patchEnabled, setPatchEnabled] = useState(editDesign?.patchEnabled ?? true);
-  const [embroideryEnabled, setEmbroideryEnabled] = useState(
-    editDesign?.embroideryEnabled ?? false,
-  );
-
-  // Prices
   const [form, setForm] = useState({
     name: editDesign?.name ?? "",
     description: editDesign?.description ?? "",
     category: editDesign?.category ?? "",
-    stickerPrice: editDesign ? cents(editDesign.stickerPrice) : "",
-    patchPrice: editDesign ? cents(editDesign.patchPrice) : "",
     embroideryPrice: editDesign ? cents(editDesign.embroideryPrice ?? 0) : "",
-    fixedSize: editDesign?.fixedSize ? editDesign.fixedSize.toString() : "",
-    fixedSizeOnly: editDesign?.fixedSizeOnly ?? false,
+    fixedSize: editDesign?.fixedSize ? Math.round(editDesign.fixedSize * 100).toString() : "30",
   });
 
   const handleMainFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,18 +79,6 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
     }
     setDetecting(false);
   };
-
-  const handleTypeFileChange =
-    (
-      setFile: (f: File) => void,
-      setPreview: (url: string) => void,
-    ) =>
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const f = e.target.files?.[0];
-        if (!f) return;
-        setFile(f);
-        setPreview(URL.createObjectURL(f));
-      };
 
   const uploadFile = async (file: File): Promise<Id<"_storage">> => {
     const uploadUrl = await generateUploadUrl();
@@ -148,28 +98,21 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
 
     try {
       let mainStorageId: Id<"_storage"> | undefined;
-      let patchStorageId: Id<"_storage"> | undefined;
-      let embroideryStorageId: Id<"_storage"> | undefined;
-
       if (mainFile) mainStorageId = await uploadFile(mainFile);
-      if (patchFile) patchStorageId = await uploadFile(patchFile);
-      if (embroideryFile) embroideryStorageId = await uploadFile(embroideryFile);
 
       const fields = {
         name: form.name,
         description: form.description,
         shapePath: shapePath || undefined,
         category: form.category || undefined,
-        stickerEnabled,
-        patchEnabled,
-        embroideryEnabled,
-        stickerPrice: toCents(form.stickerPrice),
-        patchPrice: toCents(form.patchPrice),
+        stickerEnabled: false,
+        patchEnabled: false,
+        embroideryEnabled: true,
+        stickerPrice: 0,
+        patchPrice: 0,
         embroideryPrice: toCents(form.embroideryPrice),
-        fixedSize: form.fixedSize ? parseFloat(form.fixedSize) : undefined,
-        fixedSizeOnly: form.fixedSizeOnly,
-        ...(patchStorageId ? { patchImageStorageId: patchStorageId } : {}),
-        ...(embroideryStorageId ? { embroideryImageStorageId: embroideryStorageId } : {}),
+        fixedSize: parseFloat(form.fixedSize) / 100, // store as e.g. 0.3
+        fixedSizeOnly: false,
       };
 
       if (isEditing && editDesign) {
@@ -186,20 +129,10 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
         setMainFile(null);
         setMainPreview(null);
         setShapePath("");
-        setPatchFile(null);
-        setPatchPreview(null);
-        setEmbroideryFile(null);
-        setEmbroideryPreview(null);
         setForm({
-          name: "", description: "", category: "",
-          stickerPrice: "", patchPrice: "",
-          embroideryPrice: "",
-          fixedSize: "",
-          fixedSizeOnly: false,
+          name: "", description: "", category: "", embroideryPrice: "", fixedSize: "30",
         });
         if (mainFileRef.current) mainFileRef.current.value = "";
-        if (patchFileRef.current) patchFileRef.current.value = "";
-        if (embroideryFileRef.current) embroideryFileRef.current.value = "";
         onCreated?.();
       }
     } catch (err) {
@@ -222,7 +155,7 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
         {/* Main design image */}
         <div className="mb-4">
           <label className="mb-1 block text-sm text-muted">
-            {isEditing ? "Main Image — Sticker (replace optional)" : "Main Image — Sticker (PNG, transparent background)"}
+            {isEditing ? "Design Image (Optional Replacement)" : "Design Image (PNG, transparent background)"}
           </label>
           <input
             ref={mainFileRef}
@@ -233,16 +166,6 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
             className="text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-secondary/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary file:cursor-pointer"
           />
         </div>
-
-        {displayMain && (
-          <div className="mb-4 flex gap-4">
-            <ImagePreview src={displayMain} label={mainFile ? "new" : undefined} />
-            {shapePath && (
-              <ImagePreview src={displayMain} label="clip-path" clipPath={shapePath} />
-            )}
-            {detecting && <div className="flex items-center text-sm text-muted">Detecting shape...</div>}
-          </div>
-        )}
 
         {/* Name + Category + Description */}
         <div className="mb-4 grid gap-4 sm:grid-cols-2">
@@ -274,109 +197,70 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
             required
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-            placeholder="Describe the design for AI prompt context..."
+            placeholder="Describe the design so the AI generator understands what it is..."
             rows={2}
             className={inputCls + " resize-none"}
           />
         </div>
+
         <div className="mt-4">
-          <label className="mb-1 block text-sm text-muted">Default Canvas Scale (0.05 to 1.0)</label>
+          <label className="mb-1 block text-sm text-muted">Embroidery Flat Pricing ($)</label>
           <input
             type="number"
             step="0.01"
-            min="0.01"
-            max="1.0"
-            value={form.fixedSize}
-            onChange={(e) => setForm((f) => ({ ...f, fixedSize: e.target.value }))}
-            placeholder="e.g. 0.3 for 30% width"
+            min="0"
+            required
+            value={form.embroideryPrice}
+            onChange={(e) => setForm((f) => ({ ...f, embroideryPrice: e.target.value }))}
+            placeholder="e.g. 5.00"
             className={inputCls}
           />
-          <p className="mt-1 text-xs text-muted">The initial size percentage when dropped on the editor canvas.</p>
         </div>
       </div>
 
-      {/* ── STICKER ── */}
-      <TypeSection
-        label="Sticker"
-        description="Printed die-cut vinyl sticker"
-        enabled={stickerEnabled}
-        onToggle={setStickerEnabled}
-      >
-        <PriceInput
-          label="Price"
-          value={form.stickerPrice}
-          onChange={(v) => setForm((f) => ({ ...f, stickerPrice: v }))}
-        />
-        <p className="mt-2 text-xs text-muted">Uses main image above.</p>
-      </TypeSection>
+      <div className="rounded-xl border border-border bg-card p-6">
+        <h3 className="mb-4 text-lg font-semibold">Sizing</h3>
+        <p className="mb-4 text-sm text-muted">Adjust the slider below to set the default size of the design relative to the width of the clothing.</p>
 
-      {/* ── PATCH ── */}
-      <TypeSection
-        label="Patch"
-        description="Embroidered patch with background fill and satin border"
-        enabled={patchEnabled}
-        onToggle={setPatchEnabled}
-      >
-        <PriceInput
-          label="Price"
-          value={form.patchPrice}
-          onChange={(v) => setForm((f) => ({ ...f, patchPrice: v }))}
-        />
-        <div className="mt-3">
-          <label className="mb-1 block text-sm text-muted">
-            Patch Image (PNG — shows the background fill) — optional, falls back to main
-          </label>
-          <input
-            ref={patchFileRef}
-            type="file"
-            accept="image/png"
-            onChange={handleTypeFileChange(setPatchFile, setPatchPreview)}
-            className="text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-secondary/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary file:cursor-pointer"
-          />
-          {(patchPreview ?? existingPatchUrl) && (
-            <div className="mt-2">
-              <ImagePreview
-                src={patchPreview ?? existingPatchUrl!}
-                label={patchFile ? "new" : undefined}
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Visual Sizer */}
+          <div className="flex-1 max-w-[300px]">
+            <label className="mb-1 block text-sm text-muted">Embroidery Size ({form.fixedSize}% width)</label>
+            <div className="flex items-center gap-4 mb-4">
+              <input
+                type="range"
+                min="5"
+                max="100"
+                value={form.fixedSize}
+                onChange={(e) => setForm(f => ({ ...f, fixedSize: e.target.value }))}
+                className="w-full accent-secondary"
               />
+              <span className="text-sm font-medium w-12 text-right">{form.fixedSize}%</span>
             </div>
-          )}
-        </div>
-      </TypeSection>
+            {detecting && <div className="text-sm text-muted">Detecting shape boundary...</div>}
 
-      {/* ── EMBROIDERY ── */}
-      <TypeSection
-        label="Embroidery"
-        description="Design stitched directly onto clothing — no backing"
-        enabled={embroideryEnabled}
-        onToggle={setEmbroideryEnabled}
-      >
-        <PriceInput
-          label="Embroidery price"
-          value={form.embroideryPrice}
-          onChange={(v) => setForm((f) => ({ ...f, embroideryPrice: v }))}
-        />
-        <div className="mt-3">
-          <label className="mb-1 block text-sm text-muted">
-            Embroidery Image (PNG — design without background patch) — optional, falls back to main
-          </label>
-          <input
-            ref={embroideryFileRef}
-            type="file"
-            accept="image/png"
-            onChange={handleTypeFileChange(setEmbroideryFile, setEmbroideryPreview)}
-            className="text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-secondary/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary file:cursor-pointer"
-          />
-          {(embroideryPreview ?? existingEmbroideryUrl) && (
-            <div className="mt-2">
-              <ImagePreview
-                src={embroideryPreview ?? existingEmbroideryUrl!}
-                label={embroideryFile ? "new" : undefined}
-              />
+            <div className="relative w-full aspect-[3/4] bg-secondary/5 rounded-xl border border-border flex items-center justify-center overflow-hidden">
+              {/* Mock shirt chest bounding box scale */}
+              <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
+
+              {/* Center guides */}
+              <div className="absolute top-0 bottom-0 left-1/2 w-px bg-border/50 -translate-x-1/2" />
+              <div className="absolute left-0 right-0 top-1/3 h-px bg-border/50" />
+
+              {displayMain ? (
+                <img
+                  src={displayMain}
+                  className="absolute top-1/3 -translate-y-1/2 drop-shadow-md transition-all duration-200"
+                  style={{ width: `${form.fixedSize}%`, height: 'auto', objectFit: 'contain', clipPath: shapePath || 'none' }}
+                  alt="preview"
+                />
+              ) : (
+                <div className="text-muted text-xs text-center px-4">Upload an image above to see sizing preview</div>
+              )}
             </div>
-          )}
+          </div>
         </div>
-      </TypeSection>
+      </div>
 
       {/* Error display */}
       {saveError && (
@@ -398,100 +282,12 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
         )}
         <button
           type="submit"
-          disabled={(!mainFile && !isEditing) || !form.name || saving}
-          className="rounded-lg bg-secondary px-6 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+          disabled={saving || detecting}
+          className="rounded-lg bg-secondary px-6 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? "Saving..." : isEditing ? "Save Changes" : "Create Design"}
         </button>
       </div>
     </form>
-  );
-}
-
-// ── Sub-components ─────────────────────────────────────────────────────────
-
-function TypeSection({
-  label,
-  description,
-  enabled,
-  onToggle,
-  children,
-}: {
-  label: string;
-  description: string;
-  enabled: boolean;
-  onToggle: (v: boolean) => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={`rounded-xl border bg-card p-5 transition-colors ${enabled ? "border-secondary/40" : "border-border opacity-60"}`}>
-      <label className="flex cursor-pointer items-start gap-3">
-        <input
-          type="checkbox"
-          checked={enabled}
-          onChange={(e) => onToggle(e.target.checked)}
-          className="mt-0.5 rounded border-border accent-secondary"
-        />
-        <div>
-          <p className="font-medium leading-none">{label}</p>
-          <p className="mt-0.5 text-xs text-muted">{description}</p>
-        </div>
-      </label>
-      {enabled && <div className="mt-4 border-t border-border pt-4">{children}</div>}
-    </div>
-  );
-}
-
-function ImagePreview({
-  src,
-  label,
-  clipPath,
-}: {
-  src: string;
-  label?: string;
-  clipPath?: string;
-}) {
-  return (
-    <div className="relative h-32 w-32 overflow-hidden rounded-lg border border-border bg-background">
-      <img
-        src={src}
-        alt="Preview"
-        className="h-full w-full object-contain"
-        style={clipPath ? { clipPath: `path("${clipPath}")` } : undefined}
-      />
-      {label && (
-        <span className="absolute bottom-1 right-1 rounded bg-secondary/80 px-1.5 py-0.5 text-[10px] text-background">
-          {label}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function PriceInput({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <label className="mb-1 block text-xs text-muted">{label}</label>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">$</span>
-        <input
-          type="number"
-          step="0.01"
-          min="0"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="0.00"
-          className="w-full rounded-lg border border-border bg-background py-2 pl-7 pr-3 text-sm text-foreground placeholder:text-muted focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-colors"
-        />
-      </div>
-    </div>
   );
 }

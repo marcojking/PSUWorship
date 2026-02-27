@@ -68,6 +68,7 @@ export default defineSchema({
     name: v.string(),
     imageStorageId: v.id("_storage"),
     price: v.number(), // cents, upcharge (0 if free)
+    fixedSize: v.optional(v.number()), // % of clothing width
   }),
 
   savedDesigns: defineTable({

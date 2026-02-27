@@ -21,6 +21,7 @@ export const create = mutation({
         name: v.string(),
         imageStorageId: v.id("_storage"),
         price: v.number(), // cents
+        fixedSize: v.optional(v.number()), // % of clothing width
     },
     handler: async (ctx, args) => {
         return await ctx.db.insert("logoVariants", args);
@@ -34,6 +35,7 @@ export const update = mutation({
         name: v.optional(v.string()),
         imageStorageId: v.optional(v.id("_storage")),
         price: v.optional(v.number()), // cents
+        fixedSize: v.optional(v.number()), // % of clothing width
     },
     handler: async (ctx, args) => {
         const { id, ...fields } = args;

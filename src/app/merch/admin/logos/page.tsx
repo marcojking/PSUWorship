@@ -26,11 +26,14 @@ export default function LogoVariantsAdminPage() {
     const [saving, setSaving] = useState(false);
     const [editingId, setEditingId] = useState<Id<"logoVariants"> | null>(null);
     const [existingImageId, setExistingImageId] = useState<Id<"_storage"> | null>(null);
+    const existingImageUrl = useQuery(api.storage.getUrl, existingImageId && !filePreview ? { storageId: existingImageId } : "skip");
+    const displayMain = filePreview ?? existingImageUrl;
 
     const [form, setForm] = useState({
         name: "",
         type: "satin_outline" as LogoType,
         price: "",
+        fixedSize: "20",
     });
 
     const handleEdit = (variant: {
@@ -38,6 +41,7 @@ export default function LogoVariantsAdminPage() {
         name: string;
         type: LogoType;
         price: number;
+        fixedSize?: number;
         imageStorageId: Id<"_storage">;
     }) => {
         setEditingId(variant._id);
@@ -45,6 +49,7 @@ export default function LogoVariantsAdminPage() {
             name: variant.name,
             type: variant.type,
             price: (variant.price / 100).toFixed(2),
+            fixedSize: variant.fixedSize ? Math.round(variant.fixedSize * 100).toString() : "20",
         });
         setExistingImageId(variant.imageStorageId);
         setFile(null);
@@ -58,7 +63,7 @@ export default function LogoVariantsAdminPage() {
         setExistingImageId(null);
         setFile(null);
         setFilePreview(null);
-        setForm({ name: "", type: "satin_outline", price: "" });
+        setForm({ name: "", type: "satin_outline", price: "", fixedSize: "20" });
         if (fileRef.current) fileRef.current.value = "";
     };
 
@@ -87,12 +92,14 @@ export default function LogoVariantsAdminPage() {
                 imageId = await uploadFile(file);
             }
 
+            const fixedSizeDec = parseFloat(form.fixedSize) / 100;
             if (editingId) {
                 await updateVariant({
                     id: editingId,
                     name: form.name,
                     type: form.type,
                     price: Math.round(parseFloat(form.price || "0") * 100),
+                    fixedSize: fixedSizeDec,
                     ...(imageId ? { imageStorageId: imageId } : {}),
                 });
             } else {
@@ -101,6 +108,7 @@ export default function LogoVariantsAdminPage() {
                     name: form.name,
                     type: form.type,
                     price: Math.round(parseFloat(form.price || "0") * 100),
+                    fixedSize: fixedSizeDec,
                     imageStorageId: imageId,
                 });
             }
@@ -189,6 +197,46 @@ export default function LogoVariantsAdminPage() {
                     </div>
                 </div>
 
+                <div className="mb-6 rounded-xl border border-border bg-background/50 p-4">
+                    <p className="mb-2 text-sm font-medium">Logo Size Slider</p>
+                    <p className="mb-4 text-xs text-muted">Adjust the slider below to set the default size relative to the width of the clothing.</p>
+
+                    <div className="flex flex-col md:flex-row gap-8">
+                        <div className="flex-1 max-w-[300px]">
+                            <label className="mb-1 block text-sm text-muted">Logo Size ({form.fixedSize}% width)</label>
+                            <div className="flex items-center gap-4 mb-4">
+                                <input
+                                    type="range"
+                                    min="5"
+                                    max="100"
+                                    value={form.fixedSize}
+                                    onChange={(e) => setForm((f) => ({ ...f, fixedSize: e.target.value }))}
+                                    className="w-full accent-secondary"
+                                />
+                                <span className="text-sm font-medium w-12 text-right">{form.fixedSize}%</span>
+                            </div>
+
+                            <div className="relative w-full aspect-[3/4] bg-secondary/5 rounded-xl border border-border flex items-center justify-center overflow-hidden">
+                                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
+
+                                <div className="absolute top-0 bottom-0 left-1/2 w-px bg-border/50 -translate-x-1/2" />
+                                <div className="absolute left-0 right-0 top-1/3 h-px bg-border/50" />
+
+                                {displayMain ? (
+                                    <img
+                                        src={displayMain}
+                                        className="absolute top-1/3 -translate-y-1/2 drop-shadow-md transition-all duration-200"
+                                        style={{ width: `${form.fixedSize}%`, height: 'auto', objectFit: 'contain' }}
+                                        alt="preview"
+                                    />
+                                ) : (
+                                    <div className="text-muted text-xs text-center px-4">Upload an image above to see sizing preview</div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button
                     type="submit"
                     disabled={(!editingId && !file) || !form.name || saving}
@@ -214,8 +262,8 @@ export default function LogoVariantsAdminPage() {
                     {variants.map((v) => (
                         <LogoCard
                             key={v._id}
-                            variant={v as { _id: Id<"logoVariants">; name: string; type: LogoType; price: number; imageStorageId: Id<"_storage"> }}
-                            onEdit={() => handleEdit(v as { _id: Id<"logoVariants">; name: string; type: LogoType; price: number; imageStorageId: Id<"_storage"> })}
+                            variant={v as { _id: Id<"logoVariants">; name: string; type: LogoType; price: number; fixedSize?: number; imageStorageId: Id<"_storage"> }}
+                            onEdit={() => handleEdit(v as { _id: Id<"logoVariants">; name: string; type: LogoType; price: number; fixedSize?: number; imageStorageId: Id<"_storage"> })}
                             onDelete={() => {
                                 if (confirm("Delete this logo variant?")) removeVariant({ id: v._id });
                             }}
@@ -245,7 +293,7 @@ function LogoCard({
     onEdit,
     onDelete,
 }: {
-    variant: { _id: Id<"logoVariants">; name: string; type: string; price: number; imageStorageId: Id<"_storage"> };
+    variant: { _id: Id<"logoVariants">; name: string; type: string; price: number; fixedSize?: number; imageStorageId: Id<"_storage"> };
     onEdit: () => void;
     onDelete: () => void;
 }) {
@@ -269,6 +317,11 @@ function LogoCard({
                     {variant.price > 0 ? `+$${(variant.price / 100).toFixed(2)}` : "Free"}
                 </span>
             </div>
+            {variant.fixedSize && (
+                <div className="mt-1 text-xs text-muted">
+                    Size: {Math.round(variant.fixedSize * 100)}% width
+                </div>
+            )}
             <div className="mt-4 pt-3 border-t border-border/50 flex gap-2 items-center">
                 <button onClick={onEdit} className="rounded bg-secondary/10 px-3 py-1.5 text-xs font-medium text-secondary hover:bg-secondary/20 transition-colors">
                     Edit

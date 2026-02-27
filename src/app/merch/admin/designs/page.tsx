@@ -90,6 +90,7 @@ function DesignCard({
     patchPrice: number;
     stickerPrice: number;
     embroideryPrice?: number;
+    fixedSize?: number;
     fixedSizeOnly: boolean;
     imageStorageId: Id<"_storage">;
     shapePath?: string;
@@ -109,10 +110,9 @@ function DesignCard({
 
   const uploadMockups = async (
     files: File[],
-    field: "stickerMockupIds" | "patchMockupIds" | "embroideryMockupIds",
   ) => {
     if (files.length === 0) return;
-    setUploadingType(field);
+    setUploadingType("embroideryMockupIds");
     try {
       const newIds: Id<"_storage">[] = [];
       for (const file of files) {
@@ -121,8 +121,8 @@ function DesignCard({
         const { storageId } = await res.json();
         newIds.push(storageId as Id<"_storage">);
       }
-      const existing = design[field] ?? [];
-      await updateDesign({ id: design._id, [field]: [...existing, ...newIds] });
+      const existing = design.embroideryMockupIds ?? [];
+      await updateDesign({ id: design._id, embroideryMockupIds: [...existing, ...newIds] });
     } catch (err) {
       console.error("Mockup upload failed:", err);
     }
@@ -131,19 +131,12 @@ function DesignCard({
 
   const removeMockup = async (
     storageId: Id<"_storage">,
-    field: "stickerMockupIds" | "patchMockupIds" | "embroideryMockupIds",
   ) => {
-    const updated = (design[field] ?? []).filter((id) => id !== storageId);
-    await updateDesign({ id: design._id, [field]: updated });
+    const updated = (design.embroideryMockupIds ?? []).filter((id) => id !== storageId);
+    await updateDesign({ id: design._id, embroideryMockupIds: updated });
   };
 
   const cents = (c: number) => `$${(c / 100).toFixed(2)}`;
-
-  const mockupSections: { label: string; field: "stickerMockupIds" | "patchMockupIds" | "embroideryMockupIds"; enabled: boolean }[] = [
-    { label: "Sticker", field: "stickerMockupIds", enabled: design.stickerEnabled ?? true },
-    { label: "Patch", field: "patchMockupIds", enabled: design.patchEnabled ?? true },
-    { label: "Embroidery", field: "embroideryMockupIds", enabled: design.embroideryEnabled ?? false },
-  ];
 
   return (
     <div
@@ -157,28 +150,26 @@ function DesignCard({
         </div>
       )}
 
-      {/* Per-type mockup slideshow photos */}
-      {mockupSections.filter((s) => s.enabled).map((section) => (
-        <div key={section.field} className="mb-3">
-          <p className="mb-1.5 text-xs font-medium text-muted">{section.label} Slideshow</p>
-          <div className="flex flex-wrap gap-2">
-            {(design[section.field] ?? []).map((sid) => (
-              <MockupThumb key={sid} storageId={sid} onRemove={() => removeMockup(sid, section.field)} />
-            ))}
-            <label className={`flex h-14 w-14 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border text-muted transition-colors hover:border-secondary/60 hover:text-secondary ${uploadingType === section.field ? "opacity-50 pointer-events-none" : ""}`}>
-              <span className="text-lg leading-none">{uploadingType === section.field ? "…" : "+"}</span>
-              <span className="mt-0.5 text-[9px]">add</span>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={(e) => uploadMockups(Array.from(e.target.files ?? []), section.field)}
-              />
-            </label>
-          </div>
+      {/* Embroidery mockup photos */}
+      <div className="mb-3">
+        <p className="mb-1.5 text-xs font-medium text-muted">Embroidery Photos</p>
+        <div className="flex flex-wrap gap-2">
+          {(design.embroideryMockupIds ?? []).map((sid) => (
+            <MockupThumb key={sid} storageId={sid} onRemove={() => removeMockup(sid)} />
+          ))}
+          <label className={`flex h-14 w-14 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border text-muted transition-colors hover:border-secondary/60 hover:text-secondary ${uploadingType === "embroideryMockupIds" ? "opacity-50 pointer-events-none" : ""}`}>
+            <span className="text-lg leading-none">{uploadingType === "embroideryMockupIds" ? "…" : "+"}</span>
+            <span className="mt-0.5 text-[9px]">add</span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => uploadMockups(Array.from(e.target.files ?? []))}
+            />
+          </label>
         </div>
-      ))}
+      </div>
 
       <div className="mb-1 flex items-center gap-2">
         <h3 className="font-semibold">{design.name}</h3>
@@ -188,11 +179,8 @@ function DesignCard({
       </div>
       <p className="mb-2 text-xs text-muted line-clamp-2">{design.description}</p>
       <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
-        {(design.stickerEnabled ?? true) && <span>Sticker {cents(design.stickerPrice)}</span>}
-        {(design.patchEnabled ?? true) && <span>Patch {cents(design.patchPrice)}</span>}
-        {(design.embroideryEnabled ?? false) && (
-          <span>Embroidery {cents(design.embroideryPrice ?? 0)}</span>
-        )}
+        <span>Embroidery {cents(design.embroideryPrice ?? 0)}</span>
+        <span>• Default Sizing: {design.fixedSize ? `${Math.round(design.fixedSize * 100)}%` : 'No Sizing Set'}</span>
       </div>
       <div className="flex gap-2">
         <button onClick={onEdit} className="rounded bg-secondary/20 px-2.5 py-1 text-xs font-medium text-secondary">
