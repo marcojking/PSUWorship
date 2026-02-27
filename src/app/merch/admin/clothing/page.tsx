@@ -14,6 +14,7 @@ type ClothingItem = {
   imageStorageId?: Id<"_storage">;
   frontImageStorageId?: Id<"_storage">;
   backImageStorageId?: Id<"_storage">;
+  availableSizes?: string[];
 };
 
 export default function ClothingAdminPage() {
@@ -40,6 +41,7 @@ export default function ClothingAdminPage() {
     name: "",
     basePrice: "",
     placementNames: "",
+    availableSizes: "S, M, L, XL",
   });
 
   const handleEdit = (item: ClothingItem) => {
@@ -48,6 +50,7 @@ export default function ClothingAdminPage() {
       name: item.name,
       basePrice: (item.basePrice / 100).toFixed(2),
       placementNames: item.placements.map(p => p.name).join(", "),
+      availableSizes: item.availableSizes ? item.availableSizes.join(", ") : "S, M, L, XL",
     });
 
     const fId = item.frontImageStorageId ?? item.imageStorageId;
@@ -73,7 +76,7 @@ export default function ClothingAdminPage() {
     setBackFile(null);
     setFrontPreview(null);
     setBackPreview(null);
-    setForm({ name: "", basePrice: "", placementNames: "" });
+    setForm({ name: "", basePrice: "", placementNames: "", availableSizes: "S, M, L, XL" });
     if (frontFileRef.current) frontFileRef.current.value = "";
     if (backFileRef.current) backFileRef.current.value = "";
   };
@@ -128,6 +131,11 @@ export default function ClothingAdminPage() {
           defaultSize: 30,
         }));
 
+      const availableSizes = form.availableSizes
+        .split(",")
+        .map((s) => s.trim().toUpperCase())
+        .filter(Boolean);
+
       if (editingId) {
         if (!finalFrontId || !finalBackId) throw new Error("Missing required images");
         await updateItem({
@@ -137,6 +145,7 @@ export default function ClothingAdminPage() {
           backImageStorageId: finalBackId,
           description: form.name,
           basePrice: Math.round(parseFloat(form.basePrice) * 100),
+          availableSizes,
           placements,
         });
       } else {
@@ -147,8 +156,8 @@ export default function ClothingAdminPage() {
           backImageStorageId: finalBackId,
           description: form.name,
           basePrice: Math.round(parseFloat(form.basePrice) * 100),
-          availableSizes: ["S", "M", "L", "XL"],
-          stock: { S: 0, M: 0, L: 0, XL: 0 },
+          availableSizes,
+          stock: {}, // We can initialize empty stock object
           placements,
         });
       }
@@ -241,17 +250,33 @@ export default function ClothingAdminPage() {
           </div>
         </div>
 
-        <div className="mb-4">
-          <label className="mb-1 block text-sm text-muted">
-            Placement zones (comma-separated)
-          </label>
-          <input
-            type="text"
-            value={form.placementNames}
-            onChange={(e) => setForm((f) => ({ ...f, placementNames: e.target.value }))}
-            placeholder="left chest, back center, right sleeve"
-            className={inputCls}
-          />
+        <div className="mb-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm text-muted">
+              Placement zones (comma-separated)
+            </label>
+            <input
+              type="text"
+              value={form.placementNames}
+              onChange={(e) => setForm((f) => ({ ...f, placementNames: e.target.value }))}
+              placeholder="left chest, back center, right sleeve"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className="mb-1 flex items-center gap-2 text-sm text-muted">
+              Available Sizes
+              <span className="text-[10px] text-muted-foreground/60">(comma-separated)</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={form.availableSizes}
+              onChange={(e) => setForm((f) => ({ ...f, availableSizes: e.target.value }))}
+              placeholder="S, M, L, XL"
+              className={inputCls}
+            />
+          </div>
         </div>
 
         <button
@@ -348,6 +373,26 @@ function ClothingCard({
           </span>
         ))}
       </div>
+      {item.availableSizes && item.availableSizes.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          <span className="text-[10px] text-muted mr-1 mt-0.5 font-medium">Sizes:</span>
+          {item.availableSizes.map((size) => (
+            <span key={size} className="rounded border border-border/50 bg-background px-1.5 py-0.5 text-[10px] text-muted font-medium">
+              {size}
+            </span>
+          ))}
+        </div>
+      )}
+      {item.availableSizes && item.availableSizes.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          <span className="text-[10px] text-muted mr-1 mt-0.5 font-medium">Sizes:</span>
+          {item.availableSizes.map((size) => (
+            <span key={size} className="rounded border border-border/50 bg-background px-1.5 py-0.5 text-[10px] text-muted font-medium">
+              {size}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="mt-4 pt-3 border-t border-border/50 flex gap-2 items-center">
         <button onClick={onEdit} className="rounded bg-secondary/10 px-3 py-1.5 text-xs font-medium text-secondary hover:bg-secondary/20 transition-colors">
           Edit
