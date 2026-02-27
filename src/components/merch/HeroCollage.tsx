@@ -62,8 +62,7 @@ export default function HeroCollage() {
           <img
             src="/logos/psuworship-patchwork.png"
             alt="PSUWorship"
-            // @ts-ignore - React 18 supports fetchPriority but TS might complain
-            fetchpriority="high"
+            fetchPriority="high"
             className="mx-auto h-auto w-[min(90vw,720px)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.7)] z-10 relative"
             draggable={false}
           />

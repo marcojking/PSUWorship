@@ -49,6 +49,11 @@ export const create = mutation({
         placements: v.optional(
           v.array(v.object({ designId: v.id("designs"), size: v.string(), position: v.string() })),
         ),
+        frontMockupId: v.optional(v.id("_storage")),
+        backMockupId: v.optional(v.id("_storage")),
+        frontPreviewId: v.optional(v.id("_storage")),
+        backPreviewId: v.optional(v.id("_storage")),
+        customNotes: v.optional(v.string()),
       }),
     ),
     total: v.number(),

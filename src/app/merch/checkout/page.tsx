@@ -7,12 +7,18 @@ import StickyNote from "@/components/merch/StickyNote";
 import Link from "next/link";
 
 import { Suspense } from "react";
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+
+import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-muted">Loading checkout...</div>}>
-      <CheckoutContent />
-    </Suspense>
+    <ConvexClientProvider>
+      <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-muted">Loading checkout...</div>}>
+        <CheckoutContent />
+      </Suspense>
+    </ConvexClientProvider>
   );
 }
 
@@ -95,17 +101,70 @@ function CheckoutContent() {
     setLoadingRates(false);
   };
 
+  const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
+
+  const uploadBase64Image = async (dataUri: string): Promise<string | null> => {
+    try {
+      // 1. Get a short-lived upload URL from Convex
+      const uploadUrl = await generateUploadUrl();
+      // 2. Convert base64 data URI to Blob
+      const res = await fetch(dataUri);
+      const blob = await res.blob();
+
+      // 3. POST the file to the upload URL
+      const uploadResult = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": blob.type },
+        body: blob,
+      });
+
+      if (!uploadResult.ok) throw new Error("Upload failed");
+      const { storageId } = await uploadResult.json();
+      return storageId;
+    } catch (err) {
+      console.error("Failed to upload image:", err);
+      return null;
+    }
+  };
+
   const handleCheckout = async () => {
     setSubmitting(true);
     setError(null);
     try {
+      // 1. Upload any base64/data URI mockups to Convex Storage, or use pre-uploaded IDs
+      const processedItems = await Promise.all(
+        items.map(async (item) => {
+          // Try uploading base64 if available, otherwise use pre-uploaded storage IDs
+          let frontMockupId = item.frontMockupId;
+          let backMockupId = item.backMockupId;
+          let frontPreviewId, backPreviewId;
+
+          if (item.frontMockupBase64) frontMockupId = (await uploadBase64Image(item.frontMockupBase64)) || frontMockupId;
+          if (item.backMockupBase64) backMockupId = (await uploadBase64Image(item.backMockupBase64)) || backMockupId;
+          if (item.frontPreviewUrl?.startsWith('data:')) frontPreviewId = await uploadBase64Image(item.frontPreviewUrl);
+          if (item.backPreviewUrl?.startsWith('data:')) backPreviewId = await uploadBase64Image(item.backPreviewUrl);
+
+          // Return the clean item without huge base64 strings to send to our API
+          const { frontMockupBase64, backMockupBase64, frontPreviewUrl, backPreviewUrl, frontMockupId: _fid, backMockupId: _bid, ...cleanItem } = item;
+          return {
+            ...cleanItem,
+            frontMockupId,
+            backMockupId,
+            frontPreviewId,
+            backPreviewId,
+            customNotes: item.customNotes || undefined,
+          };
+        })
+      );
+
+      // 2. Send the clean payload to the checkout API
       const res = await fetch("/api/merch/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           phone,
-          items,
+          items: processedItems,
           deliveryType,
           shippingAddress: deliveryType === "shipping" ? address : undefined,
           shippingCost,

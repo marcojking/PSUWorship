@@ -9,6 +9,7 @@ const navItems = [
   { href: "/merch/admin", label: "Dashboard" },
   { href: "/merch/admin/designs", label: "Designs" },
   { href: "/merch/admin/clothing", label: "Clothing" },
+  { href: "/merch/admin/logos", label: "Logos" },
   { href: "/merch/admin/standalone", label: "Standalone" },
   { href: "/merch/admin/prompts", label: "Prompts" },
   { href: "/merch/admin/orders", label: "Orders" },
@@ -36,11 +37,10 @@ export default function AdminLayout({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                    isActive
+                  className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${isActive
                       ? "bg-secondary/20 text-secondary"
                       : "text-muted hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </Link>

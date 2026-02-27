@@ -18,7 +18,13 @@ export interface CartItem {
   name: string;
   size?: string;
   placements?: { designId: string; size: string; position: string }[];
-  mockupBlobUrl?: string; // object URL for AI preview
+  frontMockupBase64?: string;
+  backMockupBase64?: string;
+  frontPreviewUrl?: string; // AI generated
+  backPreviewUrl?: string;  // AI generated
+  frontMockupId?: string;   // Convex storage ID (uploaded at add-to-cart)
+  backMockupId?: string;    // Convex storage ID (uploaded at add-to-cart)
+  customNotes?: string;
   quantity: number;
   unitPrice: number; // cents
 }
@@ -51,14 +57,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (stored) {
         setItems(JSON.parse(stored));
       }
-    } catch {}
+    } catch { }
     setLoaded(true);
   }, []);
 
-  // Persist to localStorage
+  // Persist to localStorage (strip large base64 blobs to avoid quota errors)
   useEffect(() => {
     if (loaded) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      const lightweight = items.map(({ frontMockupBase64, backMockupBase64, frontPreviewUrl, backPreviewUrl, ...rest }) => ({
+        ...rest,
+        // Keep tiny data-urls (<50KB) but drop large ones
+        frontMockupBase64: frontMockupBase64 && frontMockupBase64.length < 50_000 ? frontMockupBase64 : undefined,
+        backMockupBase64: backMockupBase64 && backMockupBase64.length < 50_000 ? backMockupBase64 : undefined,
+        frontPreviewUrl: frontPreviewUrl && frontPreviewUrl.length < 50_000 ? frontPreviewUrl : undefined,
+        backPreviewUrl: backPreviewUrl && backPreviewUrl.length < 50_000 ? backPreviewUrl : undefined,
+      }));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(lightweight));
+      } catch (e) {
+        console.warn("Cart too large for localStorage, clearing old data:", e);
+        localStorage.removeItem(STORAGE_KEY);
+      }
     }
   }, [items, loaded]);
 

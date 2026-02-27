@@ -100,6 +100,7 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
     stickerPrice: editDesign ? cents(editDesign.stickerPrice) : "",
     patchPrice: editDesign ? cents(editDesign.patchPrice) : "",
     embroideryPrice: editDesign ? cents(editDesign.embroideryPrice ?? 0) : "",
+    fixedSize: editDesign?.fixedSize ? editDesign.fixedSize.toString() : "",
     fixedSizeOnly: editDesign?.fixedSizeOnly ?? false,
   });
 
@@ -165,6 +166,7 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
         stickerPrice: toCents(form.stickerPrice),
         patchPrice: toCents(form.patchPrice),
         embroideryPrice: toCents(form.embroideryPrice),
+        fixedSize: form.fixedSize ? parseFloat(form.fixedSize) : undefined,
         fixedSizeOnly: form.fixedSizeOnly,
         ...(patchStorageId ? { patchImageStorageId: patchStorageId } : {}),
         ...(embroideryStorageId ? { embroideryImageStorageId: embroideryStorageId } : {}),
@@ -192,6 +194,7 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
           name: "", description: "", category: "",
           stickerPrice: "", patchPrice: "",
           embroideryPrice: "",
+          fixedSize: "",
           fixedSizeOnly: false,
         });
         if (mainFileRef.current) mainFileRef.current.value = "";
@@ -275,6 +278,20 @@ export default function DesignUploader({ onCreated, editDesign }: DesignUploader
             rows={2}
             className={inputCls + " resize-none"}
           />
+        </div>
+        <div className="mt-4">
+          <label className="mb-1 block text-sm text-muted">Default Canvas Scale (0.05 to 1.0)</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0.01"
+            max="1.0"
+            value={form.fixedSize}
+            onChange={(e) => setForm((f) => ({ ...f, fixedSize: e.target.value }))}
+            placeholder="e.g. 0.3 for 30% width"
+            className={inputCls}
+          />
+          <p className="mt-1 text-xs text-muted">The initial size percentage when dropped on the editor canvas.</p>
         </div>
       </div>
 

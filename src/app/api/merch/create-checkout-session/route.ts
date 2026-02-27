@@ -58,6 +58,7 @@ export async function POST(request: Request) {
       customer_email: email,
       line_items: lineItems,
       automatic_tax: { enabled: true },
+      allow_promotion_codes: true,
       ...(requiresApproval && {
         payment_intent_data: {
           capture_method: "manual",
@@ -89,6 +90,11 @@ export async function POST(request: Request) {
           unitPrice: number;
           size?: string;
           placements?: { designId: string; size: string; position: string }[];
+          frontMockupId?: string;
+          backMockupId?: string;
+          frontPreviewId?: string;
+          backPreviewId?: string;
+          customNotes?: string;
         }) => ({
           type: item.type,
           name: item.name,
@@ -98,6 +104,11 @@ export async function POST(request: Request) {
           ...(item.designId ? { designId: item.designId as never } : {}),
           ...(item.clothingItemId ? { clothingItemId: item.clothingItemId as never } : {}),
           ...(item.standaloneProductId ? { standaloneProductId: item.standaloneProductId as never } : {}),
+          ...(item.frontMockupId ? { frontMockupId: item.frontMockupId as never } : {}),
+          ...(item.backMockupId ? { backMockupId: item.backMockupId as never } : {}),
+          ...(item.frontPreviewId ? { frontPreviewId: item.frontPreviewId as never } : {}),
+          ...(item.backPreviewId ? { backPreviewId: item.backPreviewId as never } : {}),
+          ...(item.customNotes ? { customNotes: item.customNotes } : {}),
           ...(item.placements
             ? {
               placements: item.placements.map((p) => ({
@@ -121,7 +132,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Stripe checkout error:", error);
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: error instanceof Error ? error.message : "Failed to create checkout session" },
       { status: 500 },
     );
   }

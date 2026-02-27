@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ChordChart from '@/components/setlist/ChordChart';
+import SongExportModal from '@/components/setlist/SongExportModal';
 import { getSong, updateSong, type Song } from '@/lib/db';
 import { ALL_KEYS, getTranspositionInterval } from '@/lib/chords/transposition';
 
@@ -19,6 +20,7 @@ export default function SongDetailPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [displayKey, setDisplayKey] = useState<string>('');
   const [displayMode, setDisplayMode] = useState<'letters' | 'numerals' | 'none'>('letters');
+  const [showExport, setShowExport] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -75,13 +77,31 @@ export default function SongDetailPage({ params }: PageProps) {
           <span className="text-xl">←</span>
           <Logo />
         </Link>
-        <Link
-          href={`/setlist/songs/${id}/edit`}
-          className="text-sm text-primary font-semibold hover:underline"
-        >
-          Edit
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowExport(true)}
+            className="text-sm text-primary font-semibold hover:underline flex items-center gap-1"
+            title="Export song"
+          >
+            <span>↓</span> Export
+          </button>
+          <Link
+            href={`/setlist/songs/${id}/edit`}
+            className="text-sm text-primary font-semibold hover:underline"
+          >
+            Edit
+          </Link>
+        </div>
       </header>
+
+      {/* Export modal */}
+      {showExport && song && (
+        <SongExportModal
+          song={song}
+          initialKey={displayKey || song.key}
+          onClose={() => setShowExport(false)}
+        />
+      )}
 
       {/* Song Info */}
       <div className="mb-6">

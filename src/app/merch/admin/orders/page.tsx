@@ -48,21 +48,21 @@ export default function OrdersAdminPage() {
   });
 
 
-  const pendingCount   = orders?.filter((o) => o.status === "pending_approval").length ?? 0;
-  const approvedCount  = orders?.filter((o) => o.status === "approved").length ?? 0;
-  const paidCount      = orders?.filter((o) => o.status === "paid").length ?? 0;
+  const pendingCount = orders?.filter((o) => o.status === "pending_approval").length ?? 0;
+  const approvedCount = orders?.filter((o) => o.status === "approved").length ?? 0;
+  const paidCount = orders?.filter((o) => o.status === "paid").length ?? 0;
   const fulfilledCount = orders?.filter((o) => o.status === "fulfilled").length ?? 0;
-  const orphanCount    = orders?.filter((o) => o.status === "pending").length ?? 0;
-  const abandonCount   = orders?.filter((o) => o.status === "abandoned").length ?? 0;
+  const orphanCount = orders?.filter((o) => o.status === "pending").length ?? 0;
+  const abandonCount = orders?.filter((o) => o.status === "abandoned").length ?? 0;
 
   const tabs: { key: FilterTab; label: string; count?: number }[] = [
-    { key: "all",              label: "All",          count: orders?.filter((o) => ACTIVE_STATUSES.includes(o.status)).length },
-    { key: "pending_approval", label: "Needs Review", count: pendingCount   },
-    { key: "approved",         label: "Approved",     count: approvedCount  },
-    { key: "paid",             label: "Paid",         count: paidCount      },
-    { key: "fulfilled",        label: "Fulfilled",    count: fulfilledCount },
-    { key: "abandoned",        label: "Abandoned",    count: abandonCount   },
-    { key: "pending",          label: "Orphaned",     count: orphanCount    },
+    { key: "all", label: "All", count: orders?.filter((o) => ACTIVE_STATUSES.includes(o.status)).length },
+    { key: "pending_approval", label: "Needs Review", count: pendingCount },
+    { key: "approved", label: "Approved", count: approvedCount },
+    { key: "paid", label: "Paid", count: paidCount },
+    { key: "fulfilled", label: "Fulfilled", count: fulfilledCount },
+    { key: "abandoned", label: "Abandoned", count: abandonCount },
+    { key: "pending", label: "Orphaned", count: orphanCount },
   ];
 
   const handleApprove = async (order: NonNullable<typeof orders>[0]) => {
@@ -252,17 +252,39 @@ export default function OrdersAdminPage() {
                     <h4 className="mb-2 text-xs font-semibold text-muted uppercase">
                       Items ({order.items.length})
                     </h4>
-                    <div className="mb-4 space-y-1">
-                      {order.items.map((item, i) => (
-                        <div key={i} className="flex items-center justify-between rounded bg-background px-3 py-2 text-sm">
-                          <span>
-                            {item.name}
-                            {item.size && <span className="text-muted"> ({item.size})</span>}
-                            {item.quantity > 1 && <span className="text-muted"> ×{item.quantity}</span>}
-                          </span>
-                          <span className="font-medium">
-                            ${((item.unitPrice * item.quantity) / 100).toFixed(2)}
-                          </span>
+                    <div className="mb-4 space-y-4">
+                      {order.items.map((item: any, i: number) => (
+                        <div key={i} className="flex flex-col gap-2 rounded bg-background px-4 py-3 text-sm border border-border/50">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <span className="font-semibold">
+                                {item.name}
+                              </span>
+                              {item.size && <span className="text-muted ml-1">({item.size})</span>}
+                              {item.quantity > 1 && <span className="text-secondary font-medium ml-2">×{item.quantity}</span>}
+                            </div>
+                            <span className="font-medium">
+                              ${((item.unitPrice * item.quantity) / 100).toFixed(2)}
+                            </span>
+                          </div>
+
+
+                          {/* Custom notes from customer */}
+                          {item.customNotes && (
+                            <div className="mt-2 rounded-md border border-secondary/30 bg-secondary/5 px-3 py-2">
+                              <span className="text-[10px] font-semibold text-secondary uppercase tracking-wider">📝 Customer Notes:</span>
+                              <p className="mt-1 text-xs text-foreground whitespace-pre-wrap">{item.customNotes}</p>
+                            </div>
+                          )}
+
+                          {(item.frontMockupId || item.backMockupId || item.frontPreviewId || item.backPreviewId) && (
+                            <div className="flex flex-wrap gap-4 mt-2 pt-2 border-t border-border/30">
+                              {item.frontMockupId && <OrderItemPreview storageId={item.frontMockupId} label="Front Mockup" />}
+                              {item.backMockupId && <OrderItemPreview storageId={item.backMockupId} label="Back Mockup" />}
+                              {item.frontPreviewId && <OrderItemPreview storageId={item.frontPreviewId} label="Front Gen" />}
+                              {item.backPreviewId && <OrderItemPreview storageId={item.backPreviewId} label="Back Gen" />}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -329,6 +351,19 @@ export default function OrdersAdminPage() {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function OrderItemPreview({ storageId, label }: { storageId: Id<"_storage">; label: string }) {
+  const url = useQuery(api.storage.getUrl, { storageId });
+  if (!url) return <div className="h-32 w-24 animate-pulse bg-secondary/10 rounded border border-border"></div>;
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-[10px] font-semibold text-muted uppercase tracking-wider">{label}</span>
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        <img src={url} alt={label} className="h-32 w-auto rounded border border-border object-contain bg-black/5 hover:opacity-80 transition-opacity" />
+      </a>
     </div>
   );
 }

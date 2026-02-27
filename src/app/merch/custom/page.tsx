@@ -23,20 +23,6 @@ function CustomizePageInner() {
   return (
     <div>
       <MerchBuilder draftId={draftId} />
-
-      {/* Sticky note for local pickup */}
-      <section className="mx-auto max-w-sm py-8">
-        <StickyNote rotation={-1.5}>
-          <p className="font-medium">Hey!</p>
-          <p className="mt-1">
-            Live in State College or going to see Marco around? I can deliver in
-            person so we don&apos;t have to pay for shipping!
-          </p>
-          <p className="mt-2 text-xs text-[#968a78]">
-            You can choose local pickup at checkout.
-          </p>
-        </StickyNote>
-      </section>
     </div>
   );
 }
