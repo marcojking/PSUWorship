@@ -216,4 +216,18 @@ export default defineSchema({
     key: v.string(),
     value: v.string(),
   }).index("by_key", ["key"]),
+
+  leadershipInterest: defineTable({
+    name: v.string(),
+    email: v.string(),
+    gradYear: v.number(),
+    weeklyHours: v.number(),
+    roles: v.array(v.string()),
+    worshipTeam: v.boolean(),
+    instruments: v.optional(v.string()),
+    videoStorageId: v.id("_storage"),
+    requestsCall: v.boolean(),
+    phone: v.optional(v.string()),
+    submittedAt: v.number(),
+  }).index("by_submittedAt", ["submittedAt"]),
 });
