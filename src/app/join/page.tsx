@@ -8,6 +8,7 @@ import PersonalInfo from '@/components/join/PersonalInfo';
 import VideoUpload from '@/components/join/VideoUpload';
 import FollowUp from '@/components/join/FollowUp';
 import ThankYou from '@/components/join/ThankYou';
+import SubmittingOverlay from '@/components/join/SubmittingOverlay';
 
 interface FormData {
   roles: string[];
@@ -32,7 +33,7 @@ export default function JoinPage() {
     weeklyHours: 3,
     videoFile: null,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittingStage, setSubmittingStage] = useState<'uploading' | 'saving' | 'complete' | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +42,7 @@ export default function JoinPage() {
 
   async function handleFinalSubmit(followUp: { requestsCall: boolean; phone: string }) {
     if (!formData.videoFile) return;
-    setIsSubmitting(true);
+    setSubmittingStage('uploading');
     setError(null);
 
     try {
@@ -54,6 +55,8 @@ export default function JoinPage() {
       });
       if (!uploadRes.ok) throw new Error('Video upload failed');
       const { storageId } = await uploadRes.json();
+
+      setSubmittingStage('saving');
 
       await submit({
         name: formData.name,
@@ -68,17 +71,23 @@ export default function JoinPage() {
         phone: followUp.phone || undefined,
       });
 
-      setSubmitted(true);
+      setSubmittingStage('complete');
     } catch {
+      setSubmittingStage(null);
       setError('Something went wrong. Please try again.');
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
   if (submitted) return <ThankYou />;
 
   return (
+    <>
+    {submittingStage && (
+      <SubmittingOverlay
+        stage={submittingStage}
+        onDone={() => setSubmitted(true)}
+      />
+    )}
     <div className="join-page min-h-screen">
       <div className="max-w-3xl mx-auto px-6 pb-32">
         <div className="pt-16 pb-2">
@@ -131,12 +140,13 @@ export default function JoinPage() {
         )}
         {step === 4 && (
           <FollowUp
-            isSubmitting={isSubmitting}
+            isSubmitting={submittingStage !== null}
             onSubmit={handleFinalSubmit}
             onBack={() => setStep(3)}
           />
         )}
       </div>
     </div>
+    </>
   );
 }
