@@ -21,6 +21,16 @@ const MerchIcon = () => (
   </svg>
 );
 
+// SVG icon for Join — person with plus
+const JoinIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 sm:w-10 sm:h-10">
+    <circle cx="9" cy="7" r="4" stroke="#fff7eb" strokeWidth="2" fill="none" />
+    <path d="M2 21v-1a7 7 0 0 1 11.95-4.95" stroke="#fff7eb" strokeWidth="2" strokeLinecap="round" fill="none" />
+    <line x1="19" y1="13" x2="19" y2="21" stroke="#fff7eb" strokeWidth="2" strokeLinecap="round" />
+    <line x1="15" y1="17" x2="23" y2="17" stroke="#fff7eb" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
 // SVG icon for Setlist Manager - document with lines
 const SetlistIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 sm:w-10 sm:h-10">
@@ -55,6 +65,14 @@ const tools = [
     icon: <MerchIcon />,
     href: '/merch',
     color: 'bg-primary',
+  },
+  {
+    id: 'join',
+    title: 'Join the Team',
+    description: 'Apply for a leadership role or team position in PSU Worship',
+    icon: <JoinIcon />,
+    href: '/join',
+    color: 'bg-secondary',
   },
 ];
 
