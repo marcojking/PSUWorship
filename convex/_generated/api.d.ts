@@ -12,6 +12,7 @@ import type * as aiRenderCache from "../aiRenderCache.js";
 import type * as carts from "../carts.js";
 import type * as clothing from "../clothing.js";
 import type * as designs from "../designs.js";
+import type * as leadershipInterest from "../leadershipInterest.js";
 import type * as logoVariants from "../logoVariants.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
@@ -31,6 +32,7 @@ declare const fullApi: ApiFromModules<{
   carts: typeof carts;
   clothing: typeof clothing;
   designs: typeof designs;
+  leadershipInterest: typeof leadershipInterest;
   logoVariants: typeof logoVariants;
   orders: typeof orders;
   products: typeof products;

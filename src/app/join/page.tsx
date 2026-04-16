@@ -114,6 +114,9 @@ export default function JoinPage() {
 
         {step === 1 && (
           <RoleSelection
+            initialRoles={formData.roles}
+            initialWorshipTeam={formData.worshipTeam}
+            initialInstruments={formData.instruments}
             onNext={(data) => {
               setFormData((f) => ({ ...f, ...data }));
               setStep(2);
@@ -122,6 +125,10 @@ export default function JoinPage() {
         )}
         {step === 2 && (
           <PersonalInfo
+            initialName={formData.name}
+            initialEmail={formData.email}
+            initialGradYear={formData.gradYear}
+            initialWeeklyHours={formData.weeklyHours}
             onNext={(data) => {
               setFormData((f) => ({ ...f, ...data }));
               setStep(3);
@@ -131,6 +138,7 @@ export default function JoinPage() {
         )}
         {step === 3 && (
           <VideoUpload
+            initialFile={formData.videoFile}
             onNext={(file) => {
               setFormData((f) => ({ ...f, videoFile: file }));
               setStep(4);

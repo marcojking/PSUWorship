@@ -6,13 +6,13 @@ const LEADERSHIP_ROLES = [
   { title: 'Vice President', description: 'Assist the President, step in when needed, and help coordinate across all teams.' },
   { title: 'Music Director', description: 'Lead musical direction for worship nights and recordings — keys, arrangements, rehearsals.' },
   { title: 'Treasurer', description: 'Manage club finances, track expenses, and handle UPAC funding requests.' },
-  { title: 'Secretary', description: 'Take meeting notes, manage communications, keep the team organized.' },
+  { title: 'Secretary', description: 'Manage communications and keep the team organized.' },
   { title: 'Event Coordinator', description: 'Plan and execute worship nights and events. Co-leads the Events & Hospitality team.' },
   { title: 'Hospitality Lead', description: 'Create a welcoming environment at every event. Co-leads the Events & Hospitality team.' },
-  { title: 'Social Media Lead', description: 'Own our social presence — content strategy, posting cadence, and platform growth.' },
-  { title: 'Media Lead', description: 'Direct photo and video coverage of events and manage content production.' },
-  { title: 'Tech/Production Lead', description: 'Run live sound and lighting at events, oversee studio sessions. Full training provided.' },
-  { title: 'Graphic Design Lead', description: 'Create visual assets, promotional materials, and maintain brand consistency.' },
+  { title: 'Social Media Lead', description: 'Shape the creative voice of our social channels — visual storytelling, content strategy, and building our online presence.' },
+  { title: 'Media Lead', description: 'Direct photo and video coverage of events and manage content production. Training provided.' },
+  { title: 'Tech/Production Lead', description: 'Run live sound and lighting at events, oversee studio sessions. Training provided.' },
+  { title: 'Graphic Design Lead', description: 'Design merch, create visual assets, promotional materials, and maintain brand consistency.' },
   { title: 'Prayer Lead', description: 'Organize and lead prayer for the club — before events, during meetings, and beyond.' },
 ];
 
@@ -26,13 +26,21 @@ const TEAM_ROLES = [
 const MAX_SELECTIONS = 3;
 
 interface RoleSelectionProps {
+  initialRoles?: string[];
+  initialWorshipTeam?: boolean;
+  initialInstruments?: string;
   onNext: (data: { roles: string[]; worshipTeam: boolean; instruments: string }) => void;
 }
 
-export default function RoleSelection({ onNext }: RoleSelectionProps) {
-  const [selected, setSelected] = useState<string[]>([]);
-  const [worshipTeam, setWorshipTeam] = useState(false);
-  const [instruments, setInstruments] = useState('');
+export default function RoleSelection({
+  initialRoles = [],
+  initialWorshipTeam = false,
+  initialInstruments = '',
+  onNext,
+}: RoleSelectionProps) {
+  const [selected, setSelected] = useState<string[]>(initialRoles);
+  const [worshipTeam, setWorshipTeam] = useState(initialWorshipTeam);
+  const [instruments, setInstruments] = useState(initialInstruments);
 
   function toggleRole(title: string) {
     setSelected((prev) => {
@@ -109,12 +117,9 @@ export default function RoleSelection({ onNext }: RoleSelectionProps) {
         className="rounded-2xl border p-6"
         style={{ background: 'rgba(180,87,65,0.07)', borderColor: 'rgba(180,87,65,0.2)' }}
       >
-        <h3 className="font-cormorant font-semibold italic text-xl text-primary mb-2">
-          Interested in the Worship Team?
+        <h3 className="font-cormorant font-semibold italic text-xl text-primary mb-4">
+          Interested in Live Worship or Recording Songs?
         </h3>
-        <p className="text-sm font-light text-primary/60 leading-relaxed mb-4">
-          Anyone at PSU Worship is welcome to write, record, and perform original songs with us — regardless of what role you hold.
-        </p>
         <label className="flex items-center gap-3 cursor-pointer">
           <div
             className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${

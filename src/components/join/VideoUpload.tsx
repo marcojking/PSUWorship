@@ -2,13 +2,16 @@
 import { useState, useRef } from 'react';
 
 interface VideoUploadProps {
+  initialFile?: File | null;
   onNext: (file: File) => void;
   onBack: () => void;
 }
 
-export default function VideoUpload({ onNext, onBack }: VideoUploadProps) {
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+export default function VideoUpload({ initialFile = null, onNext, onBack }: VideoUploadProps) {
+  const [file, setFile] = useState<File | null>(initialFile);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialFile ? URL.createObjectURL(initialFile) : null
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -23,7 +26,7 @@ export default function VideoUpload({ onNext, onBack }: VideoUploadProps) {
       <div className="flex flex-col gap-2">
         <h2 className="font-cormorant font-semibold text-3xl text-primary">Tell us about yourself.</h2>
         <p className="text-sm font-light text-primary/60 leading-relaxed">
-          Why do you want to be part of PSU Worship, and what does worship mean to you?
+          Why do you want to be part of PSU Worship, what does worship mean to you, and why did you choose the role(s) you selected?
         </p>
       </div>
 

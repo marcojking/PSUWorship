@@ -3,15 +3,26 @@ import { useState } from 'react';
 import Slider from './Slider';
 
 interface PersonalInfoProps {
+  initialName?: string;
+  initialEmail?: string;
+  initialGradYear?: number;
+  initialWeeklyHours?: number;
   onNext: (data: { name: string; email: string; gradYear: number; weeklyHours: number }) => void;
   onBack: () => void;
 }
 
-export default function PersonalInfo({ onNext, onBack }: PersonalInfoProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [gradYear, setGradYear] = useState(2028);
-  const [weeklyHours, setWeeklyHours] = useState(3);
+export default function PersonalInfo({
+  initialName = '',
+  initialEmail = '',
+  initialGradYear = 2028,
+  initialWeeklyHours = 3,
+  onNext,
+  onBack,
+}: PersonalInfoProps) {
+  const [name, setName] = useState(initialName);
+  const [email, setEmail] = useState(initialEmail);
+  const [gradYear, setGradYear] = useState(initialGradYear);
+  const [weeklyHours, setWeeklyHours] = useState(initialWeeklyHours);
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const canAdvance = name.trim().length > 0 && emailValid;
