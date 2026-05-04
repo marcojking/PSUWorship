@@ -12,7 +12,7 @@ const LEADERSHIP_ROLES = [
   { title: 'Social Media Lead', description: 'Shape the creative voice of our social channels — visual storytelling, content strategy, and building our online presence.' },
   { title: 'Media Lead', description: 'Direct photo and video coverage of events and manage content production. Training provided.' },
   { title: 'Tech/Production Lead', description: 'Run live sound and lighting at events, oversee studio sessions. Training provided.' },
-  { title: 'Graphic Design Lead', description: 'Design merch, create visual assets, promotional materials, and maintain brand consistency.' },
+  { title: 'Graphics / Art Lead', description: 'Design merch, album covers, visual assets, promotional materials, and maintain brand consistency.' },
   { title: 'Prayer Lead', description: 'Organize and lead prayer for the club — before events, during meetings, and beyond.' },
 ];
 

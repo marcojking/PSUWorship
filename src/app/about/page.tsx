@@ -59,7 +59,7 @@ const POSITIONS = [
   'Vice President',
   'Music Director',
   'Media Lead',
-  'Graphic Design',
+  'Graphics / Art',
   'Secretary',
   'Event Coordinator',
   'Tech Lead',
