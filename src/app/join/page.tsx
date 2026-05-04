@@ -9,6 +9,7 @@ import VideoUpload from '@/components/join/VideoUpload';
 import FollowUp from '@/components/join/FollowUp';
 import ThankYou from '@/components/join/ThankYou';
 import SubmittingOverlay from '@/components/join/SubmittingOverlay';
+import Link from 'next/link';
 
 interface FormData {
   roles: string[];
@@ -90,10 +91,20 @@ export default function JoinPage() {
     )}
     <div className="join-page min-h-screen">
       <div className="max-w-3xl mx-auto px-6 pb-32">
-        <div className="pt-16 pb-2">
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] uppercase text-secondary mb-2">
-            WM&A
-          </p>
+        <div className="pt-10 pb-2">
+          <Link href="/" style={{
+            display: 'inline-block',
+            fontFamily: 'var(--font-source-sans), "Source Sans 3", sans-serif',
+            fontSize: '1rem',
+            fontWeight: 700,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            color: 'rgba(0,48,73,0.5)',
+            textDecoration: 'none',
+            marginBottom: '1.25rem',
+          }}>
+            WM<span style={{ color: '#b45741', fontWeight: 800, margin: '0 0.02em' }}>&amp;</span>A
+          </Link>
           <h1 className="font-cormorant font-semibold text-5xl sm:text-6xl text-primary leading-tight mb-3">
             Join the Team.
           </h1>
