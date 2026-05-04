@@ -13,7 +13,7 @@ export default function PathFork({ onApply, onTalkFirst }: PathForkProps) {
           How do you want to proceed?
         </h2>
         <p className="text-sm font-light text-primary/55 leading-relaxed max-w-sm">
-          You can submit a full application now, or have a quick conversation with Marco first — no commitment either way.
+          You can submit a full application now, or have a quick conversation with Marco first.
         </p>
       </div>
 
