@@ -212,20 +212,14 @@ export default function GivePage() {
           }}>
             We partner with churches, campus ministries, and organizations who want to invest in worship culture at Penn State. Sponsorships help fund events, recording projects, and equipment.
           </p>
-          <a
-            href="mailto:wmaac@psu.edu?subject=Sponsorship Inquiry"
-            style={{
-              display: 'inline-block',
-              fontFamily: 'var(--font-source-sans)',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              letterSpacing: '0.06em',
-              color: '#b45741',
-              textDecoration: 'none',
-            }}
-          >
-            Get in touch → wmaac@psu.edu
-          </a>
+          <p style={{
+            fontSize: '0.82rem',
+            fontWeight: 400,
+            color: 'rgba(0,48,73,0.45)',
+            fontStyle: 'italic',
+          }}>
+            Contact info coming soon.
+          </p>
         </div>
       </div>
 

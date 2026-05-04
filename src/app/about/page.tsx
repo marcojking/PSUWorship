@@ -375,10 +375,7 @@ export default function AboutPage() {
         fontWeight: 300,
         color: 'rgba(0,48,73,0.3)',
       }}>
-        Worship Music &amp; Arts Club at Penn State ·{' '}
-        <a href="mailto:wmaac@psu.edu" style={{ color: 'inherit', textDecoration: 'none' }}>
-          wmaac@psu.edu
-        </a>
+        Worship Music &amp; Arts Club at Penn State
       </footer>
 
     </div>
