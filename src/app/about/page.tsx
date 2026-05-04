@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { MediaMarquee } from '@/components/about/MediaMarquee';
+import SiteNav from '@/components/SiteNav';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type FaqItem = { q: string; a: string };
@@ -186,24 +187,7 @@ export default function AboutPage() {
     >
 
       {/* ── Nav ── */}
-      <nav style={{
-        padding: '1.25rem 1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderBottom: '1px solid rgba(0,48,73,0.08)',
-      }}>
-        <Link href="/" style={{
-          fontFamily: 'var(--font-source-sans)',
-          fontSize: '1.15rem',
-          fontWeight: 700,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-          color: 'rgba(0,48,73,0.55)',
-          textDecoration: 'none',
-        }}>
-          WM<span style={{ color: '#b45741', fontWeight: 800, margin: '0 0.02em' }}>&amp;</span>A
-        </Link>
+      <SiteNav action={
         <Link href="/join" style={{
           fontFamily: 'var(--font-source-sans)',
           fontSize: '0.78rem',
@@ -214,7 +198,7 @@ export default function AboutPage() {
         }}>
           Apply →
         </Link>
-      </nav>
+      } />
 
       {/* ── Hero ── */}
       <section style={{ maxWidth: '680px', margin: '0 auto', padding: '4rem 1.5rem 3rem' }}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const ITEMS: Array<{ type: 'image' | 'video'; src: string }> = [
   { type: 'image', src: '/about/band-photo-wide.jpg' },
@@ -17,10 +17,20 @@ const ITEMS: Array<{ type: 'image' | 'video'; src: string }> = [
 
 const LOOP_ITEMS = [...ITEMS, ...ITEMS];
 
-const H = 340;
+const H_DESKTOP = 340;
+const H_MOBILE = 170;
 
 export function MediaMarquee() {
   const parallaxRef = useRef<HTMLDivElement>(null);
+  const [H, setH] = useState(H_DESKTOP);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    setH(mq.matches ? H_MOBILE : H_DESKTOP);
+    const handler = (e: MediaQueryListEvent) => setH(e.matches ? H_MOBILE : H_DESKTOP);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     let raf: number;

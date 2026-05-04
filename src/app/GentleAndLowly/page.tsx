@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import SiteNav from '@/components/SiteNav';
 
 const SONGS = [
   {
@@ -35,17 +36,8 @@ export default function GentleAndLowlyPage() {
   return (
     <div className="setlist-page" style={{ background: '#1a1714', color: '#f5ead6', minHeight: '100vh' }}>
 
-      {/* ── Back nav ── */}
-      <div style={{ padding: '20px 28px' }}>
-        <Link href="/" style={{
-          fontFamily: 'var(--font-source-sans), "Source Sans 3", sans-serif',
-          fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.22em',
-          textTransform: 'uppercase', color: 'rgba(245,234,214,0.4)',
-          textDecoration: 'none',
-        }}>
-          ← WM<span style={{ color: '#c4793a' }}>&amp;</span>A
-        </Link>
-      </div>
+      {/* ── Nav ── */}
+      <SiteNav variant="dark" />
 
       {/* ── Hero ── */}
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 28px 48px' }}>

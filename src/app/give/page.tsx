@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import SiteNav from '@/components/SiteNav';
 
 const PRESETS = [5, 10, 25];
 
@@ -39,17 +40,15 @@ export default function GivePage() {
   }
 
   return (
-    <div className="setlist-page min-h-screen flex flex-col items-center justify-center px-5 py-16"
-      style={{ background: '#fff7eb' }}>
+    <div className="setlist-page min-h-screen flex flex-col" style={{ background: '#fff7eb' }}>
 
+      <SiteNav />
+
+      <div className="flex-1 flex flex-col items-center justify-center px-5 py-16">
       <div className="w-full max-w-sm">
 
         {/* Header */}
         <div className="text-center mb-10">
-          <p className="text-[0.58rem] font-semibold tracking-[0.25em] uppercase mb-3"
-            style={{ color: 'rgba(180,87,65,0.7)' }}>
-            WM&A
-          </p>
           <h1 className="font-cormorant font-semibold text-5xl mb-3" style={{ color: '#003049' }}>
             Give
           </h1>
@@ -174,6 +173,7 @@ export default function GivePage() {
           </p>
 
         </form>
+      </div>
       </div>
     </div>
   );
