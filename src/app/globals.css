@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fff7eb;
+  --foreground: #003049;
+  --primary: #003049;
+  --secondary: #b45741;
+  --accent: #7fa0af;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-source-sans);
+}
+
+/* Default - prevent scrolling for harmony trainer */
+html, body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-source-sans), 'Source Sans 3', sans-serif;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  height: 100dvh; /* Use dynamic viewport height for mobile */
+}
+
+/* Allow scrolling on setlist pages */
+html:has(.setlist-page), body:has(.setlist-page) {
+  overflow: auto;
+  position: static;
+}
+
+/* ── Merch Store Theme ── */
+.merch-theme {
+  --background: #1a1714;
+  --foreground: #f5ead6;
+  --primary: #f5ead6;
+  --secondary: #c4793a;
+  --accent: #8b7355;
+  --card: #242019;
+  --border: #3a3228;
+  --muted: #968a78;
+}
+
+html:has(.merch-theme), body:has(.merch-theme) {
+  overflow: auto;
+  position: static;
+  height: auto;
+  background: #1a1714;
+  color: #f5ead6;
+}
+
+.merch-theme ::selection {
+  background: #c4793a;
+  color: #1a1714;
+}
+
+/* Mobile-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari */
+  html, body {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Slider styling for better mobile touch */
+input[type="range"].slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #7fa0af;
+  border-radius: 4px;
+  height: 8px;
+}
+
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #fff7eb;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"].slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #fff7eb;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* ── Join Page + Admin ── */
+html:has(.join-page), body:has(.join-page),
+html:has(.admin-page), body:has(.admin-page),
+html:has(.about-page), body:has(.about-page) {
+  overflow: auto;
+  position: static;
+  height: auto;
+}
+
+.font-cormorant {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', serif;
+}
+
+@keyframes join-glow-breathe {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1;   }
+}
+
+.join-progress-glow {
+  animation: join-glow-breathe 3s ease-in-out infinite;
+}
+
+@keyframes join-badge-in {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 0.85; transform: scale(1); }
+}
+
+.join-badge-visible {
+  animation: join-badge-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+input[type="range"].join-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    #b45741 0%,
+    #b45741 var(--fill-pct, 0%),
+    rgba(0,48,73,0.15) var(--fill-pct, 0%),
+    rgba(0,48,73,0.15) 100%
+  );
+}
+
+input[type="range"].join-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  background: #fff7eb;
+  border: 2px solid #b45741;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+input[type="range"].join-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+input[type="range"].join-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  background: #fff7eb;
+  border: 2px solid #b45741;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Touch-friendly hit areas */
+@media (max-width: 640px) {
+  input[type="range"].slider::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  input[type="range"].slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+  }
+}

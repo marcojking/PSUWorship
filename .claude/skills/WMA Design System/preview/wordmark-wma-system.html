@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WM&A — Final Wordmark System</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { background: #fff7eb; color: #003049; padding: 14px 18px; font-family: 'Source Sans 3', sans-serif; }
+  .row { background: #fff; border: 1px solid rgba(0,48,73,0.1); border-radius: 12px; padding: 22px 24px; margin-bottom: 10px; display: flex; align-items: center; gap: 18px; }
+  .row.dark { background: #003049; border-color: #003049; }
+  .label { font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,48,73,0.55); width: 180px; flex-shrink: 0; }
+  .dark .label { color: rgba(255,247,235,0.45); }
+
+  /* ─── THE RULE ──────────────────────────────────────
+     - Source Sans 3
+     - UPPERCASE
+     - Letter-spacing: 0.04em (tight-ish) for compact, 0.28em for editorial
+     - All letters same cap-height
+     - The & is the hero: always rust (#b45741), and always 1 weight bolder than the letters it sits between
+     ─────────────────────────────────────────────────── */
+
+  .amp { color: #b45741; }
+  .dark .amp { color: #d97757; }  /* slightly brightened for contrast on navy */
+
+  /* 1. Acronym — the primary mark */
+  .m-acronym {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 700; font-size: 44px; letter-spacing: 0.04em;
+    line-height: 1; text-transform: uppercase; color: #003049;
+  }
+  .dark .m-acronym { color: #fff7eb; }
+  .m-acronym .amp { font-weight: 800; margin: 0 0.02em; }
+
+  /* 2. Nav lockup — acronym + rule + tagline */
+  .m-nav { display: flex; align-items: center; gap: 14px; }
+  .m-nav .lg {
+    font-family: 'Source Sans 3', sans-serif; font-weight: 700; font-size: 38px;
+    letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; color: #003049;
+  }
+  .m-nav .lg .amp { font-weight: 800; margin: 0 0.02em; }
+  .m-nav .rule { width: 1px; height: 32px; background: rgba(0,48,73,0.22); }
+  .m-nav .tag {
+    font-family: 'Source Sans 3', sans-serif; font-weight: 400; font-size: 9.5px;
+    letter-spacing: 0.3em; text-transform: uppercase; color: rgba(0,48,73,0.6); line-height: 1.3;
+  }
+  .m-nav .tag .amp { font-weight: 700; }
+  .dark .m-nav .lg { color: #fff7eb; }
+  .dark .m-nav .rule { background: rgba(255,247,235,0.25); }
+  .dark .m-nav .tag { color: rgba(255,247,235,0.5); }
+
+  /* 3. Full stacked — spelled out, 2 lines, bold */
+  .m-full-bold {
+    font-family: 'Source Sans 3', sans-serif; font-weight: 700; font-size: 22px;
+    letter-spacing: 0.04em; line-height: 1.15; text-transform: uppercase; color: #003049;
+  }
+  .m-full-bold .amp { font-weight: 800; margin: 0 0.04em; }
+  .dark .m-full-bold { color: #fff7eb; }
+
+  /* 4. Full editorial — wide, light, bold & */
+  .m-full-wide {
+    font-family: 'Source Sans 3', sans-serif; font-weight: 300; font-size: 18px;
+    letter-spacing: 0.28em; line-height: 1; text-transform: uppercase; color: #003049;
+  }
+  .m-full-wide .amp { font-weight: 700; margin: 0 0.12em; letter-spacing: 0; }
+  .dark .m-full-wide { color: #fff7eb; }
+
+  /* 5. Mini / favicon — just W M & A stacked */
+  .m-favicon {
+    width: 70px; height: 70px; background: #003049; color: #fff7eb;
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-family: 'Source Sans 3', sans-serif; font-weight: 700; font-size: 28px;
+    letter-spacing: 0.04em;
+  }
+  .m-favicon .amp { font-weight: 800; margin: 0 0.02em; color: #d97757; }
+</style>
+</head>
+<body>
+
+  <div class="row">
+    <div class="label">1 · Acronym</div>
+    <div class="m-acronym">WM<span class="amp">&amp;</span>A</div>
+  </div>
+
+  <div class="row dark">
+    <div class="label">2 · Acronym on navy</div>
+    <div class="m-acronym">WM<span class="amp">&amp;</span>A</div>
+  </div>
+
+  <div class="row">
+    <div class="label">3 · Nav lockup</div>
+    <div class="m-nav">
+      <div class="lg">WM<span class="amp">&amp;</span>A</div>
+      <div class="rule"></div>
+      <div class="tag">Worship Music<br/><span class="amp">&amp;</span> Arts at Penn State</div>
+    </div>
+  </div>
+
+  <div class="row dark">
+    <div class="label">4 · Nav on navy</div>
+    <div class="m-nav">
+      <div class="lg">WM<span class="amp">&amp;</span>A</div>
+      <div class="rule"></div>
+      <div class="tag">Worship Music<br/><span class="amp">&amp;</span> Arts at Penn State</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label">5 · Full stacked</div>
+    <div class="m-full-bold">WORSHIP MUSIC<br/><span class="amp">&amp;</span> ARTS</div>
+  </div>
+
+  <div class="row dark">
+    <div class="label">6 · Full stacked on navy</div>
+    <div class="m-full-bold">WORSHIP MUSIC<br/><span class="amp">&amp;</span> ARTS</div>
+  </div>
+
+  <div class="row">
+    <div class="label">7 · Wide editorial</div>
+    <div class="m-full-wide">WORSHIP MUSIC <span class="amp">&amp;</span> ARTS</div>
+  </div>
+
+  <div class="row" style="gap: 20px;">
+    <div class="label">8 · Favicon / app icon</div>
+    <div class="m-favicon">W<span class="amp">&amp;</span>A</div>
+    <div style="font-family: ui-monospace, monospace; font-size: 9px; color: rgba(0,48,73,0.45); line-height: 1.4;">3-char stacked<br/>for tight square<br/>spaces</div>
+  </div>
+
+</body>
+</html>

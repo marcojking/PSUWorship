@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Imagery — System</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin:0; padding:0; }
+  body {
+    background: #fff7eb; color: #003049; padding: 18px;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .eyebrow {
+    font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: #b45741; font-weight: 600; margin-bottom: 8px;
+  }
+  .title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic; font-weight: 600;
+    font-size: 22px; line-height: 1.1; margin: 0 0 4px;
+  }
+  .sub { font-size: 11px; color: rgba(0,48,73,0.55); line-height: 1.5; margin-bottom: 14px; }
+
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .tile {
+    border-radius: 10px; overflow: hidden; aspect-ratio: 4/5;
+    position: relative; background: #f0e7d4;
+    border: 1px solid rgba(0,48,73,0.08);
+  }
+  .tile.dark { background: #1a1714; border-color: #3a3228; }
+
+  /* striped placeholder */
+  .ph {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    background: repeating-linear-gradient(135deg, #ece2cc 0 8px, #e1d6bb 8px 16px);
+    color: rgba(0,48,73,0.55);
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 10px;
+  }
+  .ph.dark {
+    background: repeating-linear-gradient(135deg, #221d18 0 8px, #2c2620 8px 16px);
+    color: rgba(245,234,214,0.55);
+  }
+  .cap {
+    position: absolute; left: 10px; bottom: 10px; right: 10px;
+    color: #fff7eb; font-family: ui-monospace, monospace;
+    font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+  .rule { color: rgba(0,48,73,0.45); font-size: 10px; line-height: 1.5; }
+  .rule b { color: #003049; font-weight: 600; }
+
+  .principles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0 18px; }
+  .principle {
+    background: #fff; border: 1px solid rgba(0,48,73,0.1); border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .principle .name {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #b45741; font-weight: 600; margin-bottom: 4px;
+  }
+  .principle .body { font-size: 11px; line-height: 1.5; color: rgba(0,48,73,0.7); }
+
+  .crop-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    margin-bottom: 14px;
+  }
+  .crop {
+    border: 1px solid rgba(0,48,73,0.12); border-radius: 8px; padding: 8px;
+    background: #fff;
+  }
+  .crop .ph { aspect-ratio: 1/1; border-radius: 4px; }
+  .crop .lab {
+    margin-top: 6px;
+    font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(0,48,73,0.55); font-family: ui-monospace, monospace;
+  }
+
+  .dont {
+    background: #fff; border: 1px dashed rgba(180,87,65,0.4); border-radius: 10px;
+    padding: 10px 14px; font-size: 11px; line-height: 1.55; color: rgba(0,48,73,0.7);
+  }
+  .dont b { color: #b45741; }
+</style>
+</head>
+<body>
+
+  <div class="eyebrow">Imagery</div>
+  <div class="title">Photography that feels handmade.</div>
+  <div class="sub">Warm, grainy, contained. Real student events and physical product shots — never AI gradients, never stock illustration.</div>
+
+  <!-- Subjects -->
+  <div class="eyebrow" style="margin-top:6px">Subjects we shoot</div>
+  <div class="row">
+    <div class="tile"><div class="ph">Event<br/>worship night</div><div class="cap">Worship · low-light</div></div>
+    <div class="tile"><div class="ph">Hands &amp; instruments<br/>guitar · keys · vocals</div><div class="cap">Practice · hands</div></div>
+    <div class="tile"><div class="ph">Merch on neutral paper<br/>patch · sticker · tee</div><div class="cap">Merch · paper</div></div>
+  </div>
+
+  <!-- G&L band imagery -->
+  <div class="eyebrow">Gentle &amp; Lowly · darker register</div>
+  <div class="row">
+    <div class="tile dark"><div class="ph dark">Studio · analog<br/>tape · cable · room</div><div class="cap">Recording</div></div>
+    <div class="tile dark"><div class="ph dark">Portrait · band<br/>warm key, deep shadow</div><div class="cap">Band portrait</div></div>
+    <div class="tile dark"><div class="ph dark">Cover art<br/>square 1:1 · grain heavy</div><div class="cap">Release art</div></div>
+  </div>
+
+  <!-- Principles -->
+  <div class="eyebrow">Treatment principles</div>
+  <div class="principles">
+    <div class="principle">
+      <div class="name">Warm-graded</div>
+      <div class="body">Pull cool blues toward teal. Lift shadows slightly. Skin reads warm, not orange.</div>
+    </div>
+    <div class="principle">
+      <div class="name">Grain on, always</div>
+      <div class="body">Add 35mm-style grain at 4–6%. Counters the AI-render look; reads as photographed.</div>
+    </div>
+    <div class="principle">
+      <div class="name">Contained, not bleed</div>
+      <div class="body">On cream surfaces, photos sit inside cards with 12–16px radius — almost never full-bleed.</div>
+    </div>
+    <div class="principle">
+      <div class="name">Low-light over lit</div>
+      <div class="body">Worship + studio shots prefer one warm key with deep falloff. Avoid flat-lit event coverage.</div>
+    </div>
+  </div>
+
+  <!-- Crops -->
+  <div class="eyebrow">Crop ratios in use</div>
+  <div class="crop-row">
+    <div class="crop"><div class="ph">1:1</div><div class="lab">Cover · social</div></div>
+    <div class="crop"><div class="ph" style="aspect-ratio:4/5">4:5</div><div class="lab">Feed post</div></div>
+    <div class="crop"><div class="ph" style="aspect-ratio:9/16">9:16</div><div class="lab">Reels · stories</div></div>
+    <div class="crop"><div class="ph" style="aspect-ratio:3/2">3:2</div><div class="lab">Web hero · cards</div></div>
+  </div>
+
+  <!-- Don't -->
+  <div class="eyebrow">Don't</div>
+  <div class="dont">
+    <b>No</b> AI gradient backgrounds as hero. <b>No</b> stock illustration of crosses, doves, or worship hands. <b>No</b> heavy color filters (purple, cyan). <b>No</b> emoji overlays on photography.
+  </div>
+
+</body>
+</html>

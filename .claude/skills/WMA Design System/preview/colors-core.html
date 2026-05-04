@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Colors — Core</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--navy);
+    padding: 20px 24px;
+  }
+  .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .swatch {
+    border-radius: 12px;
+    padding: 14px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid rgba(0,48,73,0.08);
+    box-shadow: 0 2px 8px rgba(0,48,73,0.06);
+  }
+  .name { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+  .hex  { font-family: var(--font-mono); font-size: 11px; opacity: 0.75; }
+  .on-dark .name, .on-dark .hex { color: var(--cream); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="swatch" style="background:#fff7eb;">
+      <div class="name">Cream</div><div class="hex">#fff7eb · --cream</div>
+    </div>
+    <div class="swatch on-dark" style="background:#003049;">
+      <div class="name">Navy</div><div class="hex">#003049 · --navy</div>
+    </div>
+    <div class="swatch on-dark" style="background:#b45741;">
+      <div class="name">Rust</div><div class="hex">#b45741 · --rust</div>
+    </div>
+    <div class="swatch on-dark" style="background:#7fa0af;">
+      <div class="name">Blue-grey</div><div class="hex">#7fa0af · --bluegrey</div>
+    </div>
+  </div>
+</body>
+</html>

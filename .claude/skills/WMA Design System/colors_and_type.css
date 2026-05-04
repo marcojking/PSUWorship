@@ -1,0 +1,301 @@
+/* ============================================================
+   PSU Worship Design System — Colors & Type
+   ============================================================
+   Source of truth: PSUWorship codebase (src/app/globals.css)
+   Fonts: Cormorant Garamond (display) + Source Sans 3 (body)
+   ============================================================ */
+
+/* ---------- Webfont imports ---------- */
+/* All brand fonts hosted locally as variable TTFs. The single @font-face
+   per slant covers every weight in the variable axis. */
+
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('fonts/SourceSans3-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('fonts/SourceSans3-Italic-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('fonts/CormorantGaramond-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('fonts/CormorantGaramond-Italic-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* ─────────────────────────── CORE PALETTE ─────────────────────────── */
+  /* Warm editorial palette — cream backgrounds, deep navy for type, rust
+     as warm accent, blue-grey as cool secondary. */
+  --cream:        #fff7eb;   /* primary background on all non-merch surfaces */
+  --cream-soft:   #faefd9;   /* secondary paper tone, cards on cream */
+  --navy:         #003049;   /* primary foreground, brand anchor */
+  --navy-ink:     #001f30;   /* slightly deeper for headings when needed */
+  --rust:         #b45741;   /* warm action/accent color */
+  --rust-deep:    #8f3f2b;   /* pressed / hover-deep state */
+  --bluegrey:     #7fa0af;   /* cool accent, sliders, secondary ink */
+  --bluegrey-deep:#5a7a89;
+
+  /* ─────────────────────────── MERCH (DARK) ─────────────────────────── */
+  /* Activated by wrapping with .merch-theme — a warm-dark mode used on the
+     merch store to set a tactile, moody product-photography mood. */
+  --merch-bg:        #1a1714;
+  --merch-fg:        #f5ead6;
+  --merch-primary:   #f5ead6;
+  --merch-secondary: #c4793a;   /* amber — rust's warmer cousin */
+  --merch-accent:    #8b7355;
+  --merch-card:      #242019;
+  --merch-border:    #3a3228;
+  --merch-muted:     #968a78;
+
+  /* ─────────────────────────── SEMANTIC TOKENS ─────────────────────── */
+  --bg:              var(--cream);
+  --bg-elev:         #ffffff;      /* cards on cream */
+  --bg-muted:        rgba(0, 48, 73, 0.05);
+  --bg-muted-hover:  rgba(0, 48, 73, 0.10);
+
+  --fg:              var(--navy);
+  --fg-1:            var(--navy);              /* strongest text */
+  --fg-2:            rgba(0, 48, 73, 0.60);    /* body / secondary */
+  --fg-3:            rgba(0, 48, 73, 0.40);    /* captions */
+  --fg-4:            rgba(0, 48, 73, 0.25);    /* placeholders */
+  --fg-5:            rgba(0, 48, 73, 0.10);    /* hairlines */
+  --fg-on-primary:   var(--cream);             /* cream text on navy */
+  --fg-on-accent:    var(--cream);             /* cream text on rust */
+
+  --accent:          var(--rust);
+  --accent-soft:     rgba(180, 87, 65, 0.10);
+  --accent-softer:   rgba(180, 87, 65, 0.07);
+  --accent-border:   rgba(180, 87, 65, 0.20);
+
+  --cool:            var(--bluegrey);
+  --cool-soft:       rgba(127, 160, 175, 0.20);
+  --cool-glow:       rgba(127, 160, 175, 0.32);
+
+  --border:          rgba(0, 48, 73, 0.15);
+  --border-strong:   rgba(0, 48, 73, 0.30);
+
+  /* Status (use sparingly — not core brand) */
+  --success: #5b8f3f;
+  --warning: var(--rust);
+  --danger:  #8f3f2b;
+
+  /* ─────────────────────────── TYPOGRAPHY ──────────────────────────── */
+  --font-display: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-body:    'Source Sans 3', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono:    ui-monospace, 'SF Mono', 'Courier New', Courier, monospace;
+
+  /* Type scale — mobile-first, editorial rhythm. Display sizes lean
+     LARGE (Cormorant has tall headlines). */
+  --fs-display-xl: clamp(3rem, 8vw, 5rem);     /* hero headline */
+  --fs-display-lg: clamp(2.5rem, 6vw, 3.75rem);/* page h1 */
+  --fs-display:    clamp(2rem, 4.5vw, 3rem);   /* section h2 (display) */
+  --fs-h1:         2rem;     /* 32 */
+  --fs-h2:         1.5rem;   /* 24 */
+  --fs-h3:         1.25rem;  /* 20 */
+  --fs-h4:         1.125rem; /* 18 */
+  --fs-body:       1rem;     /* 16 */
+  --fs-body-sm:    0.875rem; /* 14 */
+  --fs-caption:    0.75rem;  /* 12 */
+  --fs-eyebrow:    0.7rem;   /* 11.2 — tracking-widest uppercase */
+  --fs-micro:      0.65rem;  /* 10.4 — fine print */
+
+  /* Weights */
+  --fw-extralight: 200;
+  --fw-light:      300;
+  --fw-regular:    400;
+  --fw-medium:     500;
+  --fw-semibold:   600;
+  --fw-bold:       700;
+  --fw-black:      900;
+
+  /* Line heights */
+  --lh-tight:  1.1;
+  --lh-snug:   1.25;
+  --lh-normal: 1.5;
+  --lh-relaxed:1.65;
+
+  /* Letter spacing */
+  --ls-tight:    -0.02em;
+  --ls-snug:     -0.01em;
+  --ls-normal:   0;
+  --ls-wide:     0.05em;
+  --ls-widest:   0.2em;   /* eyebrows, uppercase tags */
+
+  /* ─────────────────────────── SPACING / RADII ─────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  --radius-sm: 6px;
+  --radius:    12px;
+  --radius-lg: 16px;    /* cards */
+  --radius-xl: 24px;    /* large cards, sections */
+  --radius-2xl: 32px;
+  --radius-full: 9999px; /* pills, primary buttons */
+
+  /* ─────────────────────────── SHADOWS ─────────────────────────────── */
+  /* Soft, editorial — shadows are almost always navy-tinted on cream. */
+  --shadow-sm:  0 1px 2px rgba(0, 48, 73, 0.06);
+  --shadow:     0 2px 8px rgba(0, 48, 73, 0.08);
+  --shadow-md:  0 8px 24px rgba(0, 48, 73, 0.10);
+  --shadow-lg:  0 12px 32px rgba(0, 48, 73, 0.14);
+  --shadow-xl:  0 20px 48px rgba(0, 48, 73, 0.18);
+  /* Merch uses warm-black drop shadow for tactile product feel */
+  --shadow-product: 0 8px 32px rgba(0, 0, 0, 0.7);
+
+  /* ─────────────────────────── MOTION ──────────────────────────────── */
+  --ease:       cubic-bezier(0.4, 0, 0.2, 1);        /* default */
+  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);      /* exits, fades */
+  --ease-spring:cubic-bezier(0.34, 1.56, 0.64, 1);   /* badge pops */
+  --dur-fast:   150ms;
+  --dur:        200ms;
+  --dur-med:    300ms;
+  --dur-slow:   500ms;
+}
+
+/* ──────────────────────────── DARK MERCH THEME ────────────────────────
+   Apply class to a wrapper — inverts to warm-dark product surface. */
+.merch-theme {
+  --bg: var(--merch-bg);
+  --bg-elev: var(--merch-card);
+  --bg-muted: rgba(245, 234, 214, 0.05);
+  --fg: var(--merch-fg);
+  --fg-1: var(--merch-fg);
+  --fg-2: var(--merch-muted);
+  --fg-3: rgba(150, 138, 120, 0.70);
+  --fg-4: rgba(150, 138, 120, 0.40);
+  --fg-on-primary: var(--merch-bg);
+  --accent: var(--merch-secondary);
+  --accent-soft: rgba(196, 121, 58, 0.12);
+  --accent-border: rgba(196, 121, 58, 0.30);
+  --border: var(--merch-border);
+  --border-strong: rgba(58, 50, 40, 0.80);
+}
+
+/* ──────────────────────────── BASE TYPE RESETS ────────────────────────
+   These apply when you opt in via `.psuw-type` on a container, so this
+   file is safe to include anywhere without hijacking global styles. */
+.psuw-type, .psuw-type * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.psuw-type {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  color: var(--fg-1);
+  background: var(--bg);
+}
+
+/* ──────────────────────────── SEMANTIC TYPE ──────────────────────────
+   Canonical type roles — use as classes or as a reference. The signature
+   PSU Worship move is Cormorant Garamond italic semibold for display. */
+.psuw-display-xl {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-style: italic;
+  font-size: var(--fs-display-xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--fg-1);
+}
+.psuw-display {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-display-lg);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-snug);
+  color: var(--fg-1);
+}
+.psuw-h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+  color: var(--fg-1);
+}
+.psuw-h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-style: italic;
+  font-size: var(--fs-h1);       /* ~32 — section heads */
+  line-height: var(--lh-snug);
+  color: var(--fg-1);
+}
+.psuw-h3 {
+  font-family: var(--font-body);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-snug);
+  color: var(--fg-1);
+}
+.psuw-body {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-1);
+}
+.psuw-body-light {                  /* hero subtitles, intros */
+  font-family: var(--font-body);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-body);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-2);
+}
+.psuw-caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--fg-3);
+}
+.psuw-eyebrow {                     /* the signature small-caps tag */
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.psuw-mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-body-sm);
+  color: var(--fg-1);
+}
+
+/* The logotype lockup: "PSU" extralight + "Worship" bold, one tracking */
+.psuw-wordmark {
+  font-family: var(--font-body);
+  letter-spacing: var(--ls-tight);
+  color: var(--fg-1);
+}
+.psuw-wordmark .psu   { font-weight: var(--fw-extralight); }
+.psuw-wordmark .ship  { font-weight: var(--fw-bold); }

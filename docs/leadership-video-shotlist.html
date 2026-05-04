@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WM&A — Leadership Announcement Script</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Source+Sans+3:wght@200;300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 300;
+      background: #fff7eb;
+      color: #003049;
+      padding: 48px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      border-bottom: 1px solid rgba(0,48,73,0.12);
+      padding-bottom: 28px;
+      margin-bottom: 48px;
+    }
+    .eyebrow {
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(180,87,65,0.75);
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 600;
+      font-style: italic;
+      line-height: 1.05;
+      color: #003049;
+    }
+    .meta {
+      margin-top: 14px;
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label {
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.35);
+    }
+    .meta-value {
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: rgba(0,48,73,0.65);
+    }
+
+    /* ── Cast ── */
+    .cast-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .cast-tag {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid rgba(0,48,73,0.1);
+      background: rgba(0,48,73,0.03);
+    }
+    .cast-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Section divider ── */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 32px 0 12px;
+    }
+    .section-divider span {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.35);
+      flex-shrink: 0;
+    }
+    .section-divider::before, .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(0,48,73,0.08);
+    }
+
+    /* ── Scene rows ── */
+    .scene {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 0;
+      margin-bottom: 4px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(0,48,73,0.09);
+      min-height: 130px;
+    }
+
+    /* Left — spoken word */
+    .scene-left {
+      padding: 22px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(0,48,73,0.022);
+    }
+    .scene-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .scene-tc {
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      color: rgba(0,48,73,0.28);
+      font-variant-numeric: tabular-nums;
+    }
+    .scene-speaker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .scene-speaker .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .scene-line {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.9rem;
+      font-weight: 600;
+      font-style: italic;
+      line-height: 1.2;
+      color: #003049;
+    }
+
+    /* Right — visual */
+    .scene-right {
+      padding: 20px 22px;
+      border-left: 1px solid rgba(0,48,73,0.08);
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .visual-label {
+      font-size: 0.52rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.28);
+    }
+    .visual-desc {
+      font-size: 0.79rem;
+      font-weight: 300;
+      line-height: 1.6;
+      color: rgba(0,48,73,0.62);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.52rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 5px;
+      margin-bottom: 3px;
+    }
+    .badge-existing { background: rgba(127,160,175,0.18); color: #3a6a7a; }
+    .badge-capture  { background: rgba(180,87,65,0.14);   color: #b45741; }
+    .badge-text     { background: rgba(0,48,73,0.08);     color: #003049; }
+    .badge-endcard  { background: rgba(196,145,58,0.18);  color: #7a5010; }
+
+    /* End card */
+    .scene.endcard { min-height: 160px; }
+    .scene.endcard .scene-left {
+      background: #003049;
+      justify-content: center;
+    }
+    .scene.endcard .scene-tc { color: rgba(255,247,235,0.25); }
+    .wma-mark {
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 700;
+      font-size: 2.2rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff7eb;
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+    .wma-mark .amp { color: #d97757; font-weight: 800; margin: 0 0.02em; }
+    .url-stack {
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 300;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,247,235,0.55);
+      line-height: 1;
+    }
+    .url-base { color: rgba(255,247,235,0.75); font-weight: 400; }
+    .url-sub  { color: #d97757; font-weight: 600; }
+    .url-row  { display: flex; align-items: baseline; gap: 2px; margin-top: 8px; }
+    .scene.endcard .scene-right {
+      background: #001f30;
+      border-left-color: rgba(255,247,235,0.06);
+    }
+    .scene.endcard .visual-label { color: rgba(255,247,235,0.25); }
+    .scene.endcard .visual-desc  { color: rgba(255,247,235,0.45); }
+
+    /* ── Checklist ── */
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 12px;
+    }
+    .check-group-title {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.38);
+      margin-bottom: 10px;
+    }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(0,48,73,0.06);
+      font-size: 0.78rem;
+      font-weight: 300;
+      line-height: 1.45;
+      color: rgba(0,48,73,0.72);
+    }
+    .checkbox {
+      width: 13px; height: 13px;
+      border: 1.5px solid rgba(0,48,73,0.22);
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 56px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0,48,73,0.1);
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      font-weight: 300;
+      color: rgba(0,48,73,0.3);
+    }
+
+    /* ── Speaker colors ── */
+    .spk-austin  { background: rgba(0,48,73,0.08);     color: #003049; }
+    .spk-austin  .dot { background: #003049; }
+    .spk-hannah  { background: rgba(180,87,65,0.1);    color: #b45741; }
+    .spk-hannah  .dot { background: #b45741; }
+    .spk-colin   { background: rgba(127,160,175,0.18); color: #3a6a7a; }
+    .spk-colin   .dot { background: #7fa0af; }
+    .spk-tbd     { background: rgba(100,120,60,0.1);   color: #4a6020; }
+    .spk-tbd     .dot { background: #7a9a40; }
+    .spk-cassidy { background: rgba(180,130,40,0.12);  color: #8a6010; }
+    .spk-cassidy .dot { background: #c49332; }
+    .spk-marco   { background: rgba(120,80,140,0.1);   color: #6b3f7a; }
+    .spk-marco   .dot { background: #9b59b6; }
+
+    @media print {
+      body { padding: 20px; }
+      .scene { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <p class="eyebrow">Worship Music &amp; Arts Club at Penn State — Internal Production Document</p>
+    <h1>Leadership Announcement<br><span style="font-weight:400">Script &amp; Shot List</span></h1>
+    <div class="meta">
+      <div class="meta-item"><div class="meta-label">Draft</div><div class="meta-value">April 2026</div></div>
+      <div class="meta-item"><div class="meta-label">Format</div><div class="meta-value">Vertical 9:16</div></div>
+      <div class="meta-item"><div class="meta-label">Target Runtime</div><div class="meta-value">~55 seconds</div></div>
+      <div class="meta-item"><div class="meta-label">Platform</div><div class="meta-value">Instagram · TikTok</div></div>
+      <div class="meta-item"><div class="meta-label">Primary CTA</div><div class="meta-value">wmaac.org/join</div></div>
+    </div>
+  </div>
+
+  <div class="section-divider"><span>Cast</span></div>
+  <div class="cast-row">
+    <div class="cast-tag spk-austin"><div class="cast-dot" style="background:#003049"></div>Austin</div>
+    <div class="cast-tag spk-hannah"><div class="cast-dot" style="background:#b45741"></div>Hannah</div>
+    <div class="cast-tag spk-colin"><div class="cast-dot" style="background:#7fa0af"></div>Colin</div>
+    <div class="cast-tag spk-tbd"><div class="cast-dot" style="background:#7a9a40"></div>Jake / Luke — TBD</div>
+    <div class="cast-tag spk-cassidy"><div class="cast-dot" style="background:#c49332"></div>Cassidy</div>
+    <div class="cast-tag spk-marco"><div class="cast-dot" style="background:#9b59b6"></div>Marco</div>
+  </div>
+
+  <div class="section-divider"><span>Script</span></div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:00</span>
+        <span class="scene-speaker spk-austin"><span class="dot"></span>Austin</span>
+      </div>
+      <div class="scene-line">"God is moving at Penn State."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-capture">To Capture</span>
+        Austin face, direct to camera. First frame — no cold open. Starts with presence.
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:03</span>
+        <span class="scene-speaker spk-hannah"><span class="dot"></span>Hannah</span>
+      </div>
+      <div class="scene-line">"And music is playing a huge part in that."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-capture">To Capture</span>
+        Hannah face briefly → b-roll begins fading in: small group worship, living room sessions.
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:07</span>
+        <span class="scene-speaker spk-colin"><span class="dot"></span>Colin</span>
+      </div>
+      <div class="scene-line">"New Wine Worship just gathered students for a night of worship and prayer in one of Penn State's largest classrooms."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-existing">Existing</span>
+        B-roll builds in scale — small group → mid-size room → New Wine wide shot. Cut on each jump.
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:15</span>
+        <span class="scene-speaker spk-tbd"><span class="dot"></span>Jake / Luke — TBD</span>
+      </div>
+      <div class="scene-line">"Other Christian groups have been worshiping together and inviting others to join."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-existing">Existing</span>
+        Multi-group b-roll — different venues, different groups, variety of faces.
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:20</span>
+        <span class="scene-speaker spk-cassidy"><span class="dot"></span>Cassidy</span>
+      </div>
+      <div class="scene-line">"God is not slowing down."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-capture">To Capture</span>
+        Cassidy face, direct to lens. Pace drops. Short line — let it sit before Marco.
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:23</span>
+        <span class="scene-speaker spk-marco"><span class="dot"></span>Marco</span>
+      </div>
+      <div class="scene-line">"So we started Worship Music and Arts Club — to give students a place to use their gifts through music and art to worship God, and help others see the beauty and joy of who He is."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-capture">To Capture</span>
+        Marco face. Can cut briefly to b-roll (instruments, art, worship) mid-line then return.
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:33</span>
+        <span class="scene-speaker spk-marco"><span class="dot"></span>Marco</span>
+      </div>
+      <div class="scene-line">"This fall we're bringing Pat Barrett and Caleb King to campus for worship nights."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-existing">Existing</span>
+        Campus b-roll — HUB Lawn if available.
+        <br><br>
+        <span class="badge badge-text">Text Overlay</span>
+        <em>"Pat Barrett · Caleb King"</em> — one name per cut.
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:38</span>
+        <span class="scene-speaker spk-marco"><span class="dot"></span>Marco</span>
+      </div>
+      <div class="scene-line">"Our club's student band, Gentle &amp; Lowly, is releasing an EP — written and recorded by students — and we plan to keep doing that."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-existing">Existing</span>
+        Studio recording footage — mics, instruments, someone tracking vocals. Warm, grainy.
+        <br><br>
+        <span class="badge badge-text">Text Overlay</span>
+        <em>"Gentle &amp; Lowly — EP Coming Soon"</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:46</span>
+        <span class="scene-speaker spk-marco"><span class="dot"></span>Marco</span>
+      </div>
+      <div class="scene-line">"We'd love for you to pray and think about applying for one of our leadership roles or team positions."</div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-capture">To Capture</span>
+        Marco face, warm and direct. Optional: quick text cards cutting through open roles — VP · Graphic Design · Secretary · Event Coordinator · Music Director · Media Lead · Tech · Prayer Lead.
+      </div>
+    </div>
+  </div>
+
+  <div class="scene endcard">
+    <div class="scene-left">
+      <div class="scene-meta">
+        <span class="scene-tc">0:53</span>
+      </div>
+      <div class="wma-mark">WM<span class="amp">&amp;</span>A</div>
+      <div class="url-stack">
+        <span class="url-base">wmaac.org</span>
+        <div class="url-row"><span class="url-sub">/join</span></div>
+        <div class="url-row"><span class="url-sub">/give</span></div>
+        <div class="url-row"><span class="url-sub">/info</span></div>
+      </div>
+    </div>
+    <div class="scene-right">
+      <div class="visual-label">Visual</div>
+      <div class="visual-desc">
+        <span class="badge badge-endcard">End Card</span>
+        Clean cream background. WM&amp;A mark fades in. <em>wmaac.org</em> appears below it. Then subdomains animate in and out one at a time: <strong>/join</strong> slides in → holds → slides out → <strong>/give</strong> → <strong>/info</strong>. Hold 5–6 sec total. Music lifts to close.
+        <br><br>
+        <em style="font-size:0.72rem; color:rgba(255,247,235,0.3)">Note: wmaac.org/info page still needs to be built.</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider" style="margin-top:48px"><span>Shot Checklist</span></div>
+  <div class="checklist-grid">
+    <div>
+      <div class="check-group-title">To Capture — New Footage Needed</div>
+      <div class="check-item"><div class="checkbox"></div>Austin — talking head, direct to camera (line 1)</div>
+      <div class="check-item"><div class="checkbox"></div>Hannah — talking head (line 2)</div>
+      <div class="check-item"><div class="checkbox"></div>Colin — talking head (line 3)</div>
+      <div class="check-item"><div class="checkbox"></div>Jake / Luke — talking head, TBD (line 4)</div>
+      <div class="check-item"><div class="checkbox"></div>Cassidy — talking head (line 5)</div>
+      <div class="check-item"><div class="checkbox"></div>Marco — talking head, lines 6–9</div>
+      <div class="check-item"><div class="checkbox"></div>Role cards — fast text overlays for open positions</div>
+    </div>
+    <div>
+      <div class="check-group-title">Existing Footage — Pull from Archive</div>
+      <div class="check-item"><div class="checkbox"></div>New Wine — wide crowd shot (auditorium scale)</div>
+      <div class="check-item"><div class="checkbox"></div>New Wine — close-ups: faces, hands, worship leaders</div>
+      <div class="check-item"><div class="checkbox"></div>Small group / living room worship sessions</div>
+      <div class="check-item"><div class="checkbox"></div>Multi-group campus worship (variety of venues)</div>
+      <div class="check-item"><div class="checkbox"></div>Studio recording footage (mics, instruments, vocals)</div>
+      <div class="check-item"><div class="checkbox"></div>Campus b-roll — HUB Lawn or outdoor footage</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Worship Music &amp; Arts Club at Penn State — Internal Use Only</span>
+    <span>Draft · April 2026</span>
+  </div>
+
+</body>
+</html>

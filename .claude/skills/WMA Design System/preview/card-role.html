@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Role Cards</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin:0; padding:0; }
+  body { background: var(--cream); padding: 22px 28px; font-family: var(--font-body); color: var(--navy); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  .card {
+    border-radius: 16px;
+    padding: 16px 16px 16px 56px;   /* extra left pad — number lives there */
+    min-height: 100px;
+    position: relative;
+    cursor: pointer;
+    transition: all 200ms;
+  }
+  .team { background: var(--cream); border: 1px solid rgba(0,48,73,0.20); }
+  .team.selected { background: rgba(180,87,65,0.10); border-color: #b45741; }
+  .leadership { background: var(--navy); color: var(--cream); border: 1px solid transparent; }
+  .leadership.selected { background: #b45741; border-color: #b45741; }
+
+  .title {
+    font-family: var(--font-display); font-style: italic;
+    font-weight: 600; font-size: 17px; line-height: 1.15; margin-bottom: 6px;
+  }
+  .team .title { color: var(--navy); }
+  .team.selected .title { color: #b45741; }
+  .leadership .title { color: var(--cream); }
+  .desc { font-size: 11.5px; line-height: 1.5; font-weight: 300; }
+  .team .desc { color: rgba(0,48,73,0.6); }
+  .leadership .desc { color: rgba(255,247,235,0.7); }
+
+  /* Index chip — anchored to the card's left edge with a hairline divider.
+     Reads as part of the card's structure, not floating type. */
+  .idx {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 40px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono, ui-monospace, 'SF Mono', monospace);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    pointer-events: none;
+  }
+  /* vertical hairline that ties the chip into the card */
+  .idx::after {
+    content: "";
+    position: absolute;
+    right: 0; top: 16px; bottom: 16px;
+    width: 1px;
+  }
+
+  .team .idx { color: rgba(0,48,73,0.35); }
+  .team .idx::after { background: rgba(0,48,73,0.15); }
+  .team.selected .idx { color: #b45741; }
+  .team.selected .idx::after { background: rgba(180,87,65,0.4); }
+
+  .leadership .idx { color: rgba(255,247,235,0.45); }
+  .leadership .idx::after { background: rgba(255,247,235,0.2); }
+  .leadership.selected .idx { color: #f5ead6; }
+  .leadership.selected .idx::after { background: rgba(255,247,235,0.5); }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="card team selected">
+      <div class="idx">01</div>
+      <div class="title">Media &amp; Social Team</div>
+      <div class="desc">Help capture events on camera, edit content, and manage social posts.</div>
+    </div>
+    <div class="card leadership selected">
+      <div class="idx">02</div>
+      <div class="title">Music Director</div>
+      <div class="desc">Lead musical direction for worship nights and recordings.</div>
+    </div>
+    <div class="card leadership">
+      <div class="idx">03</div>
+      <div class="title">Event Coordinator</div>
+      <div class="desc">Plan and execute worship nights and events with the hospitality lead.</div>
+    </div>
+  </div>
+</body>
+</html>

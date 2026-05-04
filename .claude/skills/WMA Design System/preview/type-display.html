@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Type — Display</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--navy); padding: 20px 28px; font-family: var(--font-body); }
+  .spec { display: flex; gap: 18px; align-items: baseline; margin-bottom: 10px; }
+  .tag { font-family: var(--font-mono); font-size: 10px; color: rgba(0,48,73,0.45); width: 180px; flex-shrink: 0; letter-spacing: 0; }
+  .sample { font-family: var(--font-display); color: var(--navy); line-height: 1.05; }
+</style>
+</head>
+<body>
+  <div class="spec">
+    <div class="tag">Cormorant italic 600 / 56</div>
+    <div class="sample" style="font-size:56px; font-style:italic; font-weight:600;">Join the Team.</div>
+  </div>
+  <div class="spec">
+    <div class="tag">Cormorant italic 600 / 24</div>
+    <div class="sample" style="font-size:24px; font-style:italic; font-weight:600;">Leadership Roles</div>
+  </div>
+  <div class="spec">
+    <div class="tag">Cormorant italic 600 / 18 · accent</div>
+    <div class="sample" style="font-size:18px; font-style:italic; font-weight:600; color:#b45741;">2 / 3 selected</div>
+  </div>
+</body>
+</html>

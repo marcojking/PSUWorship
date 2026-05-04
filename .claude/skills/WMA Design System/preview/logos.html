@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Logos</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin:0; padding:0; }
+  body { background: var(--cream); padding: 18px 22px; font-family: var(--font-body); color: var(--navy); }
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .cell { background: #fff; border: 1px solid rgba(0,48,73,0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; height: 130px; }
+  .cell.dark { background: #003049; }
+  .cell.espresso { background: #1a1714; border-color: #3a3228; }
+  .cap { font-family: var(--font-mono); font-size: 9px; color: rgba(0,48,73,0.55); text-align: center; }
+  .dark .cap, .espresso .cap { color: rgba(245,234,214,0.45); }
+  .amp-rust { color: #b45741; font-weight: 800; margin: 0 0.02em; }
+  .amp-rust-bright { color: #d97757; font-weight: 800; margin: 0 0.02em; }
+  .amp-amber { color: #c4793a; font-weight: 700; margin: 0 0.15em; letter-spacing: 0; }
+  .acronym-lg { font-weight: 700; font-size: 34px; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; color: #003049; }
+  .dark .acronym-lg { color: #fff7eb; }
+  .gl-wide { font-weight: 200; font-size: 14px; letter-spacing: 0.28em; line-height: 1; text-transform: uppercase; color: #f5ead6; }
+
+  /* G&L square — same vibe as WM&A on-navy: bold acronym, accent ampersand. */
+  .gl-square {
+    font-family: var(--font-body, 'Source Sans 3', sans-serif);
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: #f5ead6;
+  }
+  .gl-square .amp {
+    color: #c4793a;
+    font-weight: 800;
+    margin: 0 0.02em;
+  }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="cell">
+      <div class="acronym-lg">WM<span class="amp-rust">&amp;</span>A</div>
+      <div class="cap">WM&amp;A · acronym</div>
+    </div>
+    <div class="cell dark">
+      <div class="acronym-lg">WM<span class="amp-rust-bright">&amp;</span>A</div>
+      <div class="cap">WM&amp;A · on navy</div>
+    </div>
+    <div class="cell espresso">
+      <div class="gl-square">G<span class="amp">&amp;</span>L</div>
+      <div class="cap">Gentle &amp; Lowly · square monogram</div>
+    </div>
+    <div class="cell espresso">
+      <div class="gl-wide">GENTLE <span class="amp-amber">&amp;</span> LOWLY</div>
+      <div class="cap">Gentle &amp; Lowly · wordmark</div>
+    </div>
+    <div class="cell"><img src="../assets/logos/notehead-ripples.svg" style="max-height:80px; max-width:100%;"/><div class="cap">notehead-ripples · shared mark</div></div>
+  </div>
+</body>
+</html>

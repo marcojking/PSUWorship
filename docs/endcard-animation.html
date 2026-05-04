@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WM&A — End Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200;300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1714;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+
+    /* 9:16 card — scaled to fit viewport */
+    .card {
+      width: min(390px, 90vw);
+      aspect-ratio: 9 / 16;
+      background: #fff7eb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle paper grain */
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Eyebrow */
+    .eyebrow {
+      font-size: 0.55rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.4);
+      margin-bottom: 18px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .eyebrow .amp { color: #b45741; font-weight: 700; }
+
+    /* Wordmark — medium, above the domain */
+    .wordmark {
+      font-size: clamp(1.4rem, 5.5vw, 2rem);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.55);
+      line-height: 1;
+      margin-bottom: 16px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .wordmark .amp {
+      color: #b45741;
+      font-weight: 800;
+      margin: 0 0.02em;
+    }
+
+    /* Hairline */
+    .rule {
+      width: 52px;
+      height: 1px;
+      background: rgba(0,48,73,0.2);
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: scaleX(0);
+      transform-origin: center;
+    }
+
+    /* Base URL — THE big element */
+    .url-base {
+      font-size: clamp(2.6rem, 10vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
+      color: #003049;
+      line-height: 1;
+      margin-bottom: 10px;
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    /* Subdomain slot */
+    .subdomain-slot {
+      height: clamp(2rem, 7vw, 2.6rem);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .subdomain {
+      font-size: clamp(1.2rem, 4.5vw, 1.6rem);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: lowercase;
+      color: #b45741;
+      position: absolute;
+      left: 0; right: 0;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(-28px);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="inner">
+      <div class="eyebrow" id="eyebrow">
+        Worship Music <span class="amp">&amp;</span> Arts
+      </div>
+      <div class="wordmark" id="wordmark">
+        WM<span class="amp">&amp;</span>A
+      </div>
+      <div class="rule" id="rule"></div>
+      <div class="url-base" id="urlBase">wmaac.org</div>
+      <div class="subdomain-slot">
+        <div class="subdomain" id="sub0">/join</div>
+        <div class="subdomain" id="sub1">/about</div>
+        <div class="subdomain" id="sub2">/give</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function ease(t, type = 'out') {
+      if (type === 'out') return 1 - Math.pow(1 - t, 3);
+      if (type === 'in')  return t * t * t;
+      return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+    }
+
+    function animate(el, from, to, duration, delay, easeType = 'out') {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const start = performance.now();
+          function tick(now) {
+            const t = Math.min((now - start) / duration, 1);
+            const e = ease(t, easeType);
+            for (const [prop, [a, b]] of Object.entries({...from})) {
+              if (prop === 'opacity') {
+                el.style.opacity = a + (b - a) * e;
+              } else if (prop === 'translateY') {
+                el.style.transform = `translateY(${a + (b - a) * e}px)`;
+              } else if (prop === 'scaleX') {
+                el.style.transform = `scaleX(${a + (b - a) * e})`;
+              }
+            }
+            if (t < 1) requestAnimationFrame(tick);
+            else resolve();
+          }
+          requestAnimationFrame(tick);
+        }, delay);
+      });
+    }
+
+    async function run() {
+      const eyebrow  = document.getElementById('eyebrow');
+      const wordmark = document.getElementById('wordmark');
+      const rule     = document.getElementById('rule');
+      const urlBase  = document.getElementById('urlBase');
+      const subs     = [0,1,2].map(i => document.getElementById(`sub${i}`));
+
+      // Staggered entrance
+      animate(eyebrow,  { opacity:[0,1], translateY:[8,0] },  null, 400, 200);
+      animate(wordmark, { opacity:[0,1], translateY:[8,0] },  null, 440, 340);
+      animate(rule,     { opacity:[0,1], scaleX:[0,1] },      null, 360, 500);
+      await animate(urlBase,  { opacity:[0,1], translateY:[6,0] },  null, 360, 660);
+
+      // Subdomain cycle
+      const hold = 1100;
+      const inDur = 300, outDur = 240;
+
+      for (let i = 0; i < subs.length; i++) {
+        const sub = subs[i];
+        // drop in from above
+        sub.style.opacity = '0';
+        sub.style.transform = 'translateY(-28px)';
+        await animate(sub, { opacity:[0,1], translateY:[-28,0] }, null, inDur, 0);
+        // hold
+        await new Promise(r => setTimeout(r, hold));
+        // fall out downward
+        await animate(sub, { opacity:[1,0], translateY:[0,24] }, null, outDur, 0, 'in');
+        sub.style.opacity = '0';
+      }
+
+      // Settle — fade url to softer after cycle
+      animate(urlBase, { opacity:[0.55, 0.3] }, null, 500, 0);
+    }
+
+    // Auto-play on load, loop with pause
+    window.addEventListener('load', () => {
+      function playLoop() {
+        // Reset
+        ['eyebrow','wordmark','rule','urlBase'].forEach(id => {
+          const el = document.getElementById(id);
+          el.style.opacity = '0';
+          el.style.transform = id === 'rule' ? 'scaleX(0)' : 'translateY(8px)';
+        });
+        [0,1,2].forEach(i => {
+          const el = document.getElementById(`sub${i}`);
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(-28px)';
+        });
+        run().then(() => setTimeout(playLoop, 2000));
+      }
+      playLoop();
+    });
+  </script>
+</body>
+</html>

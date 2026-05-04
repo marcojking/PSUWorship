@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Badges & Chips</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin:0; padding:0; }
+  body { background: var(--cream); padding: 22px 28px; font-family: var(--font-body); color: var(--navy); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: center; }
+  .tag { font-family: var(--font-mono); font-size: 10px; color: rgba(0,48,73,0.45); width: 140px; }
+  .badge-custom { background: #b45741; color: #fff7eb; padding: 4px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .size-chip { padding: 3px 7px; border-radius: 4px; font-family: var(--font-mono); font-size: 10px; font-weight: 500; background: rgba(0,48,73,0.1); color: rgba(0,48,73,0.5); }
+  .size-chip.low { background: rgba(180,87,65,0.4); color: #b45741; }
+  .price { font-size: 13px; font-weight: 600; }
+  .key-pill { font-family: var(--font-mono); background: rgba(0,48,73,0.10); padding: 2px 8px; border-radius: 6px; font-size: 12px; }
+  .low-stock { font-size: 10px; color: #b45741; }
+</style>
+</head>
+<body>
+  <div class="row"><div class="tag">Product badge</div><span class="badge-custom">Custom</span><span class="badge-custom">Limited</span></div>
+  <div class="row"><div class="tag">Size chips</div><span class="size-chip">S</span><span class="size-chip">M</span><span class="size-chip low">L</span><span class="size-chip">XL</span></div>
+  <div class="row"><div class="tag">Key pill (songs)</div><span class="key-pill">G</span><span class="key-pill">D♭</span><span class="key-pill">F#m</span></div>
+  <div class="row"><div class="tag">Inventory note</div><span class="low-stock">Only 3 left</span><span style="font-size:10px; color:rgba(0,48,73,0.45);">Sold Out</span></div>
+</body>
+</html>

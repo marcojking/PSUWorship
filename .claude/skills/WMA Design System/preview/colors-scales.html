@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Colors — Scales</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--navy);
+    padding: 20px 24px;
+  }
+  .group { margin-bottom: 14px; }
+  .label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rust); margin-bottom: 6px; }
+  .scale { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .chip {
+    height: 42px;
+    border-radius: 8px;
+    padding: 6px 8px;
+    display: flex;
+    align-items: flex-end;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0;
+    border: 1px solid rgba(0,48,73,0.06);
+  }
+  .dark { color: var(--cream); }
+</style>
+</head>
+<body>
+  <div class="group">
+    <div class="label">Navy · fg opacities on cream</div>
+    <div class="scale">
+      <div class="chip dark" style="background:#003049;">100</div>
+      <div class="chip dark" style="background:rgba(0,48,73,0.8);">80</div>
+      <div class="chip" style="background:rgba(0,48,73,0.6);color:#fff7eb;">60</div>
+      <div class="chip" style="background:rgba(0,48,73,0.4);">40</div>
+      <div class="chip" style="background:rgba(0,48,73,0.25);">25</div>
+      <div class="chip" style="background:rgba(0,48,73,0.1);">10</div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="label">Rust · accent scale</div>
+    <div class="scale">
+      <div class="chip dark" style="background:#8f3f2b;">deep</div>
+      <div class="chip dark" style="background:#b45741;">100</div>
+      <div class="chip" style="background:rgba(180,87,65,0.4);">40</div>
+      <div class="chip" style="background:rgba(180,87,65,0.2);">20</div>
+      <div class="chip" style="background:rgba(180,87,65,0.1);">10</div>
+      <div class="chip" style="background:rgba(180,87,65,0.07);">07</div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="label">Blue-grey · cool scale</div>
+    <div class="scale">
+      <div class="chip dark" style="background:#5a7a89;">deep</div>
+      <div class="chip dark" style="background:#7fa0af;">100</div>
+      <div class="chip" style="background:rgba(127,160,175,0.5);">50</div>
+      <div class="chip" style="background:rgba(127,160,175,0.32);">32</div>
+      <div class="chip" style="background:rgba(127,160,175,0.2);">20</div>
+      <div class="chip" style="background:rgba(127,160,175,0.1);">10</div>
+    </div>
+  </div>
+</body>
+</html>

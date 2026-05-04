@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PSU Worship — Join the Team (Mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #fff7eb;
+    --navy: #003049;
+    --rust: #b45741;
+    --blue-grey: #7fa0af;
+    --gold: #c4913a;
+    --navy-light: #0a4a6e;
+    --cream-dark: #f0e4cc;
+  }
+
+  html, body {
+    background: var(--cream);
+    color: var(--navy);
+    font-family: 'Source Sans 3', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── Page ── */
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 120px;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    text-align: center;
+    padding: 56px 0 8px;
+  }
+
+  .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--navy);
+    opacity: 0.5;
+    text-decoration: none;
+  }
+
+  .logo-mark svg { opacity: 0.7; }
+
+  .page-eyebrow {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-top: 48px;
+    margin-bottom: 10px;
+  }
+
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 6vw, 4.2rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--navy);
+    margin-bottom: 16px;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--navy);
+    opacity: 0.6;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* ── Progress ── */
+  .progress-bar {
+    position: relative;
+    width: 100%;
+    height: 38px;
+    border-radius: 50px;
+    background: var(--cream-dark);
+    margin: 44px 0 52px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 25%;
+    background: var(--navy);
+    z-index: 2;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Soft directional glow from fill edge */
+  .progress-glow {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 25%;
+    width: 45%;
+    background: linear-gradient(90deg,
+      rgba(127,160,175,0.32) 0%,
+      rgba(127,160,175,0.10) 40%,
+      transparent 100%
+    );
+    z-index: 1;
+    animation: glow-breathe 3s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: 0 50px 50px 0;
+  }
+
+  @keyframes glow-breathe {
+    0%, 100% { opacity: 0.5; }
+    50%       { opacity: 1;   }
+  }
+
+  /* Step labels overlay */
+  .progress-labels {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .progress-step {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: rgba(0,48,73,0.3);
+  }
+
+  .progress-step.active {
+    color: var(--cream);
+  }
+
+  /* ── Selection counter ── */
+  .selection-counter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--navy);
+    opacity: 0.4;
+    letter-spacing: 0.04em;
+    transition: opacity 0.2s;
+  }
+
+  .selection-counter.has-selection {
+    opacity: 1;
+    color: var(--rust);
+  }
+
+  /* ── Section headings ── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+    margin-top: 48px;
+  }
+
+  .section-header:first-of-type { margin-top: 0; }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--navy);
+  }
+
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--navy);
+    opacity: 0.12;
+  }
+
+  .section-note {
+    font-size: 0.78rem;
+    opacity: 0.5;
+    font-weight: 400;
+    font-style: normal;
+    margin-left: auto;
+  }
+
+  /* ── Cards Grid ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  /* ── Leadership Card ── */
+  .card {
+    position: relative;
+    border-radius: 14px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .card:hover { transform: translateY(-2px); }
+  .card:active { transform: translateY(0); }
+
+  /* Leadership: filled navy */
+  .card-leadership {
+    background: var(--navy);
+    box-shadow: 0 2px 12px rgba(0,48,73,0.10);
+    min-height: 110px;
+  }
+
+  .card-leadership:hover {
+    box-shadow: 0 8px 28px rgba(0,48,73,0.18);
+  }
+
+  /* Team: outlined cream */
+  .card-team {
+    background: var(--cream);
+    border: 1.5px solid rgba(0,48,73,0.18);
+    box-shadow: 0 2px 8px rgba(0,48,73,0.05);
+    min-height: 100px;
+  }
+
+  .card-team:hover {
+    border-color: rgba(0,48,73,0.35);
+    box-shadow: 0 6px 20px rgba(0,48,73,0.10);
+  }
+
+  /* ── Card inner ── */
+  .card-inner {
+    padding: 18px 20px 16px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+    transition: color 0.15s;
+  }
+
+  .card-leadership .card-title { color: var(--cream); }
+  .card-team .card-title { color: var(--navy); }
+
+  .card-desc {
+    font-size: 0.72rem;
+    line-height: 1.45;
+    font-weight: 300;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.2s ease, max-height 0.25s ease;
+  }
+
+  .card-leadership .card-desc { color: rgba(255,247,235,0.7); }
+  .card-team .card-desc { color: rgba(0,48,73,0.6); }
+
+  .card:hover .card-desc,
+  .card.desc-open .card-desc {
+    opacity: 1;
+    max-height: 80px;
+  }
+
+  /* ── Selected state ── */
+  .card.selected.card-leadership {
+    background: var(--rust);
+    box-shadow: 0 4px 20px rgba(180,87,65,0.3);
+  }
+
+  .card.selected.card-team {
+    background: rgba(180,87,65,0.08);
+    border-color: var(--rust);
+  }
+
+  .card.selected.card-team .card-title { color: var(--rust); }
+
+  /* ── Selection number badge ── */
+  .card-badge {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+    color: var(--gold);
+  }
+
+  .card-team .card-badge { color: var(--rust); }
+
+  .card.selected .card-badge {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+
+  /* dimmed when max reached */
+  .card.dimmed {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* ── Worship Team block ── */
+  .worship-block {
+    margin-top: 48px;
+    background: rgba(180,87,65,0.07);
+    border: 1.5px solid rgba(180,87,65,0.2);
+    border-radius: 16px;
+    padding: 24px 28px;
+  }
+
+  .worship-block-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+
+  .worship-block-desc {
+    font-size: 0.82rem;
+    font-weight: 300;
+    color: var(--navy);
+    opacity: 0.65;
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+
+  .worship-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .worship-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 1.5px solid rgba(180,87,65,0.4);
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .worship-checkbox.checked {
+    background: var(--rust);
+    border-color: var(--rust);
+  }
+
+  .worship-checkbox-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  .worship-instrument {
+    margin-top: 14px;
+    display: none;
+  }
+
+  .worship-instrument.visible { display: block; }
+
+  .worship-instrument input {
+    width: 100%;
+    background: var(--cream);
+    border: 1.5px solid rgba(0,48,73,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.88rem;
+    color: var(--navy);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .worship-instrument input:focus {
+    border-color: var(--rust);
+  }
+
+  .worship-instrument input::placeholder { opacity: 0.4; }
+
+  /* ── Continue button ── */
+  .continue-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 16px 24px;
+    background: linear-gradient(to top, var(--cream) 60%, transparent);
+    display: flex;
+    justify-content: center;
+  }
+
+  .continue-btn {
+    background: var(--navy);
+    color: var(--cream);
+    border: none;
+    border-radius: 50px;
+    padding: 14px 48px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s, transform 0.15s;
+    box-shadow: 0 4px 20px rgba(0,48,73,0.2);
+  }
+
+  .continue-btn:hover { background: var(--rust); transform: translateY(-1px); }
+  .continue-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+    background: var(--navy);
+  }
+
+  @media (max-width: 560px) {
+    .cards-grid { grid-template-columns: 1fr 1fr; }
+    .page-title { font-size: 2.4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Page intro -->
+  <div style="margin-top: 64px;">
+    <h1 class="page-title">Join the Team.</h1>
+    <p class="page-subtitle">
+      God is working at Penn State and music is playing a huge role. We're looking for people who want to be part of that.
+    </p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar">
+    <div class="progress-fill"></div>
+    <div class="progress-glow"></div>
+    <div class="progress-labels">
+      <div class="progress-step active">Roles</div>
+      <div class="progress-step">About You</div>
+      <div class="progress-step">Your Story</div>
+      <div class="progress-step">Follow Up</div>
+    </div>
+  </div>
+
+  <!-- Selection counter -->
+  <div style="margin-top: 40px; margin-bottom: 48px;">
+    <p class="selection-counter" id="bannerCount">0 / 3 selected</p>
+  </div>
+
+  <!-- Leadership Roles -->
+  <div class="section-header">
+    <h2 class="section-title">Leadership Roles</h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="cards-grid" id="leadershipGrid">
+    <!-- Cards injected by JS -->
+  </div>
+
+  <!-- Team Positions -->
+  <div class="section-header" style="margin-top: 40px;">
+    <h2 class="section-title">Team Positions</h2>
+    <div class="section-rule"></div>
+    <span class="section-note">Lower time commitment</span>
+  </div>
+
+  <div class="cards-grid" id="teamGrid">
+    <!-- Cards injected by JS -->
+  </div>
+
+  <!-- Worship Team -->
+  <div class="worship-block">
+    <h3 class="worship-block-title">Interested in the Worship Team?</h3>
+    <p class="worship-block-desc">
+      Anyone at PSU Worship is welcome to write, record, and perform original songs with us — regardless of what role you hold. This is open to everyone.
+    </p>
+    <label class="worship-checkbox-row" id="worshipRow">
+      <div class="worship-checkbox" id="worshipCheck"></div>
+      <span class="worship-checkbox-label">Yes, I'd like to be part of the Worship Team</span>
+    </label>
+    <div class="worship-instrument" id="instrumentField">
+      <input type="text" placeholder="What instrument(s) do you play or want to learn? (e.g. guitar, vocals, keys)" />
+    </div>
+  </div>
+
+</div>
+
+<!-- Continue -->
+<div class="continue-bar">
+  <button class="continue-btn" id="continueBtn" disabled>Continue</button>
+</div>
+
+<script>
+const leadership = [
+  { title: "Vice President", desc: "Assist the President, step in when needed, and help coordinate across all teams." },
+  { title: "Music Director", desc: "Lead musical direction for worship nights and recordings — keys, arrangements, rehearsals." },
+  { title: "Treasurer", desc: "Manage club finances, track expenses, and handle UPAC funding requests." },
+  { title: "Secretary", desc: "Take meeting notes, manage communications, keep the team organized." },
+  { title: "Event Coordinator", desc: "Plan and execute worship nights and events. Co-leads the Events & Hospitality team." },
+  { title: "Hospitality Lead", desc: "Create a welcoming environment at every event. Co-leads the Events & Hospitality team." },
+  { title: "Social Media Lead", desc: "Own our social presence — content strategy, posting cadence, and platform growth." },
+  { title: "Media Lead", desc: "Direct photo and video coverage of events and manage content production." },
+  { title: "Tech/Production Lead", desc: "Run live sound and lighting at events, oversee studio sessions. Full training provided." },
+  { title: "Graphic Design Lead", desc: "Create visual assets, promotional materials, and maintain brand consistency." },
+  { title: "Prayer Lead", desc: "Organize and lead prayer for the club — before events, during meetings, and beyond." },
+];
+
+const teams = [
+  { title: "Media & Social Team", desc: "Help capture events on camera, edit content, and manage social posts." },
+  { title: "Events & Hospitality Team", desc: "Help set up events, greet guests, and support the event planning process." },
+  { title: "Graphics Team", desc: "Assist with design assets, flyers, and visual content." },
+  { title: "Sound & Tech Team", desc: "Run sound and gear at events — typically once a month or less." },
+];
+
+let selected = []; // ordered list of card elements
+const MAX = 3;
+
+function makeCard(role, type) {
+  const card = document.createElement('div');
+  card.className = `card card-${type}`;
+  card.dataset.title = role.title;
+
+  const badge = document.createElement('div');
+  badge.className = 'card-badge';
+  card.appendChild(badge);
+
+  const inner = document.createElement('div');
+  inner.className = 'card-inner';
+
+  const title = document.createElement('div');
+  title.className = 'card-title';
+  title.textContent = role.title;
+
+  const desc = document.createElement('div');
+  desc.className = 'card-desc';
+  desc.textContent = role.desc;
+
+  inner.appendChild(title);
+  inner.appendChild(desc);
+  card.appendChild(inner);
+
+  // Mobile: tap toggles desc-open
+  let tapTimer = null;
+  card.addEventListener('click', () => {
+    const isMobile = window.matchMedia('(hover: none)').matches;
+    if (isMobile && !card.classList.contains('selected') && !card.classList.contains('desc-open')) {
+      card.classList.add('desc-open');
+      tapTimer = setTimeout(() => card.classList.remove('desc-open'), 2000);
+      return;
+    }
+    if (tapTimer) clearTimeout(tapTimer);
+    card.classList.remove('desc-open');
+    toggleCard(card);
+  });
+
+  return card;
+}
+
+function toggleCard(card) {
+  if (card.classList.contains('selected')) {
+    // Deselect
+    selected = selected.filter(c => c !== card);
+    card.classList.remove('selected');
+    card.querySelector('.card-badge').textContent = '';
+  } else {
+    if (selected.length >= MAX) return;
+    selected.push(card);
+    card.classList.add('selected');
+  }
+  updateBadges();
+  updateUI();
+}
+
+function updateBadges() {
+  selected.forEach((c, i) => {
+    c.querySelector('.card-badge').textContent = i + 1;
+  });
+}
+
+function updateUI() {
+  const count = selected.length;
+  const counter = document.getElementById('bannerCount');
+  counter.textContent = `${count} / 3 selected`;
+  counter.classList.toggle('has-selection', count > 0);
+
+  // Dim unselected cards when max reached
+  document.querySelectorAll('.card').forEach(c => {
+    if (!c.classList.contains('selected')) {
+      c.classList.toggle('dimmed', count >= MAX);
+    }
+  });
+
+  document.getElementById('continueBtn').disabled = count === 0;
+}
+
+// Render cards
+const lg = document.getElementById('leadershipGrid');
+const tg = document.getElementById('teamGrid');
+leadership.forEach(r => lg.appendChild(makeCard(r, 'leadership')));
+teams.forEach(r => tg.appendChild(makeCard(r, 'team')));
+
+// Worship checkbox
+let worshipChecked = false;
+document.getElementById('worshipRow').addEventListener('click', () => {
+  worshipChecked = !worshipChecked;
+  document.getElementById('worshipCheck').classList.toggle('checked', worshipChecked);
+  document.getElementById('instrumentField').classList.toggle('visible', worshipChecked);
+});
+</script>
+</body>
+</html>

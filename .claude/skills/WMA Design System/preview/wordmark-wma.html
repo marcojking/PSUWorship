@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wordmark — WM&A</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--navy); padding: 18px 24px; font-family: var(--font-body); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cell { background: #fff; border: 1px solid rgba(0,48,73,0.08); border-radius: 14px; padding: 22px 20px; display: flex; flex-direction: column; justify-content: center; min-height: 130px; }
+  .cell.dark { background: var(--navy); border-color: var(--navy); }
+  .cap { font-family: var(--font-mono); font-size: 9.5px; color: rgba(0,48,73,0.55); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 12px; }
+  .dark .cap { color: rgba(255,247,235,0.45); }
+
+  /* Primary tight lockup — acronym */
+  .wm-tight { font-family: var(--font-body); letter-spacing: -0.03em; line-height: 1; display: inline-flex; align-items: baseline; }
+  .wm-tight .wm { font-weight: 700; font-size: 44px; }
+  .wm-tight .amp { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 60px; color: var(--rust); margin: 0 -2px 0 2px; line-height: 0.8; }
+  .wm-tight .a { font-weight: 700; font-size: 44px; }
+  .dark .wm-tight .wm, .dark .wm-tight .a { color: var(--cream); }
+
+  /* Editorial lockup — spaced with big script & */
+  .wm-edit { line-height: 1; display: flex; align-items: center; gap: 6px; }
+  .wm-edit .letter { font-family: var(--font-body); font-weight: 300; font-size: 38px; letter-spacing: 0; }
+  .wm-edit .amp-big { font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: 70px; color: var(--rust); line-height: 0.75; margin: 0 -2px; transform: translateY(-2px); }
+  .dark .wm-edit .letter { color: var(--cream); }
+
+  /* Full name lockup — two lines */
+  .wm-full { line-height: 1.08; }
+  .wm-full .top { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 24px; color: var(--navy); }
+  .wm-full .top .amp-inline { color: var(--rust); font-weight: 600; font-size: 30px; vertical-align: -0.12em; margin: 0 2px; }
+  .wm-full .btm { font-family: var(--font-body); font-weight: 400; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(0,48,73,0.5); margin-top: 6px; }
+  .dark .wm-full .top { color: var(--cream); }
+  .dark .wm-full .btm { color: rgba(255,247,235,0.4); }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="cell">
+      <div class="wm-tight"><span class="wm">wm</span><span class="amp">&amp;</span><span class="a">a</span></div>
+      <div class="cap">Primary · acronym · on cream</div>
+    </div>
+    <div class="cell dark">
+      <div class="wm-tight"><span class="wm">wm</span><span class="amp">&amp;</span><span class="a">a</span></div>
+      <div class="cap">Primary · acronym · on navy</div>
+    </div>
+    <div class="cell">
+      <div class="wm-edit"><span class="letter">W</span><span class="letter">M</span><span class="amp-big">&amp;</span><span class="letter">A</span></div>
+      <div class="cap">Editorial · spaced · big script &amp;</div>
+    </div>
+    <div class="cell">
+      <div class="wm-full">
+        <div class="top">Worship Music <span class="amp-inline">&amp;</span> Arts</div>
+        <div class="btm">@ Penn State</div>
+      </div>
+      <div class="cap">Full lockup · long-form</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,150 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+
+export type ProductType = "sticker" | "patch" | "embroidery";
+
+interface TypeEntry {
+  key: ProductType;
+  label: string;
+  description: string;
+}
+
+const TYPE_INFO: TypeEntry[] = [
+  {
+    key: "sticker",
+    label: "Sticker",
+    description: "Die-cut vinyl sticker with white outline border.",
+  },
+  {
+    key: "patch",
+    label: "Patch",
+    description: "Iron-on embroidered patch with background fill and satin stitch border.",
+  },
+  {
+    key: "embroidery",
+    label: "Embroidery",
+    description: "Design stitched directly onto your clothing — no backing, just thread on fabric.",
+  },
+];
+
+interface ProductTypeSelectorProps {
+  designId: string;
+  availableTypes: {
+    sticker?: { price: number; imageUrl?: string };
+    patch?: { price: number; imageUrl?: string };
+    embroidery?: {
+      price: number;
+      imageUrl?: string;
+    };
+  };
+  defaultImageUrl: string;
+  onAddToCart: (type: ProductType, price: number) => void;
+  onActiveChange?: (type: ProductType) => void;
+}
+
+export default function ProductTypeSelector({
+  designId,
+  availableTypes,
+  defaultImageUrl,
+  onAddToCart,
+  onActiveChange,
+}: ProductTypeSelectorProps) {
+  const enabledTabs = TYPE_INFO.filter((t) => availableTypes[t.key] !== undefined);
+  const [active, setActive] = useState<ProductType>(enabledTabs[0]?.key ?? "sticker");
+
+  const switchTab = (type: ProductType) => {
+    setActive(type);
+    onActiveChange?.(type);
+  };
+
+  // Notify parent of the initial active tab once mounted
+  useEffect(() => {
+    onActiveChange?.(enabledTabs[0]?.key ?? "sticker");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (enabledTabs.length === 0) {
+    return <p className="text-sm text-muted">No product types configured for this design.</p>;
+  }
+
+  const activeInfo = TYPE_INFO.find((t) => t.key === active)!;
+
+  return (
+    <div>
+      {/* Tab pills */}
+      <div className="mb-4 flex gap-1 rounded-lg bg-card p-1">
+        {enabledTabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => switchTab(tab.key)}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              active === tab.key
+                ? "bg-secondary/20 text-secondary"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Active tab content */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p className="mb-4 text-sm text-muted">{activeInfo.description}</p>
+
+        {/* Sticker */}
+        {active === "sticker" && availableTypes.sticker && (
+          <div className="flex items-center justify-between">
+            <span className="text-2xl font-bold">
+              ${(availableTypes.sticker.price / 100).toFixed(2)}
+            </span>
+            <button
+              onClick={() => onAddToCart("sticker", availableTypes.sticker!.price)}
+              className="rounded-lg bg-secondary px-6 py-2.5 font-medium text-background transition-opacity hover:opacity-90"
+            >
+              Add to Cart
+            </button>
+          </div>
+        )}
+
+        {/* Patch — customize flow */}
+        {active === "patch" && availableTypes.patch && (
+          <div>
+            <p className="mb-4 text-2xl font-bold">
+              ${(availableTypes.patch.price / 100).toFixed(2)}
+            </p>
+            <Link
+              href={`/merch/custom?design=${designId}&type=patch`}
+              className="block w-full rounded-lg bg-secondary py-2.5 text-center font-medium text-background transition-opacity hover:opacity-90"
+            >
+              Customize on Clothing →
+            </Link>
+            <p className="mt-2 text-center text-xs text-muted">
+              Choose placement and preview before ordering
+            </p>
+          </div>
+        )}
+
+        {/* Embroidery — links to custom flow */}
+        {active === "embroidery" && availableTypes.embroidery && (
+          <div>
+            <p className="mb-4 text-2xl font-bold">
+              ${(availableTypes.embroidery.price / 100).toFixed(2)}
+            </p>
+            <Link
+              href={`/merch/custom?design=${designId}`}
+              className="block w-full rounded-lg bg-secondary py-2.5 text-center font-medium text-background transition-opacity hover:opacity-90"
+            >
+              Customize on Clothing →
+            </Link>
+            <p className="mt-2 text-center text-xs text-muted">
+              Choose placement and preview before ordering
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

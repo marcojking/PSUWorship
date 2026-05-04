@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shadows</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin:0; padding:0; }
+  body { background: var(--cream); padding: 30px 28px; font-family: var(--font-body); color: var(--navy); }
+  .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+  .card { background: #fff; border-radius: 16px; padding: 16px; height: 80px; border: 1px solid rgba(0,48,73,0.08); display: flex; flex-direction: column; justify-content: space-between; }
+  .name { font-size: 11px; font-weight: 600; }
+  .hex { font-family: var(--font-mono); font-size: 10px; color: rgba(0,48,73,0.5); }
+  .sm { box-shadow: 0 1px 2px rgba(0,48,73,0.06); }
+  .md { box-shadow: 0 2px 8px rgba(0,48,73,0.08); }
+  .lg { box-shadow: 0 8px 24px rgba(0,48,73,0.10); }
+  .xl { box-shadow: 0 20px 48px rgba(0,48,73,0.18); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="card sm"><div class="name">sm</div><div class="hex">0 1 2 · 06</div></div>
+    <div class="card md"><div class="name">md</div><div class="hex">0 2 8 · 08</div></div>
+    <div class="card lg"><div class="name">lg</div><div class="hex">0 8 24 · 10</div></div>
+    <div class="card xl"><div class="name">xl</div><div class="hex">0 20 48 · 18</div></div>
+  </div>
+</body>
+</html>

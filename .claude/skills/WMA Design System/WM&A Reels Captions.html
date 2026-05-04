@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WM&A — Animated Captions (9:16, transparent)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200;300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+  /* Transparent canvas — checkerboard backdrop is just for the editor preview */
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    font-family: 'Source Sans 3', sans-serif;
+    overflow: hidden;
+    /* checkerboard so transparency is visible while editing */
+    background-color: #d8d4cc;
+    background-image:
+      linear-gradient(45deg, #c1bdb4 25%, transparent 25%),
+      linear-gradient(-45deg, #c1bdb4 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #c1bdb4 75%),
+      linear-gradient(-45deg, transparent 75%, #c1bdb4 75%);
+    background-size: 36px 36px;
+    background-position: 0 0, 0 18px, 18px -18px, -18px 0;
+  }
+  #root { width: 100vw; height: 100vh; }
+
+  /* Tap-to-start gate */
+  .gate {
+    position: absolute; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(20, 20, 20, 0.55);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+  }
+  .gate-card {
+    background: #fff7eb; color: #003049; padding: 36px 44px;
+    border-radius: 16px; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    max-width: 380px;
+  }
+  .gate-eyebrow {
+    font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+    color: #b45741; font-weight: 600;
+  }
+  .gate-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic; font-weight: 600;
+    font-size: 36px; line-height: 1.1; margin: 12px 0 8px;
+  }
+  .gate-sub { font-size: 14px; color: rgba(0,48,73,0.6); line-height: 1.5; }
+  .gate-btn {
+    margin-top: 18px; padding: 12px 26px;
+    background: #003049; color: #fff7eb;
+    border: none; border-radius: 9999px;
+    font-family: inherit; font-size: 14px; letter-spacing: 0.05em;
+    font-weight: 600; cursor: pointer;
+  }
+
+  /* Hint badge — bottom-right, dismisses on play */
+  .hint {
+    position: absolute; right: 18px; bottom: 18px; z-index: 40;
+    background: rgba(20,20,20,0.7); color: #fff7eb;
+    padding: 8px 14px; border-radius: 9999px;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-family: ui-monospace, monospace;
+  }
+  .render-btn {
+    position: absolute; top: 18px; right: 18px; z-index: 40;
+    background: #003049; color: #fff7eb;
+    padding: 10px 18px; border: none; border-radius: 9999px;
+    font-family: 'Source Sans 3', sans-serif; font-size: 13px;
+    letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+  .render-btn:disabled { opacity: 0.7; cursor: wait; }
+  .render-status {
+    position: absolute; inset: 0; z-index: 60;
+    background: rgba(10,10,10,0.85); color: #fff7eb;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; font-family: 'Source Sans 3', sans-serif;
+  }
+  .render-status .pct {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 56px; font-weight: 600; color: #b45741;
+  }
+  .render-status .label {
+    font-size: 14px; letter-spacing: 0.32em; text-transform: uppercase;
+    color: rgba(255,247,235,0.7);
+  }
+  .render-status .bar {
+    width: 280px; height: 3px; background: rgba(255,247,235,0.12);
+    border-radius: 2px; overflow: hidden;
+  }
+  .render-status .bar > span {
+    display: block; height: 100%; background: #b45741;
+    transition: width 120ms linear;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<template id="__bundler_thumbnail" data-bg-color="#fff7eb">
+  <svg viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1080" height="1920" fill="#fff7eb"/>
+    <text x="540" y="900" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="240" letter-spacing="10" fill="#003049">WM<tspan fill="#b45741">&amp;</tspan>A</text>
+    <text x="540" y="1060" text-anchor="middle" font-family="sans-serif" font-weight="500" font-size="56" letter-spacing="20" fill="#003049" opacity="0.55">REELS · CAPTIONS</text>
+  </svg>
+</template>
+<audio id="narration" preload="auto" src="audio.wav"></audio>
+
+<script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="./reels-captions.jsx"></script>
+
+<script type="text/babel">
+const { parseSRT, buildCards, Card, COLORS } = window.SRTCaptions;
+
+const STAGE_W = 1080;
+const STAGE_H = 1920;
+
+function App() {
+  const [time, setTime] = React.useState(0);
+  const [playing, setPlaying] = React.useState(false);
+  const [started, setStarted] = React.useState(false);
+  const [scale, setScale] = React.useState(1);
+  const [cards, setCards] = React.useState([]);
+  const [duration, setDuration] = React.useState(68.5);
+  const [rendering, setRendering] = React.useState(false);
+  const [renderPct, setRenderPct] = React.useState(0);
+  const [renderLabel, setRenderLabel] = React.useState("");
+  const audioRef = React.useRef(null);
+  const rafRef = React.useRef(null);
+  const stageRef = React.useRef(null);
+
+  // Load + parse SRT once
+  React.useEffect(() => {
+    fetch("subtitles.srt").then(r => r.text()).then(text => {
+      const entries = parseSRT(text);
+      const built = buildCards(entries);
+      setCards(built);
+      if (entries.length) {
+        const last = entries[entries.length - 1].end;
+        setDuration(last + 1.0);
+      }
+    });
+  }, []);
+
+  // Auto-scale to viewport (no letterbox bg — body shows checkerboard)
+  React.useEffect(() => {
+    const measure = () => {
+      const s = Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H);
+      setScale(s);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  React.useEffect(() => { audioRef.current = document.getElementById("narration"); }, []);
+
+  // Drive time from audio
+  React.useEffect(() => {
+    if (!playing) return;
+    const tick = () => {
+      const a = audioRef.current;
+      if (a) setTime(a.currentTime);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [playing]);
+
+  React.useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    const onEnd = () => setPlaying(false);
+    a.addEventListener("play", onPlay);
+    a.addEventListener("pause", onPause);
+    a.addEventListener("ended", onEnd);
+    return () => {
+      a.removeEventListener("play", onPlay);
+      a.removeEventListener("pause", onPause);
+      a.removeEventListener("ended", onEnd);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const onKey = (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      const a = audioRef.current; if (!a) return;
+      if (e.code === "Space") {
+        e.preventDefault();
+        if (a.paused) a.play(); else a.pause();
+      } else if (e.key === "r" || e.key === "R") {
+        a.currentTime = 0; a.play();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const handleStart = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.currentTime = 0;
+    a.play().then(() => setStarted(true)).catch(() => setStarted(true));
+  };
+
+  // Find currently-active card. A card stays visible from its start to
+  // its end (which we extended in buildCards to butt against next start).
+  const activeIdx = cards.findIndex(c => time >= c.start && time <= c.end);
+  const showIdx = activeIdx >= 0
+    ? activeIdx
+    : (time < (cards[0]?.start ?? Infinity) ? -1 : cards.length - 1);
+  const activeCard = showIdx >= 0 ? cards[showIdx] : null;
+
+  // Fade card in/out — first 200ms in, last 220ms out
+  const cardOpacity = (() => {
+    if (!activeCard) return 0;
+    const inDur = 0.16;
+    const outDur = 0.22;
+    const sinceStart = time - activeCard.start;
+    const untilEnd = activeCard.end - time;
+    if (sinceStart < inDur) return Math.max(0, sinceStart / inDur);
+    if (untilEnd < outDur) return Math.max(0, untilEnd / outDur);
+    return 1;
+  })();
+
+  return (
+    <div style={{
+      width: "100vw", height: "100vh",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      overflow: "hidden",
+    }}>
+      <div ref={stageRef} style={{
+        width: STAGE_W, height: STAGE_H,
+        background: "transparent",
+        position: "relative",
+        transform: `scale(${rendering ? 1 : scale})`,
+        transformOrigin: "center",
+        flexShrink: 0,
+        overflow: "hidden",
+        fontFamily: "'Source Sans 3', sans-serif",
+      }}>
+        {/* CAPTION BAND — large, bottom-third for vertical reels */}
+        <div style={{
+          position: "absolute",
+          left: 0, right: 0,
+          bottom: 280,
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center",
+          minHeight: 480,
+          opacity: cardOpacity,
+          transition: "opacity 80ms linear",
+        }}>
+          {activeCard && (
+            <Card key={showIdx} card={activeCard} time={time} fontSize={76} />
+          )}
+        </div>
+
+        {/* Pause overlay */}
+        {started && !playing && time < duration - 0.1 && (
+          <div style={{
+            position: "absolute", inset: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(0, 0, 0, 0.25)",
+            cursor: "pointer",
+          }} onClick={() => audioRef.current && audioRef.current.play()}>
+            <div style={{
+              width: 120, height: 120, borderRadius: "50%",
+              background: COLORS.NAVY,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 12px 40px rgba(0, 0, 0, 0.4)",
+            }}>
+              <svg width="36" height="42" viewBox="0 0 14 14"><path d="M3 2l9 5-9 5V2z" fill={COLORS.CREAM}/></svg>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {!started && (
+        <div className="gate" onClick={handleStart}>
+          <div className="gate-card" onClick={(e) => e.stopPropagation()}>
+            <div className="gate-eyebrow">WM<span style={{color: "#b45741", fontWeight: 800}}>&amp;</span>A · Reels</div>
+            <div className="gate-title">Animated captions, transparent.</div>
+            <div className="gate-sub">9:16 · 1080×1920 · Word-precise sync. Press space to play / pause.</div>
+            <button className="gate-btn" onClick={handleStart}>▶ &nbsp; Play</button>
+          </div>
+        </div>
+      )}
+
+      {started && !rendering && (
+        <div className="hint">space ⏯ &nbsp;·&nbsp; R restart</div>
+      )}
+
+      {started && !rendering && (
+        <button className="render-btn" onClick={async () => {
+          const a = audioRef.current;
+          if (!a) return;
+          a.pause();
+          setRendering(true);
+          setRenderPct(0);
+          setRenderLabel("Preparing");
+          try {
+            const FPS = 30;
+            const total = Math.ceil(duration * FPS);
+            const zip = new JSZip();
+            const folder = zip.folder("frames");
+            for (let f = 0; f < total; f++) {
+              const t = f / FPS;
+              setTime(t);
+              setRenderLabel(`Frame ${f + 1} / ${total}`);
+              setRenderPct(f / total);
+              // Wait for React to render this frame
+              await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+              const dataUrl = await window.htmlToImage.toPng(stageRef.current, {
+                width: STAGE_W, height: STAGE_H,
+                pixelRatio: 1,
+                backgroundColor: undefined, // transparent
+                cacheBust: false,
+              });
+              const b64 = dataUrl.split(",")[1];
+              folder.file(`frame_${String(f).padStart(5, "0")}.png`, b64, { base64: true });
+            }
+            setRenderLabel("Zipping");
+            // Embed audio + ffmpeg recipe alongside frames
+            const audioBlob = await fetch("audio.wav").then(r => r.blob());
+            zip.file("audio.wav", audioBlob);
+            zip.file("README.txt",
+              "WM&A Reels caption render\n" +
+              "=========================\n\n" +
+              `Frames: ${total} @ ${FPS}fps (PNG with alpha)\n` +
+              `Duration: ${duration.toFixed(2)}s\n` +
+              `Resolution: ${STAGE_W}x${STAGE_H}\n\n` +
+              "Convert to transparent WebM (TikTok/Reels do NOT support transparency \nin final upload, but useful for compositing in CapCut / Premiere / After Effects):\n\n" +
+              `  ffmpeg -framerate ${FPS} -i frames/frame_%05d.png -i audio.wav \\\n    -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 4M -c:a libopus output.webm\n\n` +
+              "Convert to flat MP4 (for direct upload to TikTok/Reels) over a\nbackground color of your choice:\n\n" +
+              `  ffmpeg -framerate ${FPS} -i frames/frame_%05d.png -i audio.wav \\\n    -filter_complex \"[0:v]format=yuva420p,colorkey=0x000000:0.01:0.0[overlay]; \\\n      color=c=#fff7eb:s=${STAGE_W}x${STAGE_H}:d=${duration.toFixed(2)}[bg]; \\\n      [bg][overlay]overlay=shortest=1[out]\" -map \"[out]\" -map 1:a \\\n    -c:v libx264 -pix_fmt yuv420p -crf 18 -c:a aac output.mp4\n\n` +
+              "Or, simplest, drop the PNG sequence onto a track in CapCut / DaVinci / \nPremiere\u2014they natively handle PNG sequences with alpha + the audio file.\n"
+            );
+            const blob = await zip.generateAsync({ type: "blob" }, (m) => {
+              setRenderLabel(`Zipping · ${m.percent.toFixed(0)}%`);
+              setRenderPct(0.95 + m.percent / 2000);
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "wma-reels-frames.zip";
+            link.click();
+            URL.revokeObjectURL(url);
+          } catch (err) {
+            alert("Render failed: " + err.message);
+            console.error(err);
+          } finally {
+            setRendering(false);
+          }
+        }}>● Render PNG sequence</button>
+      )}
+
+      {rendering && (
+        <div className="render-status">
+          <div className="pct">{Math.round(renderPct * 100)}%</div>
+          <div className="label">{renderLabel}</div>
+          <div className="bar"><span style={{ width: `${renderPct * 100}%` }}/></div>
+          <div style={{ fontSize: 12, color: "rgba(255,247,235,0.5)", letterSpacing: "0.2em", textTransform: "uppercase", marginTop: 8 }}>
+            Keep this tab focused
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

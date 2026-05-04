@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Motion</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin:0; padding:0; }
+  body { background: var(--cream); padding: 22px 28px; font-family: var(--font-body); color: var(--navy); }
+  .row { display: flex; gap: 14px; align-items: stretch; }
+  .card { flex: 1; border: 1px solid rgba(0,48,73,0.1); border-radius: 12px; padding: 14px; background: #fff; }
+  .name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .code { font-family: var(--font-mono); font-size: 10.5px; color: rgba(0,48,73,0.6); line-height: 1.5; }
+  .swatch { height: 4px; margin-top: 10px; background: linear-gradient(to right, #003049 0%, #003049 30%, rgba(0,48,73,0.1) 30%); border-radius: 2px; }
+  @keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+  .breathe { height: 20px; border-radius: 9999px; background: linear-gradient(90deg, rgba(127,160,175,0.6), transparent); animation: glow 3s ease-in-out infinite; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="card">
+      <div class="name">Default ease · 200ms</div>
+      <div class="code">cubic-bezier(0.4, 0, 0.2, 1)</div>
+      <div class="swatch"></div>
+    </div>
+    <div class="card">
+      <div class="name">Spring pop · 200ms</div>
+      <div class="code">(0.34, 1.56, 0.64, 1) · badges</div>
+      <div class="swatch" style="background:linear-gradient(to right, #b45741 0%, #b45741 28%, rgba(180,87,65,0.1) 32%);"></div>
+    </div>
+    <div class="card">
+      <div class="name">Breathing loop · 3s</div>
+      <div class="code">opacity 0.5 ↔ 1 · progress glow</div>
+      <div class="breathe"></div>
+    </div>
+  </div>
+</body>
+</html>

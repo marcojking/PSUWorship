@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSU Worship — Fall 2026 Events Plan</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 300;
+      background: #fff7eb;
+      color: #003049;
+      padding: 48px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      border-bottom: 1px solid rgba(0,48,73,0.15);
+      padding-bottom: 28px;
+      margin-bottom: 36px;
+    }
+    .eyebrow {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(180,87,65,0.8);
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 600;
+      line-height: 1.05;
+      color: #003049;
+    }
+    .meta {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: rgba(0,48,73,0.5);
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Warning banner ── */
+    .warning {
+      background: rgba(180,87,65,0.08);
+      border: 1px solid rgba(180,87,65,0.3);
+      border-left: 4px solid #b45741;
+      border-radius: 0 10px 10px 0;
+      padding: 14px 18px;
+      margin-bottom: 36px;
+      font-size: 0.82rem;
+      line-height: 1.7;
+    }
+    .warning strong { font-weight: 600; color: #b45741; }
+
+    /* ── Timeline ── */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .tl-item {
+      border-radius: 10px;
+      padding: 12px 14px;
+      border: 1px solid rgba(0,48,73,0.1);
+    }
+    .tl-item.major { background: #003049; border-color: #003049; }
+    .tl-item.production { background: rgba(127,160,175,0.2); border-color: rgba(127,160,175,0.4); }
+    .tl-item.travel { background: rgba(180,87,65,0.1); border-color: rgba(180,87,65,0.3); }
+    .tl-item.recurring { background: rgba(0,48,73,0.04); border-color: rgba(0,48,73,0.1); }
+    .tl-date {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .tl-item.major .tl-date { color: rgba(255,247,235,0.6); }
+    .tl-item.production .tl-date { color: rgba(0,48,73,0.5); }
+    .tl-item.travel .tl-date { color: rgba(180,87,65,0.7); }
+    .tl-item.recurring .tl-date { color: rgba(0,48,73,0.4); }
+    .tl-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .tl-item.major .tl-name { color: #fff7eb; }
+    .tl-item.production .tl-name, .tl-item.recurring .tl-name { color: #003049; }
+    .tl-item.travel .tl-name { color: #b45741; }
+
+    /* ── Section title ── */
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #003049;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(0,48,73,0.1);
+    }
+
+    /* ── Event blocks ── */
+    .event {
+      margin-bottom: 52px;
+    }
+    .event-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .event-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      line-height: 1.1;
+      color: #003049;
+    }
+    .event-subtitle {
+      font-size: 0.82rem;
+      font-weight: 300;
+      color: rgba(0,48,73,0.55);
+      margin-top: 4px;
+    }
+    .event-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .badge {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .badge-deadline { background: rgba(180,87,65,0.15); color: #b45741; }
+    .badge-urgent   { background: #b45741; color: #fff7eb; }
+    .badge-venue    { background: rgba(0,48,73,0.08); color: #003049; }
+    .badge-travel   { background: rgba(127,160,175,0.25); color: #3a6a7a; }
+
+    /* ── Info grid ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .info-card {
+      background: rgba(0,48,73,0.04);
+      border: 1px solid rgba(0,48,73,0.08);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    .info-label {
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.4);
+      margin-bottom: 4px;
+    }
+    .info-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #003049;
+      line-height: 1.3;
+    }
+
+    /* ── Schedule table ── */
+    .schedule {
+      margin-bottom: 20px;
+      border: 1px solid rgba(0,48,73,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .schedule-title {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.4);
+      padding: 10px 16px;
+      background: rgba(0,48,73,0.04);
+      border-bottom: 1px solid rgba(0,48,73,0.08);
+    }
+    .schedule-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      border-bottom: 1px solid rgba(0,48,73,0.06);
+    }
+    .schedule-row:last-child { border-bottom: none; }
+    .sched-time {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(0,48,73,0.45);
+      padding: 10px 16px;
+      min-width: 90px;
+      border-right: 1px solid rgba(0,48,73,0.06);
+      font-variant-numeric: tabular-nums;
+    }
+    .sched-desc {
+      font-size: 0.82rem;
+      padding: 10px 16px;
+      line-height: 1.5;
+      color: #003049;
+      flex: 1;
+    }
+    .sched-desc em { font-style: italic; color: rgba(0,48,73,0.55); }
+
+    /* ── UPAC box ── */
+    .upac-box {
+      background: rgba(0,48,73,0.04);
+      border: 1px solid rgba(0,48,73,0.1);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .upac-box-title {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.4);
+      margin-bottom: 12px;
+    }
+    .upac-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(0,48,73,0.06);
+      font-size: 0.82rem;
+    }
+    .upac-row:last-child { border-bottom: none; }
+    .upac-key { color: rgba(0,48,73,0.55); }
+    .upac-val { font-weight: 600; color: #003049; }
+    .upac-val.urgent { color: #b45741; }
+    .upac-note {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      font-style: italic;
+      color: rgba(0,48,73,0.45);
+      line-height: 1.5;
+    }
+
+    /* ── Checklist ── */
+    .checklist-title {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(0,48,73,0.4);
+      margin-bottom: 10px;
+    }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(0,48,73,0.05);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .check-item:last-child { border-bottom: none; }
+    .checkbox {
+      width: 14px; height: 14px;
+      border: 1.5px solid rgba(0,48,73,0.2);
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .check-tag {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .tag-upac    { background: rgba(0,48,73,0.1);    color: #003049; }
+    .tag-asa     { background: rgba(127,160,175,0.2); color: #3a6a7a; }
+    .tag-venue   { background: rgba(196,145,58,0.2);  color: #8a6020; }
+    .tag-artist  { background: rgba(180,87,65,0.15);  color: #b45741; }
+    .tag-promo   { background: rgba(100,160,80,0.15); color: #3a7020; }
+    .tag-logis   { background: rgba(0,48,73,0.06);    color: rgba(0,48,73,0.6); }
+
+    .divider {
+      height: 1px;
+      background: rgba(0,48,73,0.1);
+      margin: 48px 0;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0,48,73,0.1);
+      font-size: 0.72rem;
+      color: rgba(0,48,73,0.35);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media print {
+      body { padding: 24px; background: white; }
+      .event { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <p class="eyebrow">PSU Worship Music & Arts Club — Internal Planning Document</p>
+    <h1>Fall 2026<br><em style="font-weight:400;font-style:italic">Events Master Plan</em></h1>
+    <div class="meta">
+      <span>📅 Semester: Aug 24 – Dec 18, 2026</span>
+      <span>📍 Penn State University Park</span>
+      <span>✏️ Updated April 2026</span>
+    </div>
+  </div>
+
+  <!-- UPAC Warning -->
+  <div class="warning">
+    <strong>⚠ UPAC Framing Note:</strong> UPAC explicitly does not fund "religious ceremonies or worship services." All UPAC applications for these events must be framed as <strong>concerts, performing arts events, or arts programming</strong> — not worship services. Work with your faculty mentor to ensure application language is accurate and compliant before submission.
+  </div>
+
+  <!-- Semester Timeline -->
+  <p class="section-title">Semester at a Glance</p>
+  <div class="timeline">
+    <div class="tl-item major">
+      <div class="tl-date">Sept 13</div>
+      <div class="tl-name">Pat Barrett Concert</div>
+    </div>
+    <div class="tl-item recurring">
+      <div class="tl-date">Ongoing</div>
+      <div class="tl-name">Worship Nights & Workshops</div>
+    </div>
+    <div class="tl-item major">
+      <div class="tl-date">Oct 31 – Nov 1</div>
+      <div class="tl-name">Caleb King Weekend</div>
+    </div>
+    <div class="tl-item production">
+      <div class="tl-date">TBD</div>
+      <div class="tl-name">Recording Intensive + Cabin Retreat</div>
+    </div>
+    <div class="tl-item travel">
+      <div class="tl-date">Nov 2026</div>
+      <div class="tl-name">Nashville Trip</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- EVENT 1: PAT BARRETT -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="event">
+    <div class="event-header">
+      <div>
+        <div class="event-title">Pat Barrett Concert</div>
+        <div class="event-subtitle">Fall Kickoff — HUB Lawn, September 13, 2026</div>
+      </div>
+      <div class="event-badges">
+        <span class="badge badge-urgent">UPAC Due July 17</span>
+        <span class="badge badge-deadline">Contract Due Aug 28</span>
+        <span class="badge badge-venue">HUB Lawn / Alumni Stage</span>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Date</div>
+        <div class="info-value">September 13, 2026</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Venue</div>
+        <div class="info-value">HUB Lawn — Alumni Stage + Tent</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Instagram Reach</div>
+        <div class="info-value">4,600+ followers</div>
+      </div>
+    </div>
+
+    <div class="schedule">
+      <div class="schedule-title">Day-of Schedule</div>
+      <div class="schedule-row"><div class="sched-time">12:00 PM</div><div class="sched-desc">On-site setup begins — HUB Lawn</div></div>
+      <div class="schedule-row"><div class="sched-time">7:00 PM</div><div class="sched-desc">Doors open. <em>Student band opening performance begins.</em></div></div>
+      <div class="schedule-row"><div class="sched-time">7:30 PM</div><div class="sched-desc">Pat Barrett takes the stage — main performance</div></div>
+      <div class="schedule-row"><div class="sched-time">9:00 PM</div><div class="sched-desc">Post-concert community hang</div></div>
+      <div class="schedule-row"><div class="sched-time">11:00 PM</div><div class="sched-desc">Strike and load-out complete</div></div>
+    </div>
+
+    <div class="upac-box">
+      <div class="upac-box-title">UPAC / ASA Funding Notes</div>
+      <div class="upac-row"><span class="upac-key">UPAC Submission Deadline</span><span class="upac-val urgent">July 17, 2026</span></div>
+      <div class="upac-row"><span class="upac-key">Contract Deadline</span><span class="upac-val">August 28, 2026</span></div>
+      <div class="upac-row"><span class="upac-key">Pat Barrett All-Inclusive Quote</span><span class="upac-val">$15,000</span></div>
+      <div class="upac-row"><span class="upac-key">UPAC Covers (max 90%)</span><span class="upac-val">$13,500</span></div>
+      <div class="upac-row"><span class="upac-key">PSU Worship Covers (min 10%)</span><span class="upac-val">$1,500 (Source 30)</span></div>
+      <div class="upac-row"><span class="upac-key">Annual Domestic Performer Cap</span><span class="upac-val">$25,000 total (org-wide, all artists)</span></div>
+      <div class="upac-row"><span class="upac-key">Remaining UPAC Performer Budget</span><span class="upac-val">$11,500 available for Caleb King</span></div>
+      <div class="upac-row"><span class="upac-key">UPAC Cannot Fund</span><span class="upac-val">Food, religious ceremonies, photographers</span></div>
+      <p class="upac-note"><strong>All-inclusive contracts strongly recommended.</strong> The $25,000 cap covers performer fee + their travel + lodging combined. Negotiate flat-rate all-inclusive deals to avoid surprise overages. If UPAC funds flights, you have <strong>6 academic days</strong> from allocation notification to book — after that, your org covers any price increase. Pat Barrett must not have performed at University Park in the last 12 months (UPAC 12-month rule).</p>
+    </div>
+
+    <div class="checklist-title">Checklist — Pat Barrett Concert</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Submit UPAC funding application by <strong>July 17, 2026</strong></div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Frame application as "concert / performing arts event" — not a worship service</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Include UPAC logo + "Funded by Student Initiated Fee" in all advertising</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Set up attendance tracking (QR codes or ID scans) for reconciliation</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Submit reconciliation within 40 academic days post-event</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Finalize booking and signed contract with Pat Barrett / management by <strong>Aug 28</strong></div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Confirm all-inclusive flat-rate contract (fee + travel + lodging in one number)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Verify Pat Barrett has not performed at University Park in the last 12 months</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> If UPAC funds flights: book within <strong>6 academic days</strong> of receiving allocation notice</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Confirm rider requirements (hospitality, tech, sound, backline)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Reserve HUB Lawn via 25Live</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Complete RSO Event Consultation (REC) meeting with Student Affairs</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Coordinate tent and Alumni Stage setup with HUB</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Submit technical requests to HUB and OPP (Office of Physical Plant)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-asa">ASA</span> Confirm Source 30 balance covers PSU Worship's 10% minimum share</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-asa">ASA</span> Issue ASA Purchase Order to Pat Barrett / management before payment</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Confirm opening student band + rehearsal schedule</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Plan load-in / sound check schedule with artist team</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-promo">Promo</span> Launch Instagram promotion campaign (4,600+ followers)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-promo">Promo</span> Design event flyer with UPAC logo included</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-promo">Promo</span> Coordinate cross-promotion with campus Christian orgs</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- EVENT 2: CALEB KING -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="event">
+    <div class="event-header">
+      <div>
+        <div class="event-title">Caleb King Weekend</div>
+        <div class="event-subtitle">Songwriting Workshop + Worship Night — Oct 30 – Nov 2, 2026</div>
+      </div>
+      <div class="event-badges">
+        <span class="badge badge-deadline">UPAC Due Sept 4</span>
+        <span class="badge badge-deadline">Contract Due Oct 19</span>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Arrival</div>
+        <div class="info-value">Friday, Oct 30</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Main Events</div>
+        <div class="info-value">Sunday, Nov 1</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Departure</div>
+        <div class="info-value">Monday, Nov 2</div>
+      </div>
+    </div>
+
+    <div class="schedule">
+      <div class="schedule-title">Weekend Schedule</div>
+      <div class="schedule-row"><div class="sched-time">Fri Oct 30</div><div class="sched-desc">Caleb + piano player arrive in State College</div></div>
+      <div class="schedule-row"><div class="sched-time">Sat Oct 31</div><div class="sched-desc">Tailgating + Penn State vs. Purdue game (Game Day) <em>— evening rehearsal</em></div></div>
+      <div class="schedule-row"><div class="sched-time">Sun Nov 1 · 3–5:30 PM</div><div class="sched-desc"><strong>Songwriting Workshop</strong> — student participation, led by Caleb King</div></div>
+      <div class="schedule-row"><div class="sched-time">Sun Nov 1 · 7–9:30 PM</div><div class="sched-desc"><strong>Main Worship Night / Concert</strong></div></div>
+      <div class="schedule-row"><div class="sched-time">Mon Nov 2</div><div class="sched-desc">Caleb departs State College</div></div>
+    </div>
+
+    <div class="upac-box">
+      <div class="upac-box-title">UPAC / ASA Funding Notes</div>
+      <div class="upac-row"><span class="upac-key">UPAC Submission Deadline</span><span class="upac-val urgent">September 4, 2026</span></div>
+      <div class="upac-row"><span class="upac-key">Contract Deadline</span><span class="upac-val">October 19, 2026</span></div>
+      <div class="upac-row"><span class="upac-key">Remaining UPAC Performer Budget</span><span class="upac-val">$11,500 (after $13,500 used for Pat Barrett)</span></div>
+      <div class="upac-row"><span class="upac-key">Max Caleb King All-Inclusive</span><span class="upac-val">~$12,800 (UPAC covers 90% = $11,500)</span></div>
+      <div class="upac-row"><span class="upac-key">PSU Worship Min. Share</span><span class="upac-val">10% of total event cost (Source 30)</span></div>
+      <div class="upac-row"><span class="upac-key">UPAC Cannot Fund</span><span class="upac-val">Food, religious ceremonies, photographers</span></div>
+      <p class="upac-note"><strong>Negotiate all-inclusive contract with Caleb King</strong> — his fee + travel + lodging combined must come in at or under ~$12,800 for UPAC to cover 90% ($11,500) with PSU Worship paying 10%. Confirm his quote before committing. If UPAC funds flights, book within <strong>6 academic days</strong> of allocation notification. Caleb must not have performed at University Park in the last 12 months.</p>
+    </div>
+
+    <div class="checklist-title">Checklist — Caleb King Weekend</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Submit UPAC funding application by <strong>September 4, 2026</strong></div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Frame applications as "concert" and "songwriting workshop / arts program"</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Include UPAC logo in all event advertising</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Set up attendance tracking for both workshop and concert</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Submit reconciliation within 40 academic days post-event</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Finalize signed contract with Caleb King by <strong>October 19, 2026</strong></div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Confirm all-inclusive flat-rate contract — fee + travel + lodging must fit within $10,000 remaining cap</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Verify Caleb King has not performed at University Park in the last 12 months</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> If UPAC funds flights: book within <strong>6 academic days</strong> of receiving allocation notice</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Confirm travel/lodging arrangements for Caleb + piano player (Fri–Mon)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Confirm rider and backline requirements</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Plan Game Day itinerary (tailgate, tickets)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Reserve venue for songwriting workshop (Nov 1, 3–5:30 PM) via 25Live</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Reserve venue for worship night / concert (Nov 1, 7–9:30 PM) via 25Live</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Complete RSO Event Consultation (REC) meeting with Student Affairs</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-asa">ASA</span> Confirm Source 30 balance covers 10% minimum + hospitality costs</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-asa">ASA</span> Issue ASA Purchase Order to Caleb King before payment</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Arrange housing/hotel for Caleb and piano player (Fri–Mon)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Coordinate Saturday rehearsal space and schedule</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-promo">Promo</span> Design and launch promotional campaign for both workshop and concert</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-promo">Promo</span> Promote songwriting workshop to music students specifically</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- EVENT 3: RECORDING INTENSIVE + EP -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="event">
+    <div class="event-header">
+      <div>
+        <div class="event-title">Recording Intensive + EP</div>
+        <div class="event-subtitle">Professional producer session + 3 original student songs</div>
+      </div>
+      <div class="event-badges">
+        <span class="badge badge-venue">Date TBD</span>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Songs Releasing Soon</div>
+        <div class="info-value">3 Student-Written & Recorded</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Next Phase</div>
+        <div class="info-value">Bring in producer for EP</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">UPAC Equipment Cap</div>
+        <div class="info-value">$2,000 / yr</div>
+      </div>
+    </div>
+
+    <div class="upac-box">
+      <div class="upac-box-title">Funding Notes</div>
+      <div class="upac-row"><span class="upac-key">Equipment Requests Due</span><span class="upac-val">December 18, 2026 (end of semester)</span></div>
+      <div class="upac-row"><span class="upac-key">Media/Broadcast Cap</span><span class="upac-val">$1,000 / yr (UPAC)</span></div>
+      <div class="upac-row"><span class="upac-key">Producer Fee</span><span class="upac-val">Likely Source 30 or outside funding</span></div>
+      <p class="upac-note">Producer fees may not be covered by UPAC if framed as a "workshop" — check with UPAC office. Equipment purchased for recording must have university-approved storage space and a department storage letter.</p>
+    </div>
+
+    <div class="checklist-title">Checklist — Recording Intensive</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Release 3 existing original songs — finalize release date and platforms</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Identify and contact producer for Fall 2026 recording session</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Artist</span> Confirm producer fee and issue ASA Purchase Order</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Book recording studio or confirm on-campus recording space</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Schedule student songwriting sessions leading into the intensive</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Submit equipment request if purchasing gear (due Dec 18)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Secure university-approved storage + department letter for any equipment</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-promo">Promo</span> Announce song releases on Instagram and link to streaming platforms</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- EVENT 4: CABIN RETREAT -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="event">
+    <div class="event-header">
+      <div>
+        <div class="event-title">Visual Content Cabin Retreat</div>
+        <div class="event-subtitle">Music videos, EP photography, and social content production</div>
+      </div>
+      <div class="event-badges">
+        <span class="badge badge-venue">Date TBD — Post Recording</span>
+      </div>
+    </div>
+
+    <div class="checklist-title">Checklist — Cabin Retreat</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Book local cabin — date to follow recording intensive completion</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Confirm attendees (core media team + artists)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Plan shot list for music videos and EP promotional photos</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Pack and prep all camera/lighting gear</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-asa">ASA</span> Cabin rental paid via ASA PO or reimbursement (keep all receipts)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-promo">Promo</span> Deliver edited music video + photo assets for EP rollout</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- EVENT 5: NASHVILLE TRIP -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="event">
+    <div class="event-header">
+      <div>
+        <div class="event-title">Nashville Industry Trip</div>
+        <div class="event-subtitle">Leadership + student networking trip — Thanksgiving Break, Nov 2026</div>
+      </div>
+      <div class="event-badges">
+        <span class="badge badge-deadline">UPAC Due Sept 28</span>
+        <span class="badge badge-deadline">Contract Due Nov 9</span>
+        <span class="badge badge-travel">Travel</span>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Dates</div>
+        <div class="info-value">Thanksgiving Break, Nov 2026</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">UPAC Travel Cap</div>
+        <div class="info-value">$5,000 / yr (org)</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Lodging Cap</div>
+        <div class="info-value">$35 / student / night</div>
+      </div>
+    </div>
+
+    <div class="upac-box">
+      <div class="upac-box-title">UPAC Travel Funding Notes</div>
+      <div class="upac-row"><span class="upac-key">UPAC Submission Deadline</span><span class="upac-val urgent">September 28, 2026</span></div>
+      <div class="upac-row"><span class="upac-key">Contract Deadline</span><span class="upac-val">November 9, 2026</span></div>
+      <div class="upac-row"><span class="upac-key">Transportation</span><span class="upac-val">Up to 75% covered by UPAC</span></div>
+      <div class="upac-row"><span class="upac-key">Lodging</span><span class="upac-val">$35/student/night max (UPAC)</span></div>
+      <div class="upac-row"><span class="upac-key">Registration</span><span class="upac-val">$75/person max (UPAC)</span></div>
+      <div class="upac-row"><span class="upac-key">Annual Travel Cap</span><span class="upac-val">$5,000 total org travel funding</span></div>
+      <p class="upac-note">Faculty/staff travel is NOT fundable through UPAC. Food is not covered. Students pay at least 25% of transportation costs from Source 30 or personal funds.</p>
+    </div>
+
+    <div class="checklist-title">Checklist — Nashville Trip</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Submit travel funding application by <strong>September 28, 2026</strong></div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Confirm $5,000 annual travel cap hasn't been used by other trips</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Finalize travel dates within Thanksgiving Break</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Book transportation (van rental, flights, or bus)</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Book lodging — confirm rate is at or under $35/student/night for UPAC reimbursement</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Confirm student attendee list and collect any personal contributions</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Industry</span> Schedule meetings / studio visits with Nashville contacts</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-artist">Industry</span> Plan professional worship environment visits</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-asa">ASA</span> Issue POs for transportation and lodging vendors ahead of trip</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-asa">ASA</span> Collect and submit all original receipts for reimbursement items</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- RECURRING EVENTS -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="event">
+    <div class="event-header">
+      <div>
+        <div class="event-title">Recurring Events</div>
+        <div class="event-subtitle">Worship nights, songwriting workshops, open mics — throughout semester</div>
+      </div>
+    </div>
+
+    <div class="checklist-title">Checklist — Recurring Programming</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Map out semester calendar — identify dates for each recurring event type</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-venue">Venue</span> Reserve all spaces via 25Live at semester start</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> File UPAC requests for each recurring event at least 40 academic days out</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-upac">UPAC</span> Complete REC meeting with Student Affairs for each event</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Confirm sound/tech team availability for each worship night</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-logis">Logistics</span> Coordinate with other campus Christian orgs for joint events</div>
+    <div class="check-item"><div class="checkbox"></div><span class="check-tag tag-promo">Promo</span> Build semester content calendar for Instagram promotion</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>PSU Worship Music & Arts Club — Internal Use Only</span>
+    <span>Draft — April 2026</span>
+  </div>
+
+</body>
+</html>

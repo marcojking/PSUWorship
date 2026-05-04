@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Form Inputs</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin:0; padding:0; }
+  body { background: var(--cream); padding: 22px 28px; font-family: var(--font-body); color: var(--navy); }
+  .field { margin-bottom: 14px; }
+  .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(0,48,73,0.5); margin-bottom: 6px; display: block; }
+  .input {
+    width: 100%; height: 48px; padding: 0 18px; box-sizing: border-box;
+    border: 1px solid rgba(0,48,73,0.15); border-radius: 14px;
+    background: var(--cream); color: var(--navy); font-size: 15px; font-family: inherit;
+    outline: none;
+  }
+  .input:focus { border-color: #7fa0af; box-shadow: 0 0 0 3px rgba(127,160,175,0.30); }
+  .checkbox { display:flex; align-items:center; gap:10px; font-size: 13px; font-weight: 600; }
+  .cb-box { width: 20px; height: 20px; border-radius: 6px; background: var(--rust); display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body>
+  <div class="field">
+    <label class="lbl">Email</label>
+    <input class="input" value="you@psu.edu" />
+  </div>
+  <div class="field">
+    <label class="checkbox">
+      <span class="cb-box">
+        <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#fff7eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      Yes, I'd like to be part of the Worship Team
+    </label>
+  </div>
+</body>
+</html>

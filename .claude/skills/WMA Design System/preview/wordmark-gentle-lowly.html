@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gentle & Lowly — Wordmark</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { background: #1a1714; padding: 14px 18px; font-family: 'Source Sans 3', sans-serif; }
+  .row { background: #242019; border: 1px solid #3a3228; border-radius: 12px; padding: 26px 24px; margin-bottom: 10px; display: flex; align-items: center; gap: 18px; }
+  .row.paper { background: #f5ead6; border-color: rgba(26,23,20,0.1); }
+  .label { font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,234,214,0.45); width: 180px; flex-shrink: 0; }
+  .paper .label { color: rgba(26,23,20,0.55); }
+
+  /* ─── SHARED DNA WITH WM&A ───────────────────────
+     Same rule: uppercase Source Sans, tracked, & emphasized.
+     Differences:
+       - Background is warm-dark (espresso) by default — G&L lives in the dark.
+       - Accent is amber #c4793a instead of rust (G&L is the dusk sibling).
+       - Uses the LIGHTER end of the weight range — 200/300 — more whispered.
+       - Tracking is WIDER (0.32em) — the name is 11 characters so it has room.
+     ─────────────────────────────────────────────── */
+
+  .amp-amber { color: #c4793a; }
+  .paper .amp-amber { color: #b45741; }
+
+  /* 1. Primary wordmark — tracked editorial, one line */
+  .gl-wide {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 200;
+    font-size: 22px;
+    letter-spacing: 0.32em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: #f5ead6;
+  }
+  .gl-wide .amp-amber { font-weight: 700; margin: 0 0.15em; letter-spacing: 0; }
+  .paper .gl-wide { color: #1a1714; }
+
+  /* 2. Stacked — two lines */
+  .gl-stack {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 300;
+    font-size: 28px;
+    letter-spacing: 0.18em;
+    line-height: 1.15;
+    text-transform: uppercase;
+    color: #f5ead6;
+  }
+  .gl-stack .amp-amber { font-weight: 700; margin-right: 0.1em; }
+  .paper .gl-stack { color: #1a1714; }
+
+  /* 3. Compact — smaller, bolder, nav/chip scale */
+  .gl-compact {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.22em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: #f5ead6;
+  }
+  .gl-compact .amp-amber { font-weight: 700; margin: 0 0.08em; }
+  .paper .gl-compact { color: #1a1714; }
+
+  /* 4. Record label variant — with decorative rules above + below */
+  .gl-album {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 200;
+    font-size: 16px;
+    letter-spacing: 0.42em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: #f5ead6;
+    text-align: center;
+    position: relative;
+    padding: 14px 0;
+  }
+  .gl-album .amp-amber { font-weight: 600; margin: 0 0.2em; letter-spacing: 0; }
+  .gl-album::before, .gl-album::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 1px;
+    background: rgba(245,234,214,0.35);
+  }
+  .gl-album::before { top: 0; }
+  .gl-album::after { bottom: 0; }
+  .paper .gl-album { color: #1a1714; }
+  .paper .gl-album::before, .paper .gl-album::after { background: rgba(26,23,20,0.3); }
+
+  /* 5. Attribution — how it appears as a credit line */
+  .gl-credit {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(245,234,214,0.6);
+  }
+  .gl-credit .sml { font-size: 9px; color: rgba(245,234,214,0.4); display: block; margin-bottom: 4px; }
+  .gl-credit .amp-amber { font-weight: 600; }
+
+  /* Sizer for favicon-scale lockup */
+  .gl-mark {
+    width: 70px; height: 70px; background: #1a1714; border: 1px solid #3a3228;
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-family: 'Source Sans 3', sans-serif; font-weight: 600; font-size: 28px;
+    letter-spacing: 0.04em; color: #f5ead6; line-height: 1;
+  }
+  .gl-mark .amp-amber { font-weight: 700; margin: 0 0.02em; }
+</style>
+</head>
+<body>
+
+  <div class="row">
+    <div class="label">1 · Primary wordmark</div>
+    <div class="gl-wide">GENTLE <span class="amp-amber">&amp;</span> LOWLY</div>
+  </div>
+
+  <div class="row paper">
+    <div class="label">2 · Primary on paper</div>
+    <div class="gl-wide">GENTLE <span class="amp-amber">&amp;</span> LOWLY</div>
+  </div>
+
+  <div class="row">
+    <div class="label">3 · Stacked</div>
+    <div class="gl-stack">GENTLE<br/><span class="amp-amber">&amp;</span> LOWLY</div>
+  </div>
+
+  <div class="row">
+    <div class="label">4 · Compact / nav</div>
+    <div class="gl-compact">GENTLE <span class="amp-amber">&amp;</span> LOWLY</div>
+  </div>
+
+  <div class="row">
+    <div class="label">5 · Record label</div>
+    <div class="gl-album">GENTLE <span class="amp-amber">&amp;</span> LOWLY</div>
+  </div>
+
+  <div class="row">
+    <div class="label">6 · As a credit</div>
+    <div class="gl-credit">
+      <span class="sml">Music by</span>
+      GENTLE <span class="amp-amber">&amp;</span> LOWLY
+    </div>
+  </div>
+
+  <div class="row" style="gap: 18px;">
+    <div class="label">7 · Stacked mark</div>
+    <div class="gl-mark">G<span class="amp-amber">&amp;</span>L</div>
+    <div style="font-family: ui-monospace, monospace; font-size: 9px; color: rgba(245,234,214,0.4); line-height: 1.4;">For square spaces —<br/>profile images,<br/>album corners</div>
+  </div>
+
+</body>
+</html>

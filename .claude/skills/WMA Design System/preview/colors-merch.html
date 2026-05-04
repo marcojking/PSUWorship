@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Colors — Merch (Dark)</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: #1a1714;
+    color: #f5ead6;
+    padding: 20px 24px;
+  }
+  .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .swatch {
+    border-radius: 12px;
+    padding: 12px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid #3a3228;
+  }
+  .name { font-size: 12px; font-weight: 600; }
+  .hex { font-family: var(--font-mono); font-size: 10px; opacity: 0.75; }
+  .light .name, .light .hex { color: #1a1714; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="swatch" style="background:#1a1714;">
+      <div class="name">Espresso BG</div><div class="hex">#1a1714</div>
+    </div>
+    <div class="swatch" style="background:#242019;">
+      <div class="name">Card</div><div class="hex">#242019</div>
+    </div>
+    <div class="swatch light" style="background:#f5ead6;">
+      <div class="name">Cream FG</div><div class="hex">#f5ead6</div>
+    </div>
+    <div class="swatch" style="background:#c4793a;color:#1a1714;">
+      <div class="name" style="color:#1a1714;">Amber</div><div class="hex" style="color:#1a1714;">#c4793a</div>
+    </div>
+    <div class="swatch" style="background:#8b7355;">
+      <div class="name">Accent</div><div class="hex">#8b7355</div>
+    </div>
+    <div class="swatch" style="background:#3a3228;">
+      <div class="name">Border</div><div class="hex">#3a3228</div>
+    </div>
+    <div class="swatch" style="background:#968a78;color:#1a1714;">
+      <div class="name" style="color:#1a1714;">Muted</div><div class="hex" style="color:#1a1714;">#968a78</div>
+    </div>
+    <div class="swatch" style="background:transparent;border-style:dashed;color:#968a78;">
+      <div class="name" style="color:#968a78;">Merch-theme</div><div class="hex" style="color:#968a78;">warm dark</div>
+    </div>
+  </div>
+</body>
+</html>
