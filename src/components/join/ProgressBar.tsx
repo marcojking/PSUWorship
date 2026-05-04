@@ -1,4 +1,4 @@
-const STEPS = ['Roles', 'About You', 'Your Story', 'Follow Up'];
+const STEPS = ['Roles', 'About You', 'Your Story'];
 
 export default function ProgressBar({ currentStep }: { currentStep: number }) {
   const fillPct = (currentStep / STEPS.length) * 100;

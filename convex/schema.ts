@@ -226,8 +226,13 @@ export default defineSchema({
     worshipTeam: v.boolean(),
     instruments: v.optional(v.string()),
     videoStorageId: v.id("_storage"),
-    requestsCall: v.boolean(),
-    phone: v.optional(v.string()),
+    submittedAt: v.number(),
+  }).index("by_submittedAt", ["submittedAt"]),
+
+  callRequests: defineTable({
+    name: v.string(),
+    contact: v.string(),
+    roles: v.array(v.string()),
     submittedAt: v.number(),
   }).index("by_submittedAt", ["submittedAt"]),
 

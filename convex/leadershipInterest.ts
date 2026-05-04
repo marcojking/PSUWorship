@@ -18,6 +18,17 @@ export const list = query({
   },
 });
 
+export const listCallRequests = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("callRequests")
+      .withIndex("by_submittedAt")
+      .order("desc")
+      .collect();
+  },
+});
+
 export const generateUploadUrl = mutation(async (ctx) => {
   return await ctx.storage.generateUploadUrl();
 });
@@ -32,11 +43,23 @@ export const submit = mutation({
     worshipTeam: v.boolean(),
     instruments: v.optional(v.string()),
     videoStorageId: v.id("_storage"),
-    requestsCall: v.boolean(),
-    phone: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("leadershipInterest", {
+      ...args,
+      submittedAt: Date.now(),
+    });
+  },
+});
+
+export const requestCall = mutation({
+  args: {
+    name: v.string(),
+    contact: v.string(),
+    roles: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("callRequests", {
       ...args,
       submittedAt: Date.now(),
     });

@@ -4,12 +4,15 @@ import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import ProgressBar from '@/components/join/ProgressBar';
 import RoleSelection from '@/components/join/RoleSelection';
+import PathFork from '@/components/join/PathFork';
 import PersonalInfo from '@/components/join/PersonalInfo';
 import VideoUpload from '@/components/join/VideoUpload';
-import FollowUp from '@/components/join/FollowUp';
+import QuickConnect from '@/components/join/QuickConnect';
 import ThankYou from '@/components/join/ThankYou';
 import SubmittingOverlay from '@/components/join/SubmittingOverlay';
 import SiteNav from '@/components/SiteNav';
+
+type Path = 'undecided' | 'apply' | 'call';
 
 interface FormData {
   roles: string[];
@@ -24,6 +27,8 @@ interface FormData {
 
 export default function JoinPage() {
   const [step, setStep] = useState(1);
+  const [path, setPath] = useState<Path>('undecided');
+  const [thanksVariant, setThanksVariant] = useState<'application' | 'call'>('application');
   const [formData, setFormData] = useState<FormData>({
     roles: [],
     worshipTeam: false,
@@ -40,25 +45,22 @@ export default function JoinPage() {
 
   const generateUploadUrl = useMutation(api.leadershipInterest.generateUploadUrl);
   const submit = useMutation(api.leadershipInterest.submit);
+  const requestCall = useMutation(api.leadershipInterest.requestCall);
 
-  async function handleFinalSubmit(followUp: { requestsCall: boolean; phone: string }) {
-    if (!formData.videoFile) return;
+  async function handleApplicationSubmit(file: File) {
     setSubmittingStage('uploading');
     setError(null);
-
     try {
       const uploadUrl = await generateUploadUrl();
-
       const uploadRes = await fetch(uploadUrl, {
         method: 'POST',
-        headers: { 'Content-Type': formData.videoFile.type },
-        body: formData.videoFile,
+        headers: { 'Content-Type': file.type },
+        body: file,
       });
       if (!uploadRes.ok) throw new Error('Video upload failed');
       const { storageId } = await uploadRes.json();
 
       setSubmittingStage('saving');
-
       await submit({
         name: formData.name,
         email: formData.email,
@@ -68,10 +70,9 @@ export default function JoinPage() {
         worshipTeam: formData.worshipTeam,
         instruments: formData.instruments || undefined,
         videoStorageId: storageId,
-        requestsCall: followUp.requestsCall,
-        phone: followUp.phone || undefined,
       });
 
+      setThanksVariant('application');
       setSubmittingStage('complete');
     } catch {
       setSubmittingStage(null);
@@ -79,7 +80,28 @@ export default function JoinPage() {
     }
   }
 
-  if (submitted) return <ThankYou />;
+  async function handleCallRequest(data: { name: string; contact: string }) {
+    setSubmittingStage('saving');
+    setError(null);
+    try {
+      await requestCall({
+        name: data.name,
+        contact: data.contact,
+        roles: formData.roles,
+      });
+      setThanksVariant('call');
+      setSubmittingStage('complete');
+    } catch {
+      setSubmittingStage(null);
+      setError('Something went wrong. Please try again.');
+    }
+  }
+
+  if (submitted) return <ThankYou variant={thanksVariant} />;
+
+  // Show fork after step 1 completes
+  const showFork = step === 1.5;
+  const showCallForm = path === 'call' && step === 2;
 
   return (
     <>
@@ -101,9 +123,15 @@ export default function JoinPage() {
           </p>
         </div>
 
-        <div className="mt-10 mb-12">
-          <ProgressBar currentStep={step} />
-        </div>
+        {/* Progress bar only on the full application path */}
+        {path === 'apply' && (
+          <div className="mt-10 mb-12">
+            <ProgressBar currentStep={step} />
+          </div>
+        )}
+
+        {/* Spacer when no progress bar */}
+        {path !== 'apply' && <div className="mt-10 mb-12" />}
 
         {error && (
           <div className="mb-6 px-4 py-3 rounded-xl bg-secondary/10 text-secondary text-sm">
@@ -111,6 +139,7 @@ export default function JoinPage() {
           </div>
         )}
 
+        {/* Step 1: Role selection */}
         {step === 1 && (
           <RoleSelection
             initialRoles={formData.roles}
@@ -118,11 +147,40 @@ export default function JoinPage() {
             initialInstruments={formData.instruments}
             onNext={(data) => {
               setFormData((f) => ({ ...f, ...data }));
+              setStep(1.5);
+            }}
+          />
+        )}
+
+        {/* Fork: apply vs talk first */}
+        {showFork && (
+          <PathFork
+            onApply={() => {
+              setPath('apply');
+              setStep(2);
+            }}
+            onTalkFirst={() => {
+              setPath('call');
               setStep(2);
             }}
           />
         )}
-        {step === 2 && (
+
+        {/* Call request path */}
+        {showCallForm && (
+          <QuickConnect
+            roles={formData.roles}
+            isSubmitting={submittingStage !== null}
+            onSubmit={handleCallRequest}
+            onBack={() => {
+              setPath('undecided');
+              setStep(1.5);
+            }}
+          />
+        )}
+
+        {/* Full application path */}
+        {path === 'apply' && step === 2 && (
           <PersonalInfo
             initialName={formData.name}
             initialEmail={formData.email}
@@ -132,24 +190,20 @@ export default function JoinPage() {
               setFormData((f) => ({ ...f, ...data }));
               setStep(3);
             }}
-            onBack={() => setStep(1)}
+            onBack={() => {
+              setPath('undecided');
+              setStep(1.5);
+            }}
           />
         )}
-        {step === 3 && (
+        {path === 'apply' && step === 3 && (
           <VideoUpload
             initialFile={formData.videoFile}
             onNext={(file) => {
               setFormData((f) => ({ ...f, videoFile: file }));
-              setStep(4);
+              handleApplicationSubmit(file);
             }}
             onBack={() => setStep(2)}
-          />
-        )}
-        {step === 4 && (
-          <FollowUp
-            isSubmitting={submittingStage !== null}
-            onSubmit={handleFinalSubmit}
-            onBack={() => setStep(3)}
           />
         )}
       </div>
