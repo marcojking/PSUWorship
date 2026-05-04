@@ -13,7 +13,7 @@ type FaqItem = { q: string; a: string };
 const PILLARS = [
   {
     label: 'Write & Produce Original Music',
-    body: 'Through Gentle & Lowly, we write, arrange, and record original worship music — entirely by Penn State students.',
+    body: 'Through our student band, we write, arrange, and record original worship music — entirely by Penn State students.',
     img: '/about/band-photo-square.jpg',
   },
   {
@@ -82,10 +82,6 @@ const FAQ: FaqItem[] = [
   {
     q: 'Is there a membership fee?',
     a: 'No. Joining WM&A is free. We are a registered Penn State student organization. Optional financial support through our Give page helps us fund events, equipment, and recording projects.',
-  },
-  {
-    q: 'What is Gentle & Lowly?',
-    a: "Gentle & Lowly is WM&A's primary student band. We write and record original worship music, with our first EP written and recorded entirely by Penn State students. The band operates under the WM&A umbrella and is our main musical project.",
   },
 ];
 
@@ -262,97 +258,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-
-        <Divider />
-
-        {/* ── Gentle & Lowly ── */}
-        <section style={{ padding: '3rem 0' }}>
-          <SectionLabel>Featured Project</SectionLabel>
-          <div style={{
-            background: '#1a1714',
-            borderRadius: '16px',
-            overflow: 'hidden',
-          }}>
-            <div style={{ width: '100%', height: '220px', overflow: 'hidden' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/about/band-photo-wide.jpg"
-                alt="Gentle &amp; Lowly band"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center 30%',
-                  display: 'block',
-                }}
-              />
-            </div>
-            <div style={{ padding: '1.75rem 2rem 2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem' }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{
-                    fontFamily: 'var(--font-source-sans)',
-                    fontSize: '0.55rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.26em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(196,121,58,0.7)',
-                    marginBottom: '0.6rem',
-                  }}>
-                    WM&amp;A Student Band
-                  </p>
-                  <h2 style={{
-                    fontFamily: 'var(--font-cormorant)',
-                    fontStyle: 'italic',
-                    fontWeight: 600,
-                    fontSize: 'clamp(1.8rem, 6vw, 2.5rem)',
-                    color: '#f5ead6',
-                    lineHeight: 1.1,
-                    marginBottom: '0.9rem',
-                  }}>
-                    Gentle <span style={{ color: '#c4793a' }}>&amp;</span> Lowly
-                  </h2>
-                  <p style={{
-                    fontSize: '0.9rem',
-                    fontWeight: 300,
-                    lineHeight: 1.7,
-                    color: 'rgba(245,234,214,0.6)',
-                    marginBottom: '1.25rem',
-                  }}>
-                    Our primary student band, writing and recording original worship music at Penn State. The debut EP was written, arranged, and recorded entirely by students — and we plan to keep making records.
-                  </p>
-                  <Link href="/GentleAndLowly" style={{
-                    display: 'inline-block',
-                    fontFamily: 'var(--font-source-sans)',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.08em',
-                    color: '#c4793a',
-                    textDecoration: 'none',
-                  }}>
-                    Visit Gentle &amp; Lowly →
-                  </Link>
-                </div>
-                <div style={{
-                  flexShrink: 0,
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  border: '1px solid rgba(196,121,58,0.3)',
-                  marginTop: '0.25rem',
-                }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/about/ep-art-flowers.jpg"
-                    alt="EP artwork"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <Divider />
 

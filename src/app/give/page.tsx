@@ -174,6 +174,61 @@ export default function GivePage() {
 
         </form>
       </div>
+
+      {/* ── Sponsorship ── */}
+      <div className="w-full max-w-sm mt-10">
+        <div style={{
+          borderTop: '1px solid rgba(0,48,73,0.1)',
+          paddingTop: '2rem',
+        }}>
+          <p style={{
+            fontFamily: 'var(--font-source-sans)',
+            fontSize: '0.55rem',
+            fontWeight: 700,
+            letterSpacing: '0.26em',
+            textTransform: 'uppercase',
+            color: 'rgba(180,87,65,0.7)',
+            marginBottom: '0.75rem',
+          }}>
+            Organizations &amp; Churches
+          </p>
+          <h2 style={{
+            fontFamily: 'var(--font-cormorant)',
+            fontStyle: 'italic',
+            fontWeight: 600,
+            fontSize: '1.6rem',
+            color: '#003049',
+            lineHeight: 1.15,
+            marginBottom: '0.75rem',
+          }}>
+            Interested in sponsoring?
+          </h2>
+          <p style={{
+            fontSize: '0.88rem',
+            fontWeight: 300,
+            lineHeight: 1.7,
+            color: 'rgba(0,48,73,0.6)',
+            marginBottom: '1.25rem',
+          }}>
+            We partner with churches, campus ministries, and organizations who want to invest in worship culture at Penn State. Sponsorships help fund events, recording projects, and equipment.
+          </p>
+          <a
+            href="mailto:wmaac@psu.edu?subject=Sponsorship Inquiry"
+            style={{
+              display: 'inline-block',
+              fontFamily: 'var(--font-source-sans)',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              color: '#b45741',
+              textDecoration: 'none',
+            }}
+          >
+            Get in touch → wmaac@psu.edu
+          </a>
+        </div>
+      </div>
+
       </div>
     </div>
   );
