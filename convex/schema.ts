@@ -227,6 +227,9 @@ export default defineSchema({
     instruments: v.optional(v.string()),
     videoStorageId: v.id("_storage"),
     submittedAt: v.number(),
+    // Legacy fields from old schema — kept for existing documents
+    requestsCall: v.optional(v.boolean()),
+    phone: v.optional(v.string()),
   }).index("by_submittedAt", ["submittedAt"]),
 
   callRequests: defineTable({
