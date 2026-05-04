@@ -13,13 +13,20 @@ type Submission = {
   worshipTeam: boolean;
   instruments?: string;
   videoUrl: string | null;
-  requestsCall: boolean;
-  phone?: string;
+  submittedAt: number;
+};
+
+type CallRequest = {
+  _id: string;
+  name: string;
+  contact: string;
+  roles: string[];
   submittedAt: number;
 };
 
 export default function ApplicationsPage() {
   const submissions = useQuery(api.leadershipInterest.list, {}) as Submission[] | undefined;
+  const callRequests = useQuery(api.leadershipInterest.listCallRequests, {}) as CallRequest[] | undefined;
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
@@ -45,11 +52,72 @@ export default function ApplicationsPage() {
           </p>
         </div>
 
-        {/* ── Applications list ── */}
+        {/* ── Call Requests ── */}
+        <div style={{ marginBottom: 64 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
+            <h2 className="font-cormorant" style={{ fontSize: '1.8rem', fontWeight: 600, fontStyle: 'italic', color: '#003049' }}>
+              Call Requests
+            </h2>
+            <div style={{ flex: 1, height: 1, background: 'rgba(0,48,73,0.1)' }} />
+            {callRequests && (
+              <span style={{ fontSize: '0.72rem', fontWeight: 300, color: 'rgba(0,48,73,0.4)' }}>
+                {callRequests.length} total
+              </span>
+            )}
+          </div>
+
+          {callRequests === undefined ? (
+            <p className="font-cormorant" style={{ fontSize: '1.2rem', fontStyle: 'italic', color: 'rgba(0,48,73,0.3)', padding: '32px 0' }}>Loading…</p>
+          ) : callRequests.length === 0 ? (
+            <p className="font-cormorant" style={{ fontSize: '1.1rem', fontStyle: 'italic', color: 'rgba(0,48,73,0.2)', padding: '32px 0' }}>No call requests yet.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {callRequests.map((r) => {
+                const dateStr = new Date(r.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const isEmail = r.contact.includes('@');
+                return (
+                  <div key={r._id} style={{
+                    borderRadius: 16,
+                    border: '1px solid rgba(180,87,65,0.18)',
+                    background: 'rgba(180,87,65,0.03)',
+                    padding: '16px 20px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: 16,
+                  }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
+                        <span className="font-cormorant" style={{ fontSize: '1.3rem', fontWeight: 600, color: '#003049', lineHeight: 1.2 }}>{r.name}</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 300, color: 'rgba(0,48,73,0.5)' }}>{r.contact}</span>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {r.roles.map((role) => (
+                          <span key={role} style={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.06em', padding: '2px 8px', borderRadius: 999, background: 'rgba(0,48,73,0.07)', color: '#003049' }}>{role}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 300, color: 'rgba(0,48,73,0.35)' }}>{dateStr}</span>
+                      <a
+                        href={isEmail ? `mailto:${r.contact}` : `tel:${r.contact}`}
+                        style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', padding: '6px 14px', borderRadius: 999, background: '#b45741', color: '#fff7eb', textDecoration: 'none' }}
+                      >
+                        {isEmail ? 'Email' : 'Call'} {r.name.split(' ')[0]}
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ── Full Applications ── */}
         <div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
             <h2 className="font-cormorant" style={{ fontSize: '1.8rem', fontWeight: 600, fontStyle: 'italic', color: '#003049' }}>
-              All Submissions
+              Full Applications
             </h2>
             <div style={{ flex: 1, height: 1, background: 'rgba(0,48,73,0.1)' }} />
             {submissions && (
@@ -71,8 +139,7 @@ export default function ApplicationsPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {submissions.map((s) => {
                 const isOpen = expanded === s._id;
-                const date = new Date(s.submittedAt);
-                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const dateStr = new Date(s.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 return (
                   <div key={s._id} style={{
                     borderRadius: 16,
@@ -101,9 +168,6 @@ export default function ApplicationsPage() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
                         <span style={{ fontSize: '0.72rem', fontWeight: 300, color: 'rgba(0,48,73,0.35)' }}>{dateStr}</span>
-                        {s.requestsCall && (
-                          <span style={{ fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '2px 8px', borderRadius: 999, background: 'rgba(180,87,65,0.12)', color: '#b45741' }}>Wants call</span>
-                        )}
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', color: 'rgba(0,48,73,0.3)', marginTop: 2 }}>
                           <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
@@ -115,7 +179,6 @@ export default function ApplicationsPage() {
                         <div style={{ display: 'flex', gap: 32, marginBottom: 20, flexWrap: 'wrap' }}>
                           <Stat label="Grad Year" value={String(s.gradYear)} />
                           <Stat label="Hrs / Week" value={String(s.weeklyHours)} />
-                          {s.requestsCall && s.phone && <Stat label="Phone" value={s.phone} />}
                         </div>
                         {s.worshipTeam && s.instruments && (
                           <div style={{ marginBottom: 20 }}>
@@ -129,16 +192,9 @@ export default function ApplicationsPage() {
                             <video src={s.videoUrl} controls style={{ marginTop: 10, width: '100%', borderRadius: 12, maxHeight: 300, background: 'rgba(0,48,73,0.04)' }} />
                           </div>
                         )}
-                        <div style={{ display: 'flex', gap: 10 }}>
-                          <a href={`mailto:${s.email}`} style={{ fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.08em', padding: '9px 20px', borderRadius: 999, background: '#003049', color: '#fff7eb', textDecoration: 'none' }}>
-                            Email {s.name.split(' ')[0]}
-                          </a>
-                          {s.requestsCall && s.phone && (
-                            <a href={`tel:${s.phone}`} style={{ fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.08em', padding: '9px 20px', borderRadius: 999, border: '1px solid rgba(0,48,73,0.18)', color: '#003049', textDecoration: 'none' }}>
-                              Call
-                            </a>
-                          )}
-                        </div>
+                        <a href={`mailto:${s.email}`} style={{ fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.08em', padding: '9px 20px', borderRadius: 999, background: '#003049', color: '#fff7eb', textDecoration: 'none' }}>
+                          Email {s.name.split(' ')[0]}
+                        </a>
                       </div>
                     )}
                   </div>
@@ -147,6 +203,7 @@ export default function ApplicationsPage() {
             </div>
           )}
         </div>
+
       </div>
     </div>
   );
