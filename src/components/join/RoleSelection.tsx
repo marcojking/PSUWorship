@@ -29,6 +29,7 @@ interface RoleSelectionProps {
   initialRoles?: string[];
   initialWorshipTeam?: boolean;
   initialInstruments?: string;
+  onRequestCall: () => void;
   onNext: (data: { roles: string[]; worshipTeam: boolean; instruments: string }) => void;
 }
 
@@ -36,6 +37,7 @@ export default function RoleSelection({
   initialRoles = [],
   initialWorshipTeam = false,
   initialInstruments = '',
+  onRequestCall,
   onNext,
 }: RoleSelectionProps) {
   const [selected, setSelected] = useState<string[]>(initialRoles);
@@ -54,6 +56,19 @@ export default function RoleSelection({
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Not sure CTA */}
+      <div className="flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border border-primary/10 bg-primary/[0.02]">
+        <p className="text-sm font-light text-primary/60 leading-snug">
+          Not ready to apply yet? Have a quick conversation with Marco first.
+        </p>
+        <button
+          onClick={onRequestCall}
+          className="flex-shrink-0 h-9 px-5 rounded-full border border-primary/20 text-primary text-xs font-semibold tracking-widest uppercase transition-all hover:border-primary/50 hover:bg-primary/5 whitespace-nowrap"
+        >
+          Request a call
+        </button>
+      </div>
+
       {/* Counter */}
       <p
         className={`font-cormorant font-semibold italic text-lg tracking-wide transition-colors ${

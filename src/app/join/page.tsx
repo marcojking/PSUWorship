@@ -4,7 +4,6 @@ import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import ProgressBar from '@/components/join/ProgressBar';
 import RoleSelection from '@/components/join/RoleSelection';
-import PathFork from '@/components/join/PathFork';
 import PersonalInfo from '@/components/join/PersonalInfo';
 import VideoUpload from '@/components/join/VideoUpload';
 import QuickConnect from '@/components/join/QuickConnect';
@@ -87,7 +86,7 @@ export default function JoinPage() {
       await requestCall({
         name: data.name,
         contact: data.contact,
-        roles: formData.roles,
+        roles: [],
       });
       setThanksVariant('call');
       setSubmittingStage('complete');
@@ -98,10 +97,6 @@ export default function JoinPage() {
   }
 
   if (submitted) return <ThankYou variant={thanksVariant} />;
-
-  // Show fork after step 1 completes
-  const showFork = step === 1.5;
-  const showCallForm = path === 'call' && step === 2;
 
   return (
     <>
@@ -139,42 +134,29 @@ export default function JoinPage() {
           </div>
         )}
 
-        {/* Step 1: Role selection */}
-        {step === 1 && (
-          <RoleSelection
-            initialRoles={formData.roles}
-            initialWorshipTeam={formData.worshipTeam}
-            initialInstruments={formData.instruments}
-            onNext={(data) => {
-              setFormData((f) => ({ ...f, ...data }));
-              setStep(1.5);
-            }}
-          />
-        )}
-
-        {/* Fork: apply vs talk first */}
-        {showFork && (
-          <PathFork
-            onApply={() => {
-              setPath('apply');
-              setStep(2);
-            }}
-            onTalkFirst={() => {
-              setPath('call');
-              setStep(2);
-            }}
-          />
-        )}
-
         {/* Call request path */}
-        {showCallForm && (
+        {path === 'call' && (
           <QuickConnect
-            roles={formData.roles}
             isSubmitting={submittingStage !== null}
             onSubmit={handleCallRequest}
             onBack={() => {
               setPath('undecided');
-              setStep(1.5);
+              setStep(1);
+            }}
+          />
+        )}
+
+        {/* Role selection — shown on step 1 for the apply path or undecided */}
+        {path !== 'call' && step === 1 && (
+          <RoleSelection
+            initialRoles={formData.roles}
+            initialWorshipTeam={formData.worshipTeam}
+            initialInstruments={formData.instruments}
+            onRequestCall={() => setPath('call')}
+            onNext={(data) => {
+              setFormData((f) => ({ ...f, ...data }));
+              setPath('apply');
+              setStep(2);
             }}
           />
         )}
@@ -192,7 +174,7 @@ export default function JoinPage() {
             }}
             onBack={() => {
               setPath('undecided');
-              setStep(1.5);
+              setStep(1);
             }}
           />
         )}

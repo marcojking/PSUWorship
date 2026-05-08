@@ -3,13 +3,12 @@
 import { useState } from 'react';
 
 interface QuickConnectProps {
-  roles: string[];
   isSubmitting: boolean;
   onSubmit: (data: { name: string; contact: string }) => void;
   onBack: () => void;
 }
 
-export default function QuickConnect({ roles, isSubmitting, onSubmit, onBack }: QuickConnectProps) {
+export default function QuickConnect({ isSubmitting, onSubmit, onBack }: QuickConnectProps) {
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
 
@@ -25,31 +24,6 @@ export default function QuickConnect({ roles, isSubmitting, onSubmit, onBack }: 
           Leave your name and the best way to reach you. Marco will be in touch to set up a time to chat.
         </p>
       </div>
-
-      {/* Roles summary */}
-      {roles.length > 0 && (
-        <div style={{
-          background: 'rgba(0,48,73,0.04)',
-          border: '1px solid rgba(0,48,73,0.1)',
-          borderRadius: 12,
-          padding: '0.85rem 1.1rem',
-        }}>
-          <p style={{
-            fontFamily: 'var(--font-source-sans)',
-            fontSize: '0.58rem',
-            fontWeight: 700,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: 'rgba(180,87,65,0.7)',
-            marginBottom: '0.35rem',
-          }}>
-            Interested in
-          </p>
-          <p className="text-sm font-light text-primary/70">
-            {roles.join(', ')}
-          </p>
-        </div>
-      )}
 
       {/* Name */}
       <div className="flex flex-col gap-2">
