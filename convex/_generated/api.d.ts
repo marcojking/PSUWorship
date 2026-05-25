@@ -18,6 +18,8 @@ import type * as eventGear from "../eventGear.js";
 import type * as events from "../events.js";
 import type * as gearItems from "../gearItems.js";
 import type * as leadershipInterest from "../leadershipInterest.js";
+import type * as liveSession from "../liveSession.js";
+import type * as liveSetlist from "../liveSetlist.js";
 import type * as logoVariants from "../logoVariants.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
@@ -43,6 +45,8 @@ declare const fullApi: ApiFromModules<{
   events: typeof events;
   gearItems: typeof gearItems;
   leadershipInterest: typeof leadershipInterest;
+  liveSession: typeof liveSession;
+  liveSetlist: typeof liveSetlist;
   logoVariants: typeof logoVariants;
   orders: typeof orders;
   products: typeof products;

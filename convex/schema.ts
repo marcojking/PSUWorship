@@ -303,4 +303,30 @@ export default defineSchema({
   })
     .index('by_createdAt', ['createdAt'])
     .index('by_stripeSession', ['stripeSessionId']),
+
+  liveSetlist: defineTable({
+    name:     v.string(),
+    pushedAt: v.number(),
+    songs: v.array(v.object({
+      title: v.string(),
+      key:   v.optional(v.string()),
+      sections: v.array(v.object({
+        type:   v.string(),
+        label:  v.string(),
+        lyrics: v.string(),
+        chords: v.string(),
+      }))
+    }))
+  }),
+
+  liveSession: defineTable({
+    currentSong:    v.number(),
+    currentSection: v.number(),
+    queuedSong:     v.number(),
+    queuedSection:  v.number(),
+    mode:           v.union(v.literal('song'), v.literal('section')),
+    isBlackout:     v.boolean(),
+    isLive:         v.boolean(),
+    updatedAt:      v.number(),
+  }),
 });

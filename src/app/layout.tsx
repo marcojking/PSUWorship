@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Source_Sans_3, Cormorant_Garamond } from "next/font/google";
+import ConvexClientProvider from "./ConvexClientProvider";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -47,7 +48,7 @@ export default function RootLayout({
       <body
         className={`${sourceSans.variable} ${cormorant.variable} antialiased`}
       >
-        {children}
+        <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
   );

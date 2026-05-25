@@ -3,11 +3,14 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 import Logo from '@/components/Logo';
 import ChordChart from '@/components/setlist/ChordChart';
 import ExportModal from '@/components/setlist/ExportModal';
 import { getSetlistWithSongs, updateSetlist, deleteSetlist, type Song, type Setlist } from '@/lib/db';
 import { ALL_KEYS } from '@/lib/chords/transposition';
+import { sectionToChordPro, sectionToLyrics } from '@/lib/live/convert';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -21,6 +24,9 @@ export default function SetlistDetailPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [showExport, setShowExport] = useState(false);
   const [expandedSong, setExpandedSong] = useState<number | null>(null);
+  const pushLive = useMutation(api.liveSetlist.push);
+  const [pushing, setPushing] = useState(false);
+  const [pushStatus, setPushStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     loadSetlist();
@@ -34,6 +40,34 @@ export default function SetlistDetailPage({ params }: PageProps) {
     }
     setLoading(false);
   }
+
+  const handlePushToLive = async () => {
+    if (!setlist || songs.length === 0) return;
+    setPushing(true);
+    setPushStatus('idle');
+    try {
+      await pushLive({
+        name: setlist.name,
+        songs: songs.map(song => ({
+          title: song.title,
+          key:   song.transposedKey ?? song.key,
+          sections: song.sections.map(section => ({
+            type:   section.type,
+            label:  section.label,
+            lyrics: sectionToLyrics(section),
+            chords: sectionToChordPro(section),
+          }))
+        }))
+      });
+      setPushStatus('success');
+      setTimeout(() => setPushStatus('idle'), 3000);
+    } catch {
+      setPushStatus('error');
+      setTimeout(() => setPushStatus('idle'), 4000);
+    } finally {
+      setPushing(false);
+    }
+  };
 
   const handleUpdateKey = async (songId: number, newKey: string) => {
     if (!setlist) return;
@@ -150,6 +184,20 @@ export default function SetlistDetailPage({ params }: PageProps) {
           className="flex-1 bg-primary text-secondary py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
         >
           Export
+        </button>
+        <button
+          onClick={handlePushToLive}
+          disabled={pushing || songs.length === 0}
+          className={`px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-40 ${
+            pushStatus === 'success' ? 'bg-green-600 text-white' :
+            pushStatus === 'error'   ? 'bg-red-600 text-white' :
+            'bg-primary/10 border border-primary/20 hover:bg-primary/20'
+          }`}
+        >
+          {pushing             ? 'Pushing...' :
+           pushStatus === 'success' ? '✓ Live!' :
+           pushStatus === 'error'   ? 'Failed' :
+           '▶ Go Live'}
         </button>
         <Link
           href={`/setlist/${id}/edit`}

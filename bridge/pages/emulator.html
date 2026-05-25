@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WM&A Pedalboard Emulator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #141414; color: #e0e0e0; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 20px; padding: 20px; }
+    h2 { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.4; }
+    .lcd-panel { background: #1e2e10; border: 3px solid #2e4e18; border-radius: 6px; padding: 10px; display: flex; gap: 4px; }
+    .slot { width: 90px; height: 44px; background: #162008; border: 1px solid #2a4010; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6acd2a; text-align: center; padding: 4px; line-height: 1.3; word-break: break-word; transition: all 0.1s; }
+    .slot.queued { border-color: #f0c030; color: #f0c030; background: #281e00; }
+    .slot.empty  { color: #2a4010; }
+    .button-row { display: flex; gap: 6px; align-items: flex-end; }
+    .btn { border-radius: 8px; border: 2px solid #333; background: #1e1e1e; color: #e0e0e0; font-family: monospace; font-size: 11px; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 4px; cursor: default; }
+    .btn-sel  { width: 90px; height: 70px; border-color: #2a4a7a; }
+    .btn-mode { width: 74px; height: 58px; border-color: #7a5a2a; }
+    .btn-blk  { width: 74px; height: 58px; border-color: #7a2a2a; }
+    .btn-go   { width: 74px; height: 58px; border-color: #2a7a2a; background: #0e200e; }
+    .btn-num  { font-size: 16px; }
+    .status { font-size: 12px; color: #666; text-align: center; line-height: 2; }
+    .live { color: #6acd2a; } .mode-tag { color: #7ab8f7; }
+    #conn { font-size: 11px; color: #f07a30; }
+  </style>
+</head>
+<body>
+  <h2>Pedalboard LCD Emulator</h2>
+  <div class="lcd-panel" id="lcd">
+    <div class="slot empty" id="s0">—</div>
+    <div class="slot empty" id="s1">—</div>
+    <div class="slot empty" id="s2">—</div>
+    <div class="slot empty" id="s3">—</div>
+    <div class="slot empty" id="s4">—</div>
+    <div class="slot empty" id="s5">—</div>
+  </div>
+  <div class="button-row">
+    <div class="btn btn-sel"><span class="btn-num">1</span></div>
+    <div class="btn btn-sel"><span class="btn-num">2</span></div>
+    <div class="btn btn-sel"><span class="btn-num">3</span></div>
+    <div class="btn btn-sel"><span class="btn-num">4</span></div>
+    <div class="btn btn-sel"><span class="btn-num">5</span></div>
+    <div class="btn btn-sel"><span class="btn-num">6</span></div>
+    <div class="btn btn-mode"><span>MODE</span><span id="mode-val">SONG</span></div>
+    <div class="btn btn-blk"><span>BLKOUT</span></div>
+    <div class="btn btn-go"><span style="font-size:18px">&#9654;</span><span>GO</span></div>
+  </div>
+  <div class="status" id="status">—</div>
+  <div id="conn">Connecting...</div>
+
+  <script>
+    function render(msg) {
+      const { state, buttonLabels, setlistName, songNumber, sectionNumber, songCount, sectionCount, currentSongTitle, currentLabel, nextSongTitle, nextLabel } = msg
+
+      for (let i = 0; i < 6; i++) {
+        const el = document.getElementById(`s${i}`)
+        const label = buttonLabels[i]
+        const isQ = state.mode === 'song' ? state.queuedSong === i : state.queuedSection === i
+        el.textContent = label || '—'
+        el.className = `slot ${!label ? 'empty' : ''} ${isQ ? 'queued' : ''}`
+      }
+
+      document.getElementById('mode-val').textContent = state.mode.toUpperCase()
+      document.getElementById('conn').textContent = ''
+
+      const liveStr = state.isLive
+        ? `<span class="live">&#9679; LIVE</span> — ${currentSongTitle} / ${currentLabel}`
+        : 'Standby (press Space to go live)'
+      const qStr = state.queuedSong >= 0
+        ? `Queued &rarr; ${nextSongTitle ?? ''} / ${nextLabel ?? ''}`
+        : '<span style="color:#7a2a2a">End of setlist</span>'
+
+      document.getElementById('status').innerHTML = [
+        `<span class="mode-tag">MODE: ${state.mode.toUpperCase()}</span>`,
+        liveStr,
+        state.isLive ? `Song ${songNumber}/${songCount} &middot; Sec ${sectionNumber}/${sectionCount}` : '',
+        qStr,
+        `Setlist: ${setlistName || '(none loaded)'}`,
+      ].filter(Boolean).join('<br>')
+    }
+
+    let ws
+    function connect() {
+      ws = new WebSocket(`ws://${location.host}`)
+      ws.onopen  = () => { document.getElementById('conn').textContent = 'Connected' }
+      ws.onmessage = ({ data }) => { const m = JSON.parse(data); if (m.type === 'state') render(m) }
+      ws.onclose = () => {
+        document.getElementById('conn').textContent = 'Disconnected — reconnecting...'
+        setTimeout(connect, 2000)
+      }
+    }
+    connect()
+  </script>
+</body>
+</html>
