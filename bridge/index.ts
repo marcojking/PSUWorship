@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { config } from 'node:process'
 import {
-  initialState, applyGo, applySelection, applyModeToggle,
+  initialState, applyGo, applyBack, applySelection, applyModeToggle,
   applyBlackout, applyStandby, buildPayload, EMPTY_SETLIST,
   type BridgeState, type LiveSetlist,
 } from './state.js'
@@ -27,7 +26,14 @@ const CONVEX_URL = process.env.CONVEX_URL ?? ''
 
 function loadPersistedState(): BridgeState {
   try {
-    if (existsSync(STATE_FILE)) return JSON.parse(readFileSync(STATE_FILE, 'utf8'))
+    if (existsSync(STATE_FILE)) {
+      const s = JSON.parse(readFileSync(STATE_FILE, 'utf8'))
+      // Validate the slide-centric shape; older files used currentSection/queuedSection.
+      if (s && typeof s.currentSlide === 'number' && typeof s.queuedSlide === 'number'
+            && (s.mode === 'song' || s.mode === 'slide')) {
+        return s as BridgeState
+      }
+    }
   } catch {}
   return initialState()
 }
@@ -61,6 +67,7 @@ async function main() {
     switch (event.type) {
       case 'selection': state = applySelection(state, event.index, setlist); break
       case 'go':        state = applyGo(state, setlist);        break
+      case 'back':      state = applyBack(state, setlist);      break
       case 'mode':      state = applyModeToggle(state);         break
       case 'blackout':  state = applyBlackout(state);           break
       case 'standby':   state = applyStandby(state);            break

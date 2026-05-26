@@ -7,10 +7,11 @@ import { useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import Logo from '@/components/Logo';
 import ChordChart from '@/components/setlist/ChordChart';
+import SlidePreview from '@/components/setlist/SlidePreview';
 import ExportModal from '@/components/setlist/ExportModal';
-import { getSetlistWithSongs, updateSetlist, deleteSetlist, type Song, type Setlist } from '@/lib/db';
+import { getSetlistWithSongs, updateSetlist, updateSong, deleteSetlist, type Song, type Section, type Setlist } from '@/lib/db';
 import { ALL_KEYS } from '@/lib/chords/transposition';
-import { sectionToChordPro, sectionToLyrics } from '@/lib/live/convert';
+import { songToSlides, sectionSlideGroups } from '@/lib/live/slides';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -24,6 +25,7 @@ export default function SetlistDetailPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [showExport, setShowExport] = useState(false);
   const [expandedSong, setExpandedSong] = useState<number | null>(null);
+  const [songView, setSongView] = useState<'slides' | 'chords'>('slides');
   const pushLive = useMutation(api.liveSetlist.push);
   const [pushing, setPushing] = useState(false);
   const [pushStatus, setPushStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -51,12 +53,7 @@ export default function SetlistDetailPage({ params }: PageProps) {
         songs: songs.map(song => ({
           title: song.title,
           key:   song.transposedKey ?? song.key,
-          sections: song.sections.map(section => ({
-            type:   section.type,
-            label:  section.label,
-            lyrics: sectionToLyrics(section),
-            chords: sectionToChordPro(section),
-          }))
+          slides: songToSlides(song.sections, song.key, song.transposedKey ?? song.key),
         }))
       });
       setPushStatus('success');
@@ -77,6 +74,24 @@ export default function SetlistDetailPage({ params }: PageProps) {
     );
 
     await updateSetlist(setlist.id!, { songs: updatedSongs });
+    loadSetlist();
+  };
+
+  const handleToggleBreak = async (
+    song: Song & { transposedKey?: string },
+    sectionIndex: number,
+    lineIndex: number,
+  ) => {
+    const sections = JSON.parse(JSON.stringify(song.sections)) as Section[];
+    const section = sections[sectionIndex];
+    const groups = sectionSlideGroups(section);
+    const boundaries = new Set<number>();
+    groups.forEach((g, gi) => { if (gi > 0) boundaries.add(g[0]); });
+    if (boundaries.has(lineIndex)) boundaries.delete(lineIndex);
+    else boundaries.add(lineIndex);
+    const newBreaks = [...boundaries].sort((a, b) => a - b);
+    section.slideBreaks = newBreaks.length ? newBreaks : undefined;
+    await updateSong(song.id!, { sections });
     loadSetlist();
   };
 
@@ -286,15 +301,44 @@ export default function SetlistDetailPage({ params }: PageProps) {
                     </button>
                   </div>
 
-                  {/* Expanded Chord Chart */}
+                  {/* Expanded view: slide layout editor or chord chart */}
                   {isExpanded && (
                     <div className="border-t border-primary/10 p-4 bg-white">
-                      <ChordChart
-                        sections={song.sections}
-                        songKey={song.key}
-                        displayKey={displayKey}
-                        displayMode="letters"
-                      />
+                      <div className="flex items-center gap-1 mb-4 text-xs">
+                        <button
+                          onClick={() => setSongView('slides')}
+                          className={`px-3 py-1 rounded-full font-semibold transition-colors ${
+                            songView === 'slides' ? 'bg-primary text-secondary' : 'opacity-50 hover:opacity-100'
+                          }`}
+                        >
+                          Slides
+                        </button>
+                        <button
+                          onClick={() => setSongView('chords')}
+                          className={`px-3 py-1 rounded-full font-semibold transition-colors ${
+                            songView === 'chords' ? 'bg-primary text-secondary' : 'opacity-50 hover:opacity-100'
+                          }`}
+                        >
+                          Chords
+                        </button>
+                        {songView === 'slides' && (
+                          <span className="ml-2 opacity-40">Tap a divider to split or merge projector pages</span>
+                        )}
+                      </div>
+
+                      {songView === 'slides' ? (
+                        <SlidePreview
+                          sections={song.sections}
+                          onToggleBreak={(secIdx, lineIdx) => handleToggleBreak(song, secIdx, lineIdx)}
+                        />
+                      ) : (
+                        <ChordChart
+                          sections={song.sections}
+                          songKey={song.key}
+                          displayKey={displayKey}
+                          displayMode="letters"
+                        />
+                      )}
                     </div>
                   )}
                 </div>

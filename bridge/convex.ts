@@ -15,13 +15,13 @@ export async function initConvex(url: string): Promise<void> {
 export function pushSession(state: BridgeState): void {
   if (!client || !_api) return
   client.mutation(_api.api.liveSession.update, {
-    currentSong:    state.currentSong,
-    currentSection: state.currentSection,
-    queuedSong:     state.queuedSong,
-    queuedSection:  state.queuedSection,
-    mode:           state.mode,
-    isBlackout:     state.isBlackout,
-    isLive:         state.isLive,
+    currentSong:  state.currentSong,
+    currentSlide: state.currentSlide,
+    queuedSong:   state.queuedSong,
+    queuedSlide:  state.queuedSlide,
+    mode:         state.mode,
+    isBlackout:   state.isBlackout,
+    isLive:       state.isLive,
   }).catch((err: Error) => console.error('[convex] session update failed:', err.message))
 }
 

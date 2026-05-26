@@ -1,4 +1,4 @@
-import type { Section, ChordLine } from '@/lib/db'
+import type { ChordLine } from '@/lib/db'
 
 export function chordLineToChordPro(line: ChordLine): string {
   if (!line.chords.length) return line.lyrics
@@ -9,12 +9,4 @@ export function chordLineToChordPro(line: ChordLine): string {
     result = result.slice(0, pos) + `[${chord}]` + result.slice(pos)
   }
   return result
-}
-
-export function sectionToChordPro(section: Section): string {
-  return section.lines.map(chordLineToChordPro).join('\n')
-}
-
-export function sectionToLyrics(section: Section): string {
-  return section.lines.map(l => l.lyrics).join('\n')
 }

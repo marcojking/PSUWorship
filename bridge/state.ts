@@ -1,25 +1,35 @@
-export type Mode = 'song' | 'section'
+export type Mode = 'song' | 'slide'
 
-export interface LiveSetlistSection {
-  type: string; label: string; lyrics: string; chords: string
+export interface LiveSlide {
+  type:              string   // section type (verse/chorus/...)
+  label:             string   // section label, e.g. "Verse 1"
+  lyrics:            string
+  chords:            string
+  isSectionStart:    boolean  // first slide of its section
+  slideInSection:    number   // 0-based index within the section
+  sectionSlideCount: number   // total slides in the section
 }
 
 export interface LiveSetlistSong {
-  title: string; key?: string; sections: LiveSetlistSection[]
+  title: string
+  key?:  string
+  slides: LiveSlide[]
 }
 
 export interface LiveSetlist {
-  name: string; pushedAt: number; songs: LiveSetlistSong[]
+  name: string
+  pushedAt: number
+  songs: LiveSetlistSong[]
 }
 
 export interface BridgeState {
-  mode:           Mode
-  currentSong:    number  // -1 = standby
-  currentSection: number  // -1 = standby
-  queuedSong:     number  // -1 = end of setlist / no queue
-  queuedSection:  number  // -1 = no queue
-  isBlackout:     boolean
-  isLive:         boolean
+  mode:         Mode
+  currentSong:  number  // -1 = standby
+  currentSlide: number  // -1 = standby
+  queuedSong:   number  // -1 = end of setlist / no queue
+  queuedSlide:  number  // -1 = no queue
+  isBlackout:   boolean
+  isLive:       boolean
 }
 
 export interface WSPayload {
@@ -36,17 +46,36 @@ export interface WSPayload {
   buttonLabels:     string[]
   setlistName:      string
   songCount:        number
-  sectionCount:     number
-  songNumber:       number
-  sectionNumber:    number
+  slideCount:       number   // slides in the current song
+  songNumber:       number   // 1-based, 0 = standby
+  slideNumber:      number   // 1-based within current song, 0 = standby
 }
 
 export const EMPTY_SETLIST: LiveSetlist = { name: '', pushedAt: 0, songs: [] }
 
+type Pos = { song: number; slide: number }
+
+function nextPos(song: number, slide: number, setlist: LiveSetlist): Pos | null {
+  const s = setlist.songs[song]
+  if (!s) return null
+  if (slide + 1 < s.slides.length) return { song, slide: slide + 1 }
+  if (song + 1 < setlist.songs.length) return { song: song + 1, slide: 0 }
+  return null
+}
+
+function prevPos(song: number, slide: number, setlist: LiveSetlist): Pos | null {
+  if (slide - 1 >= 0) return { song, slide: slide - 1 }
+  if (song - 1 >= 0) {
+    const ps = setlist.songs[song - 1]
+    if (ps && ps.slides.length > 0) return { song: song - 1, slide: ps.slides.length - 1 }
+  }
+  return null
+}
+
 export function initialState(): BridgeState {
   return {
-    mode: 'song', currentSong: -1, currentSection: -1,
-    queuedSong: 0, queuedSection: 0, isBlackout: false, isLive: false,
+    mode: 'song', currentSong: -1, currentSlide: -1,
+    queuedSong: 0, queuedSlide: 0, isBlackout: false, isLive: false,
   }
 }
 
@@ -56,22 +85,28 @@ export function applyGo(state: BridgeState, setlist: LiveSetlist): BridgeState {
   if (state.queuedSong === -1) return state
 
   const newSong = state.queuedSong
-  const newSection = state.queuedSection
-  const song = setlist.songs[newSong]
-
-  let nextQueuedSong: number, nextQueuedSection: number
-  if (newSection + 1 < song.sections.length) {
-    nextQueuedSong = newSong; nextQueuedSection = newSection + 1
-  } else if (newSong + 1 < setlist.songs.length) {
-    nextQueuedSong = newSong + 1; nextQueuedSection = 0
-  } else {
-    nextQueuedSong = -1; nextQueuedSection = -1
-  }
+  const newSlide = state.queuedSlide
+  const nx = nextPos(newSong, newSlide, setlist)
 
   return {
     ...state, isLive: true,
-    currentSong: newSong, currentSection: newSection,
-    queuedSong: nextQueuedSong, queuedSection: nextQueuedSection,
+    currentSong: newSong, currentSlide: newSlide,
+    queuedSong: nx ? nx.song : -1,
+    queuedSlide: nx ? nx.slide : -1,
+  }
+}
+
+// Step the live projector back one slide, immediately.
+export function applyBack(state: BridgeState, setlist: LiveSetlist): BridgeState {
+  if (!state.isLive || state.currentSong < 0) return state
+  const pv = prevPos(state.currentSong, state.currentSlide, setlist)
+  if (!pv) return state
+  const nx = nextPos(pv.song, pv.slide, setlist) // == the slide we just left
+  return {
+    ...state,
+    currentSong: pv.song, currentSlide: pv.slide,
+    queuedSong: nx ? nx.song : -1,
+    queuedSlide: nx ? nx.slide : -1,
   }
 }
 
@@ -79,16 +114,17 @@ export function applySelection(state: BridgeState, buttonIndex: number, setlist:
   if (setlist.songs.length === 0) return state
   if (state.mode === 'song') {
     if (buttonIndex >= setlist.songs.length) return state
-    return { ...state, queuedSong: buttonIndex, queuedSection: 0 }
+    return { ...state, queuedSong: buttonIndex, queuedSlide: 0 }
   }
+  // slide mode — jump within the current song
   if (state.currentSong === -1) return state
   const currentSong = setlist.songs[state.currentSong]
-  if (buttonIndex >= currentSong.sections.length) return state
-  return { ...state, queuedSong: state.currentSong, queuedSection: buttonIndex }
+  if (!currentSong || buttonIndex >= currentSong.slides.length) return state
+  return { ...state, queuedSong: state.currentSong, queuedSlide: buttonIndex }
 }
 
 export function applyModeToggle(state: BridgeState): BridgeState {
-  return { ...state, mode: state.mode === 'song' ? 'section' : 'song' }
+  return { ...state, mode: state.mode === 'song' ? 'slide' : 'song' }
 }
 
 export function applyBlackout(state: BridgeState): BridgeState {
@@ -96,34 +132,45 @@ export function applyBlackout(state: BridgeState): BridgeState {
 }
 
 export function applyStandby(state: BridgeState): BridgeState {
-  return { ...state, isLive: false, currentSong: -1, currentSection: -1 }
+  return { ...state, isLive: false, currentSong: -1, currentSlide: -1 }
 }
 
 export function buildPayload(state: BridgeState, setlist: LiveSetlist): WSPayload {
-  const curSong    = state.currentSong >= 0 ? setlist.songs[state.currentSong] : null
-  const curSection = curSong && state.currentSection >= 0 ? curSong.sections[state.currentSection] : null
-  const nxtSong    = state.queuedSong >= 0 ? (setlist.songs[state.queuedSong] ?? null) : null
-  const nxtSection = nxtSong && state.queuedSection >= 0 ? (nxtSong.sections[state.queuedSection] ?? null) : null
+  const curSong  = state.currentSong >= 0 ? setlist.songs[state.currentSong] : null
+  const curSlide = curSong && state.currentSlide >= 0 ? curSong.slides[state.currentSlide] : null
+  const nxtSong  = state.queuedSong >= 0 ? (setlist.songs[state.queuedSong] ?? null) : null
+  const nxtSlide = nxtSong && state.queuedSlide >= 0 ? (nxtSong.slides[state.queuedSlide] ?? null) : null
 
   const buttonLabels = state.mode === 'song'
-    ? Array.from({ length: 6 }, (_, i) => setlist.songs[i]?.title.slice(0, 12) ?? '')
-    : Array.from({ length: 6 }, (_, i) => curSong?.sections[i]?.label ?? '')
+    ? Array.from({ length: 6 }, (_, i) => setlist.songs[i]?.title.slice(0, 14) ?? '')
+    : Array.from({ length: 6 }, (_, i) => {
+        const sl = curSong?.slides[i]
+        if (!sl) return ''
+        const firstLine = sl.lyrics.split('\n')[0]?.trim() ?? ''
+        return (firstLine || sl.label).slice(0, 14).trimEnd()
+      })
 
   return {
     type: 'state', state,
-    currentLyrics:    curSection?.lyrics ?? '',
-    currentChords:    curSection?.chords ?? '',
-    currentLabel:     curSection?.label  ?? '',
-    currentSongTitle: curSong?.title     ?? '',
-    nextLyrics:       nxtSection?.lyrics  ?? null,
-    nextChords:       nxtSection?.chords  ?? null,
-    nextLabel:        nxtSection?.label   ?? null,
-    nextSongTitle:    nxtSong?.title      ?? null,
+    currentLyrics:    curSlide?.lyrics ?? '',
+    currentChords:    curSlide?.chords ?? '',
+    currentLabel:     curSlide ? slideLabel(curSlide) : '',
+    currentSongTitle: curSong?.title ?? '',
+    nextLyrics:       nxtSlide?.lyrics ?? null,
+    nextChords:       nxtSlide?.chords ?? null,
+    nextLabel:        nxtSlide ? slideLabel(nxtSlide) : null,
+    nextSongTitle:    nxtSong?.title ?? null,
     buttonLabels,
     setlistName:  setlist.name,
     songCount:    setlist.songs.length,
-    sectionCount: curSong?.sections.length ?? 0,
-    songNumber:   state.currentSong    >= 0 ? state.currentSong    + 1 : 0,
-    sectionNumber: state.currentSection >= 0 ? state.currentSection + 1 : 0,
+    slideCount:   curSong?.slides.length ?? 0,
+    songNumber:   state.currentSong  >= 0 ? state.currentSong  + 1 : 0,
+    slideNumber:  state.currentSlide >= 0 ? state.currentSlide + 1 : 0,
   }
+}
+
+// "Verse 1" for single-slide sections, "Verse 1 · 2/3" for multi-slide ones.
+function slideLabel(slide: LiveSlide): string {
+  if (slide.sectionSlideCount <= 1) return slide.label
+  return `${slide.label} · ${slide.slideInSection + 1}/${slide.sectionSlideCount}`
 }

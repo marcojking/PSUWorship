@@ -310,23 +310,26 @@ export default defineSchema({
     songs: v.array(v.object({
       title: v.string(),
       key:   v.optional(v.string()),
-      sections: v.array(v.object({
-        type:   v.string(),
-        label:  v.string(),
-        lyrics: v.string(),
-        chords: v.string(),
+      slides: v.array(v.object({
+        type:              v.string(),
+        label:             v.string(),
+        lyrics:            v.string(),
+        chords:            v.string(),
+        isSectionStart:    v.boolean(),
+        slideInSection:    v.number(),
+        sectionSlideCount: v.number(),
       }))
     }))
   }),
 
   liveSession: defineTable({
-    currentSong:    v.number(),
-    currentSection: v.number(),
-    queuedSong:     v.number(),
-    queuedSection:  v.number(),
-    mode:           v.union(v.literal('song'), v.literal('section')),
-    isBlackout:     v.boolean(),
-    isLive:         v.boolean(),
-    updatedAt:      v.number(),
+    currentSong:  v.number(),
+    currentSlide: v.number(),
+    queuedSong:   v.number(),
+    queuedSlide:  v.number(),
+    mode:         v.union(v.literal('song'), v.literal('slide')),
+    isBlackout:   v.boolean(),
+    isLive:       v.boolean(),
+    updatedAt:    v.number(),
   }),
 });

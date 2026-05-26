@@ -7,11 +7,14 @@ export const push = mutation({
     songs: v.array(v.object({
       title: v.string(),
       key:   v.optional(v.string()),
-      sections: v.array(v.object({
-        type:   v.string(),
-        label:  v.string(),
-        lyrics: v.string(),
-        chords: v.string(),
+      slides: v.array(v.object({
+        type:              v.string(),
+        label:             v.string(),
+        lyrics:            v.string(),
+        chords:            v.string(),
+        isSectionStart:    v.boolean(),
+        slideInSection:    v.number(),
+        sectionSlideCount: v.number(),
       }))
     }))
   },

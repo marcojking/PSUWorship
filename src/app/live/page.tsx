@@ -29,8 +29,8 @@ export default function LivePage() {
     )
   }
 
-  const song    = setlist?.songs[session.currentSong]
-  const section = song?.sections[session.currentSection]
+  const song  = setlist?.songs[session.currentSong]
+  const slide = song?.slides[session.currentSlide]
 
   return (
     <div
@@ -45,7 +45,7 @@ export default function LivePage() {
           className="text-white font-light leading-relaxed whitespace-pre-line"
           style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 'clamp(1.5rem, 5vw, 4rem)' }}
         >
-          {section?.lyrics ?? ''}
+          {slide?.lyrics ?? ''}
         </p>
       </div>
     </div>

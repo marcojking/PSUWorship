@@ -31,3 +31,6 @@ next-env.d.ts
 # misc
 *.pem
 .vercel
+
+# bridge runtime state (local-only, not for version control)
+bridge/bridge-state.json

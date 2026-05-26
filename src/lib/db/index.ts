@@ -24,6 +24,10 @@ export interface Section {
   type: 'intro' | 'verse' | 'chorus' | 'bridge' | 'outro' | 'instrumental' | 'tag' | 'pre-chorus';
   label: string;
   lines: ChordLine[];
+  // Optional manual slide breaks: line indices (1-based within the section, i.e. the
+  // index of the first line of a new slide) where the projector should start a new page.
+  // When absent, slides auto-chunk by word count.
+  slideBreaks?: number[];
 }
 
 export interface ChordLine {

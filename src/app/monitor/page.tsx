@@ -3,6 +3,20 @@
 import { useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 
+type Slide = {
+  label: string
+  lyrics: string
+  chords: string
+  slideInSection: number
+  sectionSlideCount: number
+}
+
+function slideLabel(s: Slide | null | undefined): string {
+  if (!s) return ''
+  if (s.sectionSlideCount <= 1) return s.label
+  return `${s.label} · ${s.slideInSection + 1}/${s.sectionSlideCount}`
+}
+
 export default function OnlineMonitorPage() {
   const session = useQuery(api.liveSession.get)
   const setlist = useQuery(api.liveSetlist.get)
@@ -19,10 +33,10 @@ export default function OnlineMonitorPage() {
     )
   }
 
-  const curSong    = session.currentSong >= 0 ? setlist?.songs[session.currentSong] : null
-  const curSection = curSong && session.currentSection >= 0 ? curSong.sections[session.currentSection] : null
-  const nxtSong    = session.queuedSong >= 0 ? setlist?.songs[session.queuedSong] ?? null : null
-  const nxtSection = nxtSong && session.queuedSection >= 0 ? nxtSong.sections[session.queuedSection] ?? null : null
+  const curSong  = session.currentSong >= 0 ? setlist?.songs[session.currentSong] : null
+  const curSlide = curSong && session.currentSlide >= 0 ? curSong.slides[session.currentSlide] ?? null : null
+  const nxtSong  = session.queuedSong >= 0 ? setlist?.songs[session.queuedSong] ?? null : null
+  const nxtSlide = nxtSong && session.queuedSlide >= 0 ? nxtSong.slides[session.queuedSlide] ?? null : null
 
   return (
     <div className="min-h-screen bg-[#111] text-[#f0ede8] flex flex-col">
@@ -36,7 +50,7 @@ export default function OnlineMonitorPage() {
         <span className="font-semibold">{curSong?.title ?? '—'}</span>
         <span className="ml-auto opacity-50">
           {session.isLive && curSong
-            ? `Song ${session.currentSong + 1}/${setlist?.songs.length} · Sec ${session.currentSection + 1}/${curSong.sections.length}`
+            ? `Song ${session.currentSong + 1}/${setlist?.songs.length} · Slide ${session.currentSlide + 1}/${curSong.slides.length}`
             : 'Standby'}
         </span>
       </header>
@@ -48,20 +62,20 @@ export default function OnlineMonitorPage() {
           </div>
         ) : (
           <>
-            {/* Current section */}
+            {/* Current slide */}
             <div className="flex-[3] bg-[#1a1a1a] border border-[#252525] rounded-lg p-4 overflow-auto">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[#7eb8f7] mb-2">{curSection?.label}</div>
-              <pre className="font-mono text-sm text-[#f0c060] whitespace-pre-wrap mb-2">{curSection?.chords ?? ''}</pre>
-              <pre className="text-xl whitespace-pre-wrap leading-relaxed" style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}>{curSection?.lyrics ?? ''}</pre>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-[#7eb8f7] mb-2">{slideLabel(curSlide)}</div>
+              <pre className="font-mono text-sm text-[#f0c060] whitespace-pre-wrap mb-2">{curSlide?.chords ?? ''}</pre>
+              <pre className="text-xl whitespace-pre-wrap leading-relaxed" style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}>{curSlide?.lyrics ?? ''}</pre>
             </div>
 
-            {/* Next section */}
+            {/* Next slide */}
             <div className="flex-[1] bg-[#161616] border border-[#202020] rounded-lg p-3 overflow-hidden opacity-60">
               <div className="text-[10px] font-bold uppercase tracking-widest text-[#888] mb-1">
-                NEXT — {nxtSection?.label ?? 'End of setlist'}
+                NEXT — {nxtSlide ? slideLabel(nxtSlide) : 'End of setlist'}
               </div>
-              <pre className="font-mono text-xs text-[#f0c060] whitespace-pre-wrap">{nxtSection?.chords ?? ''}</pre>
-              <pre className="text-sm whitespace-pre-wrap mt-1" style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}>{nxtSection?.lyrics ?? '(end)'}</pre>
+              <pre className="font-mono text-xs text-[#f0c060] whitespace-pre-wrap">{nxtSlide?.chords ?? ''}</pre>
+              <pre className="text-sm whitespace-pre-wrap mt-1" style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}>{nxtSlide?.lyrics ?? '(end)'}</pre>
             </div>
           </>
         )}
