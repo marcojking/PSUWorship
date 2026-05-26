@@ -141,18 +141,19 @@ describe('applySelection — slide mode', () => {
     const s = applyModeToggle(initialState())
     expect(applySelection(s, 0, SETLIST)).toEqual(s)
   })
-  it('queues a specific slide of the current song', () => {
+  it('queues the first slide of the selected section', () => {
+    // Song A sections: 0="Verse 1" (slides 0-1), 1="Chorus" (slide 2)
     let s = applyGo(initialState(), SETLIST)
     s = applyModeToggle(s)
-    s = applySelection(s, 2, SETLIST)
+    s = applySelection(s, 1, SETLIST) // select "Chorus"
     expect(s.queuedSong).toBe(0)
     expect(s.queuedSlide).toBe(2)
   })
-  it('no-op when slide index out of bounds', () => {
+  it('no-op when section index out of bounds', () => {
     let s = applyGo(initialState(), SETLIST)
     s = applyModeToggle(s)
     const before = s
-    expect(applySelection(s, 5, SETLIST)).toEqual(before)
+    expect(applySelection(s, 5, SETLIST)).toEqual(before) // only 2 sections
   })
 })
 
@@ -210,12 +211,26 @@ describe('buildPayload', () => {
     expect(p.buttonLabels[1]).toBe('How Great')
     expect(p.buttonLabels[2]).toBe('')
   })
-  it('slide-mode button labels preview each slide of the current song', () => {
+  it('slide-mode button labels show one button per section', () => {
     let s = applyGo(initialState(), SETLIST)
     s = applyModeToggle(s)
     const p = buildPayload(s, SETLIST)
-    expect(p.buttonLabels[0]).toBe('Amazing grace')
-    expect(p.buttonLabels[2]).toBe('My chains are')
+    expect(p.buttonLabels[0]).toBe('Verse 1')
+    expect(p.buttonLabels[1]).toBe('Chorus')
+    expect(p.buttonLabels[2]).toBe('')
+  })
+  it('currentButton/queuedButton track sections in slide mode', () => {
+    let s = applyGo(initialState(), SETLIST) // live on Verse 1 slide 0, queued Verse 1 slide 1
+    s = applyModeToggle(s)
+    const p = buildPayload(s, SETLIST)
+    expect(p.currentButton).toBe(0) // Verse 1
+    expect(p.queuedButton).toBe(0)  // still Verse 1 (slide 1 of same section)
+  })
+  it('currentButton tracks the song in song mode', () => {
+    const s = applyGo(initialState(), SETLIST)
+    const p = buildPayload(s, SETLIST)
+    expect(p.currentButton).toBe(0)
+    expect(p.queuedButton).toBe(0)
   })
   it('null next at the end of the setlist', () => {
     let s = initialState()

@@ -61,14 +61,14 @@
 
   <script>
     function render(msg) {
-      const { state, buttonLabels, setlistName, songNumber, slideNumber, songCount, slideCount,
+      const { state, buttonLabels, currentButton, queuedButton, setlistName, songNumber, slideNumber, songCount, slideCount,
               currentSongTitle, currentLabel, nextSongTitle, nextLabel } = msg
 
       for (let i = 0; i < 6; i++) {
         const el = document.getElementById(`s${i}`)
         const label = buttonLabels[i]
-        const isQ = state.mode === 'song' ? state.queuedSong === i : state.queuedSlide === i
-        const isLiveSlot = state.isLive && state.mode === 'song' && state.currentSong === i
+        const isQ = i === queuedButton
+        const isLiveSlot = state.isLive && i === currentButton
         el.textContent = label || '—'
         el.className = `slot ${!label ? 'empty' : ''} ${isQ ? 'queued' : ''} ${isLiveSlot && !isQ ? 'live' : ''}`
       }

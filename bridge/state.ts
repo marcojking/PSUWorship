@@ -44,6 +44,8 @@ export interface WSPayload {
   nextLabel:        string | null
   nextSongTitle:    string | null
   buttonLabels:     string[]
+  currentButton:    number   // which of the 6 buttons is live (-1 = none)
+  queuedButton:     number   // which of the 6 buttons is queued (-1 = none)
   setlistName:      string
   songCount:        number
   slideCount:       number   // slides in the current song
@@ -70,6 +72,21 @@ function prevPos(song: number, slide: number, setlist: LiveSetlist): Pos | null 
     if (ps && ps.slides.length > 0) return { song: song - 1, slide: ps.slides.length - 1 }
   }
   return null
+}
+
+// Slide indices that begin each section of a song (selection buttons map to these).
+function sectionStarts(song: LiveSetlistSong): number[] {
+  const starts = song.slides.map((s, i) => (s.isSectionStart ? i : -1)).filter(i => i >= 0)
+  if (song.slides.length > 0 && (starts.length === 0 || starts[0] !== 0)) starts.unshift(0)
+  return starts
+}
+
+// Which section (0-based) a slide belongs to.
+function sectionIndexOf(song: LiveSetlistSong, slideIndex: number): number {
+  const starts = sectionStarts(song)
+  let idx = -1
+  for (let k = 0; k < starts.length; k++) if (starts[k] <= slideIndex) idx = k
+  return idx
 }
 
 export function initialState(): BridgeState {
@@ -116,11 +133,13 @@ export function applySelection(state: BridgeState, buttonIndex: number, setlist:
     if (buttonIndex >= setlist.songs.length) return state
     return { ...state, queuedSong: buttonIndex, queuedSlide: 0 }
   }
-  // slide mode — jump within the current song
+  // slide mode — jump to a section of the current song (one button per section)
   if (state.currentSong === -1) return state
   const currentSong = setlist.songs[state.currentSong]
-  if (!currentSong || buttonIndex >= currentSong.slides.length) return state
-  return { ...state, queuedSong: state.currentSong, queuedSlide: buttonIndex }
+  if (!currentSong) return state
+  const starts = sectionStarts(currentSong)
+  if (buttonIndex >= starts.length) return state
+  return { ...state, queuedSong: state.currentSong, queuedSlide: starts[buttonIndex] }
 }
 
 export function applyModeToggle(state: BridgeState): BridgeState {
@@ -141,14 +160,30 @@ export function buildPayload(state: BridgeState, setlist: LiveSetlist): WSPayloa
   const nxtSong  = state.queuedSong >= 0 ? (setlist.songs[state.queuedSong] ?? null) : null
   const nxtSlide = nxtSong && state.queuedSlide >= 0 ? (nxtSong.slides[state.queuedSlide] ?? null) : null
 
+  const curStarts = curSong ? sectionStarts(curSong) : []
   const buttonLabels = state.mode === 'song'
     ? Array.from({ length: 6 }, (_, i) => setlist.songs[i]?.title.slice(0, 14) ?? '')
     : Array.from({ length: 6 }, (_, i) => {
-        const sl = curSong?.slides[i]
-        if (!sl) return ''
-        const firstLine = sl.lyrics.split('\n')[0]?.trim() ?? ''
-        return (firstLine || sl.label).slice(0, 14).trimEnd()
+        const start = curStarts[i]
+        if (start === undefined || !curSong) return ''
+        return curSong.slides[start].label.slice(0, 14).trimEnd()
       })
+
+  let currentButton = -1
+  let queuedButton = -1
+  if (state.mode === 'song') {
+    currentButton = state.currentSong >= 0 && state.currentSong < 6 ? state.currentSong : -1
+    queuedButton  = state.queuedSong  >= 0 && state.queuedSong  < 6 ? state.queuedSong  : -1
+  } else if (curSong) {
+    if (state.currentSlide >= 0) {
+      const b = sectionIndexOf(curSong, state.currentSlide)
+      currentButton = b >= 0 && b < 6 ? b : -1
+    }
+    if (state.queuedSong === state.currentSong && state.queuedSlide >= 0) {
+      const b = sectionIndexOf(curSong, state.queuedSlide)
+      queuedButton = b >= 0 && b < 6 ? b : -1
+    }
+  }
 
   return {
     type: 'state', state,
@@ -161,6 +196,8 @@ export function buildPayload(state: BridgeState, setlist: LiveSetlist): WSPayloa
     nextLabel:        nxtSlide ? slideLabel(nxtSlide) : null,
     nextSongTitle:    nxtSong?.title ?? null,
     buttonLabels,
+    currentButton,
+    queuedButton,
     setlistName:  setlist.name,
     songCount:    setlist.songs.length,
     slideCount:   curSong?.slides.length ?? 0,
