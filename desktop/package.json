@@ -9,22 +9,36 @@
     "typecheck": "tsc --noEmit",
     "start": "electron .",
     "dev": "node build.mjs && electron .",
+    "pack": "node build.mjs && electron-packager . WMA-Live --platform=win32 --arch=x64 --out=out --overwrite --ignore=/src --ignore=/out$ --ignore=build.mjs",
     "dist": "node build.mjs && electron-builder"
   },
   "build": {
     "appId": "org.wmaac.live",
     "productName": "WMA Live",
-    "files": ["dist/**/*", "renderer/**/*", "package.json"],
-    "win": { "target": "nsis" }
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "dist/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "WMA-Live.exe"
+    }
   },
   "dependencies": {
     "convex": "^1.13.0"
   },
   "devDependencies": {
+    "@electron/packager": "^20.0.0",
+    "@types/node": "^20.14.0",
     "electron": "^31.7.7",
     "electron-builder": "^24.13.3",
     "esbuild": "^0.21.5",
-    "typescript": "^5.4.5",
-    "@types/node": "^20.14.0"
+    "typescript": "^5.4.5"
   }
 }
