@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import VisualChordEditor from '@/components/setlist/VisualChordEditor';
-import { getSong, updateSong, deleteSong, type Song, type Section } from '@/lib/db';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../../../convex/_generated/api';
+import { type Section, type Id } from '@/lib/db';
 import { ALL_KEYS } from '@/lib/chords/transposition';
 
 interface PageProps {
@@ -15,8 +17,9 @@ interface PageProps {
 export default function EditSongPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const [song, setSong] = useState<Song | null>(null);
-  const [loading, setLoading] = useState(true);
+  const song = useQuery(api.songs.get, { id: id as Id<'songs'> });
+  const updateSong = useMutation(api.songs.update);
+  const deleteSong = useMutation(api.songs.remove);
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -25,33 +28,26 @@ export default function EditSongPage({ params }: PageProps) {
   const [artist, setArtist] = useState('');
   const [songKey, setSongKey] = useState('C');
   const [sections, setSections] = useState<Section[]>([]);
+  const [populated, setPopulated] = useState(false);
+
+  const loading = song === undefined;
 
   useEffect(() => {
-    async function load() {
-      const data = await getSong(parseInt(id));
-      if (data) {
-        setSong(data);
-        setTitle(data.title);
-        setArtist(data.artist);
-        setSongKey(data.key);
-        setSections(JSON.parse(JSON.stringify(data.sections))); // Deep copy
-      }
-      setLoading(false);
+    if (song && !populated) {
+      setTitle(song.title);
+      setArtist(song.artist);
+      setSongKey(song.key);
+      setSections(JSON.parse(JSON.stringify(song.sections))); // Deep copy
+      setPopulated(true);
     }
-    load();
-  }, [id]);
+  }, [song, populated]);
 
   const handleSave = async () => {
     if (!song) return;
     setSaving(true);
 
     try {
-      await updateSong(song.id!, {
-        title,
-        artist,
-        key: songKey,
-        sections,
-      });
+      await updateSong({ id: song._id, title, artist, key: songKey, sections });
       router.push(`/setlist/songs/${id}`);
     } catch (err) {
       console.error('Save error:', err);
@@ -65,7 +61,7 @@ export default function EditSongPage({ params }: PageProps) {
     if (!song) return;
 
     try {
-      await deleteSong(song.id!);
+      await deleteSong({ id: song._id });
       router.push('/setlist/songs');
     } catch (err) {
       console.error('Delete error:', err);

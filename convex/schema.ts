@@ -304,6 +304,38 @@ export default defineSchema({
     .index('by_createdAt', ['createdAt'])
     .index('by_stripeSession', ['stripeSessionId']),
 
+  songs: defineTable({
+    title:  v.string(),
+    artist: v.string(),
+    key:    v.string(),
+    sections: v.array(v.object({
+      type:  v.string(),
+      label: v.string(),
+      lines: v.array(v.object({
+        lyrics: v.string(),
+        chords: v.array(v.object({ chord: v.string(), position: v.number() })),
+      })),
+      slideBreaks: v.optional(v.array(v.number())),
+    })),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index('by_title', ['title']),
+
+  setlists: defineTable({
+    name:       v.string(),
+    date:       v.string(),
+    time:       v.string(),
+    location:   v.string(),
+    bibleVerse: v.optional(v.string()),
+    songs: v.array(v.object({
+      songId:        v.id('songs'),
+      transposedKey: v.optional(v.string()),
+      order:         v.number(),
+    })),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index('by_date', ['date']),
+
   liveSetlist: defineTable({
     name:     v.string(),
     pushedAt: v.number(),

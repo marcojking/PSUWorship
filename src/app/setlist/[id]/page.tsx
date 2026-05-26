@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMutation } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import Logo from '@/components/Logo';
 import ChordChart from '@/components/setlist/ChordChart';
 import SlidePreview from '@/components/setlist/SlidePreview';
 import ExportModal from '@/components/setlist/ExportModal';
-import { getSetlistWithSongs, updateSetlist, updateSong, deleteSetlist, type Song, type Section, type Setlist } from '@/lib/db';
+import { type SongWithKey, type Section, type Id } from '@/lib/db';
 import { ALL_KEYS } from '@/lib/chords/transposition';
 import { songToSlides, sectionSlideGroups } from '@/lib/live/slides';
 
@@ -20,28 +20,21 @@ interface PageProps {
 export default function SetlistDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const [setlist, setSetlist] = useState<Setlist | null>(null);
-  const [songs, setSongs] = useState<(Song & { transposedKey?: string })[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showExport, setShowExport] = useState(false);
-  const [expandedSong, setExpandedSong] = useState<number | null>(null);
-  const [songView, setSongView] = useState<'slides' | 'chords'>('slides');
+  const data = useQuery(api.setlists.getWithSongs, { id: id as Id<'setlists'> });
+  const updateSetlist = useMutation(api.setlists.update);
+  const updateSong = useMutation(api.songs.update);
+  const deleteSetlist = useMutation(api.setlists.remove);
   const pushLive = useMutation(api.liveSetlist.push);
+
+  const [showExport, setShowExport] = useState(false);
+  const [expandedSong, setExpandedSong] = useState<Id<'songs'> | null>(null);
+  const [songView, setSongView] = useState<'slides' | 'chords'>('slides');
   const [pushing, setPushing] = useState(false);
   const [pushStatus, setPushStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  useEffect(() => {
-    loadSetlist();
-  }, [id]);
-
-  async function loadSetlist() {
-    const data = await getSetlistWithSongs(parseInt(id));
-    if (data) {
-      setSetlist(data.setlist);
-      setSongs(data.songs);
-    }
-    setLoading(false);
-  }
+  const loading = data === undefined;
+  const setlist = data?.setlist ?? null;
+  const songs: SongWithKey[] = data?.songs ?? [];
 
   const handlePushToLive = async () => {
     if (!setlist || songs.length === 0) return;
@@ -66,19 +59,16 @@ export default function SetlistDetailPage({ params }: PageProps) {
     }
   };
 
-  const handleUpdateKey = async (songId: number, newKey: string) => {
+  const handleUpdateKey = async (songId: Id<'songs'>, newKey: string) => {
     if (!setlist) return;
-
     const updatedSongs = setlist.songs.map(s =>
       s.songId === songId ? { ...s, transposedKey: newKey } : s
     );
-
-    await updateSetlist(setlist.id!, { songs: updatedSongs });
-    loadSetlist();
+    await updateSetlist({ id: setlist._id, songs: updatedSongs });
   };
 
   const handleToggleBreak = async (
-    song: Song & { transposedKey?: string },
+    song: SongWithKey,
     sectionIndex: number,
     lineIndex: number,
   ) => {
@@ -91,40 +81,32 @@ export default function SetlistDetailPage({ params }: PageProps) {
     else boundaries.add(lineIndex);
     const newBreaks = [...boundaries].sort((a, b) => a - b);
     section.slideBreaks = newBreaks.length ? newBreaks : undefined;
-    await updateSong(song.id!, { sections });
-    loadSetlist();
+    await updateSong({ id: song._id, sections });
   };
 
-  const handleRemoveSong = async (songId: number) => {
+  const handleRemoveSong = async (songId: Id<'songs'>) => {
     if (!setlist) return;
     if (!confirm('Remove this song from the setlist?')) return;
-
     const updatedSongs = setlist.songs
       .filter(s => s.songId !== songId)
       .map((s, i) => ({ ...s, order: i }));
-
-    await updateSetlist(setlist.id!, { songs: updatedSongs });
-    loadSetlist();
+    await updateSetlist({ id: setlist._id, songs: updatedSongs });
   };
 
   const handleDelete = async () => {
     if (!setlist) return;
     if (!confirm(`Delete "${setlist.name}"? This cannot be undone.`)) return;
-
-    await deleteSetlist(setlist.id!);
+    await deleteSetlist({ id: setlist._id });
     router.push('/setlist');
   };
 
   const moveSong = async (fromIndex: number, toIndex: number) => {
     if (!setlist) return;
-
     const newSongs = [...setlist.songs];
     const [removed] = newSongs.splice(fromIndex, 1);
     newSongs.splice(toIndex, 0, removed);
-
     const updatedSongs = newSongs.map((s, i) => ({ ...s, order: i }));
-    await updateSetlist(setlist.id!, { songs: updatedSongs });
-    loadSetlist();
+    await updateSetlist({ id: setlist._id, songs: updatedSongs });
   };
 
   if (loading) {
@@ -240,11 +222,11 @@ export default function SetlistDetailPage({ params }: PageProps) {
           <div className="space-y-3">
             {songs.map((song, index) => {
               const displayKey = song.transposedKey || song.key;
-              const isExpanded = expandedSong === song.id;
+              const isExpanded = expandedSong === song._id;
 
               return (
                 <div
-                  key={song.id}
+                  key={song._id}
                   className="bg-primary/5 rounded-lg overflow-hidden"
                 >
                   {/* Song Header */}
@@ -272,7 +254,7 @@ export default function SetlistDetailPage({ params }: PageProps) {
 
                     {/* Song Info */}
                     <button
-                      onClick={() => setExpandedSong(isExpanded ? null : song.id!)}
+                      onClick={() => setExpandedSong(isExpanded ? null : song._id)}
                       className="flex-1 text-left"
                     >
                       <div className="font-semibold">{song.title}</div>
@@ -282,7 +264,7 @@ export default function SetlistDetailPage({ params }: PageProps) {
                     {/* Key Selector */}
                     <select
                       value={displayKey}
-                      onChange={(e) => handleUpdateKey(song.id!, e.target.value)}
+                      onChange={(e) => handleUpdateKey(song._id, e.target.value)}
                       className="bg-white border border-primary/20 rounded px-2 py-1 text-sm font-mono"
                     >
                       {ALL_KEYS.map(k => (
@@ -294,7 +276,7 @@ export default function SetlistDetailPage({ params }: PageProps) {
 
                     {/* Remove */}
                     <button
-                      onClick={() => handleRemoveSong(song.id!)}
+                      onClick={() => handleRemoveSong(song._id)}
                       className="text-red-600 opacity-40 hover:opacity-100 text-lg"
                     >
                       ×

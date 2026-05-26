@@ -3,29 +3,20 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 import Logo from '@/components/Logo';
-import { getAllSongs, deleteSong, type Song } from '@/lib/db';
-import { useSync } from '@/hooks/useSync';
+import type { Id } from '@/lib/db';
 
 export default function SongsLibraryPage() {
   const router = useRouter();
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [loading, setLoading] = useState(true);
+  const songs = useQuery(api.songs.list);
+  const removeSong = useMutation(api.songs.remove);
   const [search, setSearch] = useState('');
   const [showAddMenu, setShowAddMenu] = useState(false);
   const addMenuRef = useRef<HTMLDivElement>(null);
-  const { status, sync } = useSync();
 
-  useEffect(() => {
-    loadSongs();
-  }, []);
-
-  // Sync on mount and reload songs after
-  useEffect(() => {
-    if (status.isConfigured && !status.isSyncing) {
-      sync().then(() => loadSongs());
-    }
-  }, [status.isConfigured]); // eslint-disable-line react-hooks/exhaustive-deps
+  const loading = songs === undefined;
 
   // Close menu on click outside
   useEffect(() => {
@@ -38,20 +29,13 @@ export default function SongsLibraryPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  async function loadSongs() {
-    const data = await getAllSongs();
-    setSongs(data);
-    setLoading(false);
-  }
-
-  async function handleDelete(id: number, title: string) {
+  async function handleDelete(id: Id<'songs'>, title: string) {
     if (confirm(`Delete "${title}"?`)) {
-      await deleteSong(id);
-      loadSongs();
+      await removeSong({ id });
     }
   }
 
-  const filteredSongs = songs.filter(song =>
+  const filteredSongs = (songs ?? []).filter(song =>
     song.title.toLowerCase().includes(search.toLowerCase()) ||
     song.artist.toLowerCase().includes(search.toLowerCase())
   );
@@ -65,18 +49,6 @@ export default function SongsLibraryPage() {
           <Logo />
         </Link>
         <div className="flex items-center gap-2">
-          {status.isConfigured && (
-            <button
-              onClick={() => sync().then(() => loadSongs())}
-              disabled={status.isSyncing}
-              className="bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
-              title={status.lastSyncedAt ? `Last synced: ${status.lastSyncedAt.toLocaleTimeString()}` : 'Sync with Airtable'}
-            >
-              <span className={status.isSyncing ? 'animate-spin' : ''}>⟳</span>
-              {status.isSyncing ? 'Syncing...' : 'Sync'}
-            </button>
-          )}
-
           {/* Add Song Dropdown */}
           <div className="relative" ref={addMenuRef}>
             <button
@@ -142,7 +114,7 @@ export default function SongsLibraryPage() {
         <div className="text-center py-12 opacity-60">Loading...</div>
       ) : filteredSongs.length === 0 ? (
         <div className="bg-primary/5 rounded-lg p-8 text-center">
-          {songs.length === 0 ? (
+          {(songs ?? []).length === 0 ? (
             <>
               <p className="text-primary/60 mb-6">No songs in your library yet</p>
               <div className="grid gap-3 max-w-md mx-auto">
@@ -167,18 +139,18 @@ export default function SongsLibraryPage() {
               </div>
             </>
           ) : (
-            <p className="opacity-60">No songs match "{search}"</p>
+            <p className="opacity-60">No songs match &quot;{search}&quot;</p>
           )}
         </div>
       ) : (
         <div className="grid gap-2">
           {filteredSongs.map((song) => (
             <div
-              key={song.id}
+              key={song._id}
               className="bg-primary/5 hover:bg-primary/10 rounded-lg p-4 transition-colors flex items-center justify-between group"
             >
               <Link
-                href={`/setlist/songs/${song.id}`}
+                href={`/setlist/songs/${song._id}`}
                 className="flex-1"
               >
                 <div className="font-semibold">{song.title}</div>
@@ -189,7 +161,7 @@ export default function SongsLibraryPage() {
                   {song.key}
                 </span>
                 <button
-                  onClick={() => handleDelete(song.id!, song.title)}
+                  onClick={() => handleDelete(song._id, song.title)}
                   className="opacity-0 group-hover:opacity-60 hover:opacity-100 text-red-600 text-sm"
                 >
                   Delete

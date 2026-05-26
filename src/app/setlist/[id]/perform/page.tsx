@@ -2,7 +2,9 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { getSetlistWithSongs, type Song, type Setlist } from '@/lib/db';
+import { useQuery } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
+import { type SongWithKey, type Id } from '@/lib/db';
 import ChordChart from '@/components/setlist/ChordChart';
 
 interface PageProps {
@@ -11,24 +13,14 @@ interface PageProps {
 
 export default function PerformPage({ params }: PageProps) {
   const { id } = use(params);
-  const [setlist, setSetlist] = useState<Setlist | null>(null);
-  const [songs, setSongs] = useState<(Song & { transposedKey?: string })[]>([]);
-  const [loading, setLoading] = useState(true);
+  const data = useQuery(api.setlists.getWithSongs, { id: id as Id<'setlists'> });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayMode, setDisplayMode] = useState<'letters' | 'numerals'>('letters');
   const [showControls, setShowControls] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      const data = await getSetlistWithSongs(parseInt(id));
-      if (data) {
-        setSetlist(data.setlist);
-        setSongs(data.songs);
-      }
-      setLoading(false);
-    }
-    load();
-  }, [id]);
+  const loading = data === undefined;
+  const setlist = data?.setlist ?? null;
+  const songs: SongWithKey[] = data?.songs ?? [];
 
   // Keyboard navigation
   useEffect(() => {

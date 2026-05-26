@@ -1,16 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 import Logo from '@/components/Logo';
-import { getAllSongs, addSetlist, type Song, type SetlistSong } from '@/lib/db';
+import { type SetlistSong, type Id } from '@/lib/db';
 import { ALL_KEYS } from '@/lib/chords/transposition';
 
 export default function CreateSetlistPage() {
   const router = useRouter();
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [loading, setLoading] = useState(true);
+  const songs = useQuery(api.songs.list);
+  const createSetlist = useMutation(api.setlists.create);
+  const loading = songs === undefined;
 
   // Form state
   const [name, setName] = useState('');
@@ -21,16 +24,7 @@ export default function CreateSetlistPage() {
   const [selectedSongs, setSelectedSongs] = useState<SetlistSong[]>([]);
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    async function load() {
-      const data = await getAllSongs();
-      setSongs(data);
-      setLoading(false);
-    }
-    load();
-  }, []);
-
-  const addSongToSetlist = (songId: number) => {
+  const addSongToSetlist = (songId: Id<'songs'>) => {
     if (selectedSongs.find(s => s.songId === songId)) return;
     setSelectedSongs([
       ...selectedSongs,
@@ -38,7 +32,7 @@ export default function CreateSetlistPage() {
     ]);
   };
 
-  const removeSongFromSetlist = (songId: number) => {
+  const removeSongFromSetlist = (songId: Id<'songs'>) => {
     setSelectedSongs(
       selectedSongs
         .filter(s => s.songId !== songId)
@@ -46,7 +40,7 @@ export default function CreateSetlistPage() {
     );
   };
 
-  const updateSongKey = (songId: number, key: string) => {
+  const updateSongKey = (songId: Id<'songs'>, key: string) => {
     setSelectedSongs(
       selectedSongs.map(s =>
         s.songId === songId ? { ...s, transposedKey: key } : s
@@ -67,7 +61,7 @@ export default function CreateSetlistPage() {
       return;
     }
 
-    const id = await addSetlist({
+    const id = await createSetlist({
       name: name.trim(),
       date,
       time,
@@ -79,13 +73,13 @@ export default function CreateSetlistPage() {
     router.push(`/setlist/${id}`);
   };
 
-  const filteredSongs = songs.filter(song =>
-    !selectedSongs.find(s => s.songId === song.id) &&
+  const filteredSongs = (songs ?? []).filter(song =>
+    !selectedSongs.find(s => s.songId === song._id) &&
     (song.title.toLowerCase().includes(search.toLowerCase()) ||
       song.artist.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const getSongById = (id: number) => songs.find(s => s.id === id);
+  const getSongById = (id: Id<'songs'>) => (songs ?? []).find(s => s._id === id);
 
   return (
     <div className="setlist-page min-h-screen p-4 sm:p-6 max-w-4xl mx-auto pb-24">
@@ -206,7 +200,7 @@ export default function CreateSetlistPage() {
                   {/* Key Selector */}
                   <select
                     value={setlistSong.transposedKey || song.key}
-                    onChange={(e) => updateSongKey(song.id!, e.target.value)}
+                    onChange={(e) => updateSongKey(song._id, e.target.value)}
                     className="bg-white border border-primary/20 rounded px-2 py-1 text-sm font-mono"
                   >
                     {ALL_KEYS.map(k => (
@@ -218,7 +212,7 @@ export default function CreateSetlistPage() {
 
                   {/* Remove */}
                   <button
-                    onClick={() => removeSongFromSetlist(song.id!)}
+                    onClick={() => removeSongFromSetlist(song._id)}
                     className="text-red-600 opacity-60 hover:opacity-100"
                   >
                     ×
@@ -246,11 +240,11 @@ export default function CreateSetlistPage() {
           <div className="text-center py-8 opacity-60">Loading songs...</div>
         ) : filteredSongs.length === 0 ? (
           <div className="text-center py-8 opacity-60">
-            {songs.length === 0 ? (
+            {(songs ?? []).length === 0 ? (
               <Link href="/setlist/songs/import" className="text-primary hover:underline">
                 Import songs first
               </Link>
-            ) : selectedSongs.length === songs.length ? (
+            ) : selectedSongs.length === (songs ?? []).length ? (
               'All songs added'
             ) : (
               'No matching songs'
@@ -260,8 +254,8 @@ export default function CreateSetlistPage() {
           <div className="grid gap-2 max-h-64 overflow-y-auto">
             {filteredSongs.slice(0, 10).map((song) => (
               <button
-                key={song.id}
-                onClick={() => addSongToSetlist(song.id!)}
+                key={song._id}
+                onClick={() => addSongToSetlist(song._id)}
                 className="bg-white border border-primary/20 hover:border-primary/40 rounded-lg p-3 text-left flex items-center justify-between transition-colors"
               >
                 <div>

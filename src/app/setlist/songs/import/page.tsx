@@ -6,14 +6,17 @@ import Link from 'next/link';
 import Logo from '@/components/Logo';
 import { parsePdf, parsedResultToSong } from '@/lib/pdf/parser';
 import { parseUGContent } from '@/lib/ultimateGuitar/parser';
-import { addSong, type Song, type Section } from '@/lib/db';
+import { useMutation } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
+import type { NewSong } from '@/lib/db';
 import ChordChart from '@/components/setlist/ChordChart';
 
-type ParsedSong = Omit<Song, 'id' | 'createdAt' | 'updatedAt'>;
+type ParsedSong = NewSong;
 type ImportMode = 'url' | 'pdf';
 
 export default function ImportSongPage() {
   const router = useRouter();
+  const createSong = useMutation(api.songs.create);
   const [importMode, setImportMode] = useState<ImportMode>('url');
   const [dragging, setDragging] = useState(false);
   const [parsing, setParsing] = useState(false);
@@ -149,7 +152,7 @@ export default function ImportSongPage() {
       key: songKey,
     };
 
-    const id = await addSong(songToSave);
+    const id = await createSong(songToSave);
     router.push(`/setlist/songs/${id}`);
   };
 

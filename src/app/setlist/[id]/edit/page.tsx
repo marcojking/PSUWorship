@@ -3,8 +3,10 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
 import Logo from '@/components/Logo';
-import { getAllSongs, getSetlist, updateSetlist, type Song, type Setlist, type SetlistSong } from '@/lib/db';
+import { type SetlistSong, type Id } from '@/lib/db';
 import { ALL_KEYS } from '@/lib/chords/transposition';
 
 interface PageProps {
@@ -14,10 +16,11 @@ interface PageProps {
 export default function EditSetlistPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [setlist, setSetlist] = useState<Setlist | null>(null);
-  const [loading, setLoading] = useState(true);
+  const songs = useQuery(api.songs.list);
+  const setlist = useQuery(api.setlists.get, { id: id as Id<'setlists'> });
+  const updateSetlist = useMutation(api.setlists.update);
   const [saving, setSaving] = useState(false);
+  const [populated, setPopulated] = useState(false);
 
   // Form state
   const [name, setName] = useState('');
@@ -28,31 +31,21 @@ export default function EditSetlistPage({ params }: PageProps) {
   const [selectedSongs, setSelectedSongs] = useState<SetlistSong[]>([]);
   const [search, setSearch] = useState('');
 
+  const loading = songs === undefined || setlist === undefined;
+
   useEffect(() => {
-    async function load() {
-      const [songsData, setlistData] = await Promise.all([
-        getAllSongs(),
-        getSetlist(parseInt(id)),
-      ]);
-
-      setSongs(songsData);
-
-      if (setlistData) {
-        setSetlist(setlistData);
-        setName(setlistData.name);
-        setDate(setlistData.date);
-        setTime(setlistData.time || '');
-        setLocation(setlistData.location || '');
-        setBibleVerse(setlistData.bibleVerse || '');
-        setSelectedSongs(setlistData.songs || []);
-      }
-
-      setLoading(false);
+    if (setlist && !populated) {
+      setName(setlist.name);
+      setDate(setlist.date);
+      setTime(setlist.time || '');
+      setLocation(setlist.location || '');
+      setBibleVerse(setlist.bibleVerse || '');
+      setSelectedSongs(setlist.songs || []);
+      setPopulated(true);
     }
-    load();
-  }, [id]);
+  }, [setlist, populated]);
 
-  const addSongToSetlist = (songId: number) => {
+  const addSongToSetlist = (songId: Id<'songs'>) => {
     if (selectedSongs.find(s => s.songId === songId)) return;
     setSelectedSongs([
       ...selectedSongs,
@@ -60,7 +53,7 @@ export default function EditSetlistPage({ params }: PageProps) {
     ]);
   };
 
-  const removeSongFromSetlist = (songId: number) => {
+  const removeSongFromSetlist = (songId: Id<'songs'>) => {
     setSelectedSongs(
       selectedSongs
         .filter(s => s.songId !== songId)
@@ -68,7 +61,7 @@ export default function EditSetlistPage({ params }: PageProps) {
     );
   };
 
-  const updateSongKey = (songId: number, key: string) => {
+  const updateSongKey = (songId: Id<'songs'>, key: string) => {
     setSelectedSongs(
       selectedSongs.map(s =>
         s.songId === songId ? { ...s, transposedKey: key } : s
@@ -88,7 +81,8 @@ export default function EditSetlistPage({ params }: PageProps) {
 
     setSaving(true);
     try {
-      await updateSetlist(setlist.id!, {
+      await updateSetlist({
+        id: setlist._id,
         name: name.trim(),
         date,
         time,
@@ -105,13 +99,13 @@ export default function EditSetlistPage({ params }: PageProps) {
     }
   };
 
-  const filteredSongs = songs.filter(song =>
-    !selectedSongs.find(s => s.songId === song.id) &&
+  const filteredSongs = (songs ?? []).filter(song =>
+    !selectedSongs.find(s => s.songId === song._id) &&
     (song.title.toLowerCase().includes(search.toLowerCase()) ||
       song.artist.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const getSongById = (songId: number) => songs.find(s => s.id === songId);
+  const getSongById = (songId: Id<'songs'>) => (songs ?? []).find(s => s._id === songId);
 
   if (loading) {
     return (
@@ -252,7 +246,7 @@ export default function EditSetlistPage({ params }: PageProps) {
                   {/* Key Selector */}
                   <select
                     value={setlistSong.transposedKey || song.key}
-                    onChange={(e) => updateSongKey(song.id!, e.target.value)}
+                    onChange={(e) => updateSongKey(song._id, e.target.value)}
                     className="bg-white border border-primary/20 rounded px-2 py-1 text-sm font-mono"
                   >
                     {ALL_KEYS.map(k => (
@@ -264,7 +258,7 @@ export default function EditSetlistPage({ params }: PageProps) {
 
                   {/* Remove */}
                   <button
-                    onClick={() => removeSongFromSetlist(song.id!)}
+                    onClick={() => removeSongFromSetlist(song._id)}
                     className="text-red-600 opacity-60 hover:opacity-100"
                   >
                     ×
@@ -290,11 +284,11 @@ export default function EditSetlistPage({ params }: PageProps) {
 
         {filteredSongs.length === 0 ? (
           <div className="text-center py-8 opacity-60">
-            {songs.length === 0 ? (
+            {(songs ?? []).length === 0 ? (
               <Link href="/setlist/songs/import" className="text-primary hover:underline">
                 Import songs first
               </Link>
-            ) : selectedSongs.length === songs.length ? (
+            ) : selectedSongs.length === (songs ?? []).length ? (
               'All songs added'
             ) : (
               'No matching songs'
@@ -304,8 +298,8 @@ export default function EditSetlistPage({ params }: PageProps) {
           <div className="grid gap-2 max-h-64 overflow-y-auto">
             {filteredSongs.slice(0, 10).map((song) => (
               <button
-                key={song.id}
-                onClick={() => addSongToSetlist(song.id!)}
+                key={song._id}
+                onClick={() => addSongToSetlist(song._id)}
                 className="bg-white border border-primary/20 hover:border-primary/40 rounded-lg p-3 text-left flex items-center justify-between transition-colors"
               >
                 <div>

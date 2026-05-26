@@ -1,37 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import Logo from '@/components/Logo';
-import { getAllSongs, getAllSetlists, type Song, type Setlist } from '@/lib/db';
-import { useSync } from '@/hooks/useSync';
 
 export default function SetlistDashboard() {
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [setlists, setSetlists] = useState<Setlist[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { status, sync } = useSync();
-
-  const loadData = useCallback(async () => {
-    const [songsData, setlistsData] = await Promise.all([
-      getAllSongs(),
-      getAllSetlists(),
-    ]);
-    setSongs(songsData);
-    setSetlists(setlistsData);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // Sync on mount
-  useEffect(() => {
-    if (status.isConfigured && !status.isSyncing) {
-      sync().then(() => loadData());
-    }
-  }, [status.isConfigured]); // eslint-disable-line react-hooks/exhaustive-deps
+  const songs = useQuery(api.songs.list);
+  const setlists = useQuery(api.setlists.list);
+  const loading = songs === undefined || setlists === undefined;
 
   return (
     <div className="setlist-page min-h-screen p-4 sm:p-6 max-w-4xl mx-auto">
@@ -41,17 +18,6 @@ export default function SetlistDashboard() {
           <Logo className="text-2xl" />
         </Link>
         <div className="flex items-center gap-4">
-          {status.isConfigured && (
-            <button
-              onClick={() => sync().then(() => loadData())}
-              disabled={status.isSyncing}
-              className="text-sm opacity-60 hover:opacity-100 transition-opacity disabled:opacity-30 flex items-center gap-1"
-              title={status.lastSyncedAt ? `Last synced: ${status.lastSyncedAt.toLocaleTimeString()}` : 'Sync with Airtable'}
-            >
-              <span className={status.isSyncing ? 'animate-spin' : ''}>⟳</span>
-              {status.isSyncing ? 'Syncing...' : 'Sync'}
-            </button>
-          )}
           <Link
             href="/harmony"
             className="text-sm opacity-60 hover:opacity-100 transition-opacity"
@@ -88,13 +54,13 @@ export default function SetlistDashboard() {
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Recent Setlists</h2>
-              {setlists.length > 3 && (
+              {(setlists ?? []).length > 3 && (
                 <Link href="/setlist/all" className="text-sm opacity-60 hover:opacity-100">
                   View all
                 </Link>
               )}
             </div>
-            {setlists.length === 0 ? (
+            {(setlists ?? []).length === 0 ? (
               <div className="bg-primary/5 rounded-lg p-6 text-center">
                 <p className="opacity-60 mb-4">No setlists yet</p>
                 <Link
@@ -106,10 +72,10 @@ export default function SetlistDashboard() {
               </div>
             ) : (
               <div className="grid gap-3">
-                {setlists.slice(0, 3).map((setlist) => (
+                {(setlists ?? []).slice(0, 3).map((setlist) => (
                   <Link
-                    key={setlist.id}
-                    href={`/setlist/${setlist.id}`}
+                    key={setlist._id}
+                    href={`/setlist/${setlist._id}`}
                     className="bg-primary/5 hover:bg-primary/10 rounded-lg p-4 transition-colors"
                   >
                     <div className="flex items-center justify-between">
@@ -134,10 +100,10 @@ export default function SetlistDashboard() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Song Library</h2>
               <Link href="/setlist/songs" className="text-sm opacity-60 hover:opacity-100">
-                View all ({songs.length})
+                View all ({(songs ?? []).length})
               </Link>
             </div>
-            {songs.length === 0 ? (
+            {(songs ?? []).length === 0 ? (
               <div className="bg-primary/5 rounded-lg p-6 text-center">
                 <p className="opacity-60 mb-4">No songs yet</p>
                 <Link
@@ -149,10 +115,10 @@ export default function SetlistDashboard() {
               </div>
             ) : (
               <div className="grid gap-2">
-                {songs.slice(0, 5).map((song) => (
+                {(songs ?? []).slice(0, 5).map((song) => (
                   <Link
-                    key={song.id}
-                    href={`/setlist/songs/${song.id}`}
+                    key={song._id}
+                    href={`/setlist/songs/${song._id}`}
                     className="bg-primary/5 hover:bg-primary/10 rounded-lg p-3 transition-colors flex items-center justify-between"
                   >
                     <div>

@@ -25,7 +25,9 @@ import type * as orders from "../orders.js";
 import type * as products from "../products.js";
 import type * as promptTemplates from "../promptTemplates.js";
 import type * as savedDesigns from "../savedDesigns.js";
+import type * as setlists from "../setlists.js";
 import type * as settings from "../settings.js";
+import type * as songs from "../songs.js";
 import type * as storage from "../storage.js";
 
 import type {
@@ -52,7 +54,9 @@ declare const fullApi: ApiFromModules<{
   products: typeof products;
   promptTemplates: typeof promptTemplates;
   savedDesigns: typeof savedDesigns;
+  setlists: typeof setlists;
   settings: typeof settings;
+  songs: typeof songs;
   storage: typeof storage;
 }>;
 

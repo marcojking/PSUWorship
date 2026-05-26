@@ -6,18 +6,21 @@ import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import VisualChordEditor from '@/components/setlist/VisualChordEditor';
 import ChordChart from '@/components/setlist/ChordChart';
-import { addSong, type Section } from '@/lib/db';
+import { useMutation } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
+import type { Section, SectionType } from '@/lib/db';
 import { ALL_KEYS } from '@/lib/chords/transposition';
 import { parseLyricsToSections } from '@/lib/lyrics/parser';
 
 type Step = 'metadata' | 'lyrics' | 'sections' | 'chords' | 'preview';
 
-const SECTION_TYPES: Section['type'][] = [
+const SECTION_TYPES: SectionType[] = [
   'intro', 'verse', 'pre-chorus', 'chorus', 'bridge', 'instrumental', 'outro', 'tag'
 ];
 
 export default function CreateSongPage() {
   const router = useRouter();
+  const createSong = useMutation(api.songs.create);
   const [step, setStep] = useState<Step>('metadata');
   const [saving, setSaving] = useState(false);
 
@@ -64,7 +67,7 @@ export default function CreateSongPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const id = await addSong({
+      const id = await createSong({
         title: title.trim(),
         artist: artist.trim(),
         key: songKey,

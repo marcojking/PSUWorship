@@ -1,4 +1,4 @@
-import type { Section, ChordLine, ChordPosition, Song } from '../db';
+import type { Section, ChordLine, ChordPosition, NewSong } from '../db';
 import { isChord } from '../chords/transposition';
 
 // Dynamic import for PDF.js (browser only)
@@ -428,7 +428,7 @@ export async function parsePdf(file: File): Promise<ParsedPdfResult> {
 }
 
 // Convert parsed result to Song object
-export function parsedResultToSong(result: ParsedPdfResult): Omit<Song, 'id' | 'createdAt' | 'updatedAt'> {
+export function parsedResultToSong(result: ParsedPdfResult): NewSong {
   return {
     title: result.title,
     artist: result.artist,

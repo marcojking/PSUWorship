@@ -2,11 +2,12 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ChordChart from '@/components/setlist/ChordChart';
 import SongExportModal from '@/components/setlist/SongExportModal';
-import { getSong, updateSong, type Song } from '@/lib/db';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
+import type { Id } from '@/lib/db';
 import { ALL_KEYS, getTranspositionInterval } from '@/lib/chords/transposition';
 
 interface PageProps {
@@ -15,24 +16,17 @@ interface PageProps {
 
 export default function SongDetailPage({ params }: PageProps) {
   const { id } = use(params);
-  const router = useRouter();
-  const [song, setSong] = useState<Song | null>(null);
-  const [loading, setLoading] = useState(true);
+  const song = useQuery(api.songs.get, { id: id as Id<'songs'> });
+  const updateSong = useMutation(api.songs.update);
   const [displayKey, setDisplayKey] = useState<string>('');
   const [displayMode, setDisplayMode] = useState<'letters' | 'numerals' | 'none'>('letters');
   const [showExport, setShowExport] = useState(false);
 
+  const loading = song === undefined;
+
   useEffect(() => {
-    async function load() {
-      const data = await getSong(parseInt(id));
-      if (data) {
-        setSong(data);
-        setDisplayKey(data.key);
-      }
-      setLoading(false);
-    }
-    load();
-  }, [id]);
+    if (song) setDisplayKey(song.key);
+  }, [song]);
 
   const handleTranspose = (newKey: string) => {
     setDisplayKey(newKey);
@@ -40,11 +34,7 @@ export default function SongDetailPage({ params }: PageProps) {
 
   const handleSaveTransposition = async () => {
     if (!song || displayKey === song.key) return;
-
-    // We need to actually transpose all chords in the song
-    // For now, just update the song key
-    await updateSong(song.id!, { key: displayKey });
-    setSong({ ...song, key: displayKey });
+    await updateSong({ id: song._id, key: displayKey });
   };
 
   if (loading) {
