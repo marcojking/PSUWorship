@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WMA Live — Control</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #141414; color: #e0e0e0; font-family: system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+    header h1 { font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.6; font-weight: 600; }
+    .spacer { flex: 1; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #555; display: inline-block; margin-right: 5px; }
+    .dot.on { background: #6acd2a; }
+    .toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; user-select: none; }
+    main { flex: 1; display: grid; grid-template-columns: 320px 1fr; gap: 0; overflow: hidden; }
+    .sidebar { border-right: 1px solid #2a2a2a; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+    .stage { padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+    .panel-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.5; margin-bottom: 8px; }
+    select, button { font-family: inherit; }
+    .setlist-item { width: 100%; text-align: left; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; color: #ddd; cursor: pointer; }
+    .setlist-item:hover { border-color: #3a5a8a; }
+    .setlist-item.active { border-color: #6acd2a; background: #16240e; }
+    .setlist-item .name { font-weight: 600; font-size: 13px; }
+    .setlist-item .date { font-size: 11px; opacity: 0.5; }
+    .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .row select { flex: 1; background: #1e1e1e; color: #ddd; border: 1px solid #2a2a2a; border-radius: 5px; padding: 6px; }
+    .btn { background: #1e1e1e; border: 1px solid #333; border-radius: 6px; color: #e0e0e0; padding: 8px 12px; cursor: pointer; font-size: 12px; }
+    .btn:hover { border-color: #555; }
+    .btn-primary { background: #1e3a5f; border-color: #2a5a8a; }
+    .midi-row { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 5px; }
+    .midi-row .lbl { width: 70px; opacity: 0.7; }
+    .midi-row .map { flex: 1; font-family: monospace; font-size: 11px; opacity: 0.6; }
+    .midi-row.learning { color: #f0c030; }
+    .learn-btn { font-size: 10px; padding: 3px 7px; }
+
+    /* Control surface */
+    .lcd-panel { background: #1e2e10; border: 3px solid #2e4e18; border-radius: 8px; padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; max-width: 560px; }
+    .slot { height: 60px; background: #162008; border: 2px solid #2a4010; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #6acd2a; text-align: center; padding: 6px; cursor: pointer; transition: all 0.1s; }
+    .slot.queued { border-color: #f0c030; color: #f0c030; background: #281e00; box-shadow: 0 0 10px rgba(240,192,48,0.3); }
+    .slot.live { border-color: #6acd2a; color: #b6f07a; background: #1e3a0e; }
+    .slot.empty { color: #2a4010; cursor: default; }
+    .transport { display: flex; gap: 10px; width: 100%; max-width: 560px; }
+    .tbtn { flex: 1; height: 64px; border-radius: 8px; border: 2px solid #333; background: #1e1e1e; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+    .tbtn small { font-size: 10px; font-weight: 400; opacity: 0.5; }
+    .tbtn.go { border-color: #2a7a2a; background: #0e200e; }
+    .tbtn.back { border-color: #7a6a2a; }
+    .tbtn.blank { border-color: #7a2a2a; }
+    .tbtn.blank.active { background: #3a1010; box-shadow: 0 0 10px rgba(240,80,80,0.4); }
+    .tbtn.toggle { border-color: #5a3a7a; }
+    .status-line { font-size: 13px; opacity: 0.7; text-align: center; min-height: 20px; }
+    .mode-pill { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #3a1e5f; color: #b07ef7; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>WMA Live</h1>
+    <span class="mode-pill" id="mode-pill">SONG select</span>
+    <div class="spacer"></div>
+    <span id="conn"><span class="dot" id="conn-dot"></span><span id="conn-text">connecting…</span></span>
+    <label class="toggle"><input type="checkbox" id="broadcast"> Broadcast online</label>
+  </header>
+
+  <main>
+    <div class="sidebar">
+      <div>
+        <div class="panel-title">Setlist</div>
+        <div id="setlists"></div>
+        <button class="btn" id="refresh" style="width:100%;margin-top:4px">↻ Refresh from cloud</button>
+      </div>
+
+      <div>
+        <div class="panel-title">Screens</div>
+        <div class="row">
+          <select id="proj-display"></select>
+          <button class="btn" id="open-proj">Open Projector</button>
+        </div>
+        <div class="row">
+          <select id="mon-display"></select>
+          <button class="btn" id="open-mon">Open Monitor</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel-title">Foot pedal (MIDI)</div>
+        <div id="midi-status" style="font-size:12px;opacity:0.6;margin-bottom:8px">No MIDI device</div>
+        <div id="midi-maps"></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="status-line" id="status">No setlist selected</div>
+      <div class="lcd-panel" id="lcd"></div>
+      <div class="transport">
+        <button class="tbtn back" data-action="back">◀ BACK<small>Backspace</small></button>
+        <button class="tbtn go" data-action="go">GO ▶<small>Space</small></button>
+        <button class="tbtn blank" id="blank-btn" data-action="blackout">BLANK<small>B</small></button>
+        <button class="tbtn toggle" data-action="mode">TOGGLE<small>T</small></button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const wma = window.wma
+    let payload = null
+
+    // ---- control surface ----
+    const lcd = document.getElementById('lcd')
+    const slots = []
+    for (let i = 0; i < 6; i++) {
+      const el = document.createElement('div')
+      el.className = 'slot empty'; el.textContent = '—'
+      el.addEventListener('click', () => { if (!el.classList.contains('empty')) act({ type: 'selection', index: i }) })
+      lcd.appendChild(el); slots.push(el)
+    }
+
+    async function act(event) { payload = await wma.action(event); render(payload) }
+
+    function render(p) {
+      if (!p) return
+      payload = p
+      document.getElementById('mode-pill').textContent = `${p.state.mode.toUpperCase()} select`
+      for (let i = 0; i < 6; i++) {
+        const el = slots[i], label = p.buttonLabels[i]
+        const q = i === p.queuedButton, live = p.state.isLive && i === p.currentButton
+        el.textContent = label || '—'
+        el.className = `slot ${!label ? 'empty' : ''} ${q ? 'queued' : ''} ${live && !q ? 'live' : ''}`
+      }
+      document.getElementById('blank-btn').classList.toggle('active', p.state.isBlackout)
+      const s = p.state
+      document.getElementById('status').textContent = !p.setlistName ? 'No setlist selected'
+        : s.isLive ? `LIVE · ${p.currentSongTitle} — ${p.currentLabel}  (Song ${p.songNumber}/${p.songCount} · Slide ${p.slideNumber}/${p.slideCount})`
+        : `Ready: ${p.setlistName} — press GO`
+    }
+
+    document.querySelectorAll('.tbtn').forEach(b =>
+      b.addEventListener('click', () => act({ type: b.dataset.action })))
+
+    // ---- keyboard ----
+    window.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); act({ type: 'go' }) }
+      else if (e.key === 'Backspace' || e.key === 'ArrowLeft') { e.preventDefault(); act({ type: 'back' }) }
+      else if (e.key === 't' || e.key === 'T') act({ type: 'mode' })
+      else if (e.key === 'b' || e.key === 'B') act({ type: 'blackout' })
+      else if (e.key >= '1' && e.key <= '6') act({ type: 'selection', index: +e.key - 1 })
+    })
+
+    // ---- setlists ----
+    async function renderSetlists(list) {
+      const box = document.getElementById('setlists')
+      box.innerHTML = ''
+      if (!list.length) { box.innerHTML = '<div style="font-size:12px;opacity:0.5">No setlists cached. Refresh while online.</div>'; return }
+      for (const sl of list) {
+        const b = document.createElement('button')
+        b.className = 'setlist-item'
+        b.innerHTML = `<div class="name">${sl.name}</div><div class="date">${sl.date}</div>`
+        b.addEventListener('click', async () => {
+          document.querySelectorAll('.setlist-item').forEach(x => x.classList.remove('active'))
+          b.classList.add('active')
+          await wma.selectSetlist(sl.id)
+          render(await wma.getPayload())
+        })
+        box.appendChild(b)
+      }
+    }
+    document.getElementById('refresh').addEventListener('click', async () => {
+      const r = await wma.refreshLibrary()
+      if (r.ok) renderSetlists(r.setlists)
+      else document.getElementById('status').textContent = 'Refresh failed (offline?) — using cache'
+    })
+    wma.onLibraryUpdated(renderSetlists)
+
+    // ---- displays ----
+    async function loadDisplays() {
+      const displays = await wma.getDisplays()
+      for (const id of ['proj-display', 'mon-display']) {
+        const sel = document.getElementById(id)
+        sel.innerHTML = ''
+        displays.forEach(d => {
+          const o = document.createElement('option')
+          o.value = d.id
+          o.textContent = `${d.label} ${d.width}×${d.height}${d.primary ? ' (primary)' : ''}`
+          sel.appendChild(o)
+        })
+        // default the projector to a non-primary screen if available
+        if (id === 'proj-display') {
+          const ext = displays.find(d => !d.primary)
+          if (ext) sel.value = String(ext.id)
+        }
+      }
+    }
+    document.getElementById('open-proj').addEventListener('click', () =>
+      wma.openWindow('projector', +document.getElementById('proj-display').value))
+    document.getElementById('open-mon').addEventListener('click', () =>
+      wma.openWindow('monitor', +document.getElementById('mon-display').value))
+
+    // ---- broadcast ----
+    document.getElementById('broadcast').addEventListener('change', async (e) => {
+      await wma.setBroadcast(e.target.checked)
+    })
+
+    // ---- MIDI learn ----
+    const MIDI_ACTIONS = [
+      ['go', 'GO'], ['back', 'BACK'], ['blackout', 'BLANK'], ['mode', 'TOGGLE'],
+      ['sel0', 'Btn 1'], ['sel1', 'Btn 2'], ['sel2', 'Btn 3'], ['sel3', 'Btn 4'], ['sel4', 'Btn 5'], ['sel5', 'Btn 6'],
+    ]
+    let mapping = JSON.parse(localStorage.getItem('wma-midi') || '{}')
+    let learning = null
+
+    function saveMapping() { localStorage.setItem('wma-midi', JSON.stringify(mapping)) }
+    function sig(data) { return `${data[0] & 0xf0}:${data[1]}` } // status class + note/cc number
+
+    function actionFromKey(key) {
+      if (key.startsWith('sel')) return { type: 'selection', index: +key.slice(3) }
+      return { type: key }
+    }
+
+    function renderMidiMaps() {
+      const box = document.getElementById('midi-maps')
+      box.innerHTML = ''
+      for (const [key, label] of MIDI_ACTIONS) {
+        const row = document.createElement('div')
+        row.className = 'midi-row' + (learning === key ? ' learning' : '')
+        row.innerHTML = `<span class="lbl">${label}</span><span class="map">${learning === key ? 'press pedal…' : (mapping[key] || '—')}</span>`
+        const btn = document.createElement('button')
+        btn.className = 'btn learn-btn'; btn.textContent = learning === key ? 'cancel' : 'learn'
+        btn.addEventListener('click', () => { learning = learning === key ? null : key; renderMidiMaps() })
+        row.appendChild(btn); box.appendChild(row)
+      }
+    }
+
+    function onMidi(msg) {
+      const data = msg.data
+      // ignore note-off / zero-velocity
+      if ((data[0] & 0xf0) === 0x80) return
+      if (data.length >= 3 && (data[0] & 0xf0) === 0x90 && data[2] === 0) return
+      const s = sig(data)
+      if (learning) { mapping[learning] = s; saveMapping(); learning = null; renderMidiMaps(); return }
+      for (const [key, val] of Object.entries(mapping)) {
+        if (val === s) { act(actionFromKey(key)); break }
+      }
+    }
+
+    if (navigator.requestMIDIAccess) {
+      navigator.requestMIDIAccess().then(access => {
+        const update = () => {
+          const inputs = [...access.inputs.values()]
+          document.getElementById('midi-status').textContent =
+            inputs.length ? `Connected: ${inputs.map(i => i.name).join(', ')}` : 'No MIDI device'
+          inputs.forEach(i => { i.onmidimessage = onMidi })
+        }
+        update(); access.onstatechange = update
+      }).catch(() => { document.getElementById('midi-status').textContent = 'MIDI unavailable' })
+    } else {
+      document.getElementById('midi-status').textContent = 'Web MIDI not supported'
+    }
+    renderMidiMaps()
+
+    // ---- init ----
+    wma.onPayload(render)
+    ;(async () => {
+      const cfg = await wma.getConfig()
+      document.getElementById('conn-dot').classList.toggle('on', cfg.connected)
+      document.getElementById('conn-text').textContent = cfg.connected ? 'cloud connected' : 'offline (cache)'
+      document.getElementById('broadcast').checked = cfg.broadcast
+      await loadDisplays()
+      renderSetlists(await wma.listSetlists())
+      render(await wma.getPayload())
+    })()
+  </script>
+</body>
+</html>
