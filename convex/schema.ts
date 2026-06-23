@@ -230,6 +230,13 @@ export default defineSchema({
     // Legacy fields from old schema — kept for existing documents
     requestsCall: v.optional(v.boolean()),
     phone: v.optional(v.string()),
+    // Kanban board: missing stage is treated as "reviewing" by the UI
+    stage: v.optional(v.union(
+      v.literal("reviewing"),
+      v.literal("reached_out"),
+      v.literal("approved"),
+    )),
+    assignedRole: v.optional(v.string()),
   }).index("by_submittedAt", ["submittedAt"]),
 
   callRequests: defineTable({

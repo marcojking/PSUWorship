@@ -65,3 +65,27 @@ export const requestCall = mutation({
     });
   },
 });
+
+export const setStage = mutation({
+  args: {
+    id: v.id("leadershipInterest"),
+    stage: v.union(
+      v.literal("reviewing"),
+      v.literal("reached_out"),
+      v.literal("approved"),
+    ),
+  },
+  handler: async (ctx, { id, stage }) => {
+    await ctx.db.patch(id, { stage });
+  },
+});
+
+export const setAssignedRole = mutation({
+  args: {
+    id: v.id("leadershipInterest"),
+    assignedRole: v.optional(v.string()),
+  },
+  handler: async (ctx, { id, assignedRole }) => {
+    await ctx.db.patch(id, { assignedRole });
+  },
+});
