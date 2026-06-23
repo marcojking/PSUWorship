@@ -1,27 +1,28 @@
 'use client';
 import { useState } from 'react';
 import RoleCard from './RoleCard';
+import { LEADERSHIP_ROLES, TEAM_ROLES } from '@/lib/roles';
 
-const LEADERSHIP_ROLES = [
-  { title: 'Vice President', description: 'Assist the President, step in when needed, and help coordinate across all teams.' },
-  { title: 'Music Director', description: 'Lead musical direction for worship nights and recordings — keys, arrangements, rehearsals.' },
-  { title: 'Treasurer', description: 'Manage club finances, track expenses, and handle UPAC funding requests.' },
-  { title: 'Secretary', description: 'Manage communications and keep the team organized.' },
-  { title: 'Event Coordinator', description: 'Plan and execute worship nights and events. Co-leads the Events & Hospitality team.' },
-  { title: 'Hospitality Lead', description: 'Create a welcoming environment at every event. Co-leads the Events & Hospitality team.' },
-  { title: 'Social Media Lead', description: 'Shape the creative voice of our social channels — visual storytelling, content strategy, and building our online presence.' },
-  { title: 'Media Lead', description: 'Direct photo and video coverage of events and manage content production. Training provided.' },
-  { title: 'Tech/Production Lead', description: 'Run live sound and lighting at events, oversee studio sessions. Training provided.' },
-  { title: 'Graphics / Art Lead', description: 'Design merch, album covers, visual assets, promotional materials, and maintain brand consistency.' },
-  { title: 'Prayer Lead', description: 'Organize and lead prayer for the club — before events, during meetings, and beyond.' },
-];
+const LEADERSHIP_DESCRIPTIONS: Record<string, string> = {
+  'Vice President': 'Assist the President, step in when needed, and help coordinate across all teams.',
+  'Music Director': 'Lead musical direction for worship nights and recordings — keys, arrangements, rehearsals.',
+  'Treasurer': 'Manage club finances, track expenses, and handle UPAC funding requests.',
+  'Secretary': 'Manage communications and keep the team organized.',
+  'Event Coordinator': 'Plan and execute worship nights and events. Co-leads the Events & Hospitality team.',
+  'Hospitality Lead': 'Create a welcoming environment at every event. Co-leads the Events & Hospitality team.',
+  'Social Media Lead': 'Shape the creative voice of our social channels — visual storytelling, content strategy, and building our online presence.',
+  'Media Lead': 'Direct photo and video coverage of events and manage content production. Training provided.',
+  'Tech/Production Lead': 'Run live sound and lighting at events, oversee studio sessions. Training provided.',
+  'Graphics / Art Lead': 'Design merch, album covers, visual assets, promotional materials, and maintain brand consistency.',
+  'Prayer Lead': 'Organize and lead prayer for the club — before events, during meetings, and beyond.',
+};
 
-const TEAM_ROLES = [
-  { title: 'Media & Social Team', description: 'Help capture events on camera, edit content, and manage social posts.' },
-  { title: 'Events & Hospitality Team', description: 'Help set up events, greet guests, and support the event planning process.' },
-  { title: 'Graphics / Art Team', description: 'Design flyers, visual assets, and album covers and artwork for our music releases.' },
-  { title: 'Sound & Tech Team', description: 'Run sound and gear at events — typically once a month or less.' },
-];
+const TEAM_DESCRIPTIONS: Record<string, string> = {
+  'Media & Social Team': 'Help capture events on camera, edit content, and manage social posts.',
+  'Events & Hospitality Team': 'Help set up events, greet guests, and support the event planning process.',
+  'Graphics / Art Team': 'Design flyers, visual assets, and album covers and artwork for our music releases.',
+  'Sound & Tech Team': 'Run sound and gear at events — typically once a month or less.',
+};
 
 const MAX_SELECTIONS = 3;
 
@@ -86,17 +87,17 @@ export default function RoleSelection({
           <span className="text-xs text-primary/40 font-normal">Lower time commitment</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {TEAM_ROLES.map((role) => {
-            const selNum = selected.indexOf(role.title);
+          {TEAM_ROLES.map((title) => {
+            const selNum = selected.indexOf(title);
             return (
               <RoleCard
-                key={role.title}
-                title={role.title}
-                description={role.description}
+                key={title}
+                title={title}
+                description={TEAM_DESCRIPTIONS[title]}
                 variant="team"
                 selectionNumber={selNum >= 0 ? selNum + 1 : null}
-                isDimmed={atMax && !selected.includes(role.title)}
-                onToggle={() => toggleRole(role.title)}
+                isDimmed={atMax && !selected.includes(title)}
+                onToggle={() => toggleRole(title)}
               />
             );
           })}
@@ -110,17 +111,17 @@ export default function RoleSelection({
           <div className="flex-1 h-px bg-primary/10" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {LEADERSHIP_ROLES.map((role) => {
-            const selNum = selected.indexOf(role.title);
+          {LEADERSHIP_ROLES.map((title) => {
+            const selNum = selected.indexOf(title);
             return (
               <RoleCard
-                key={role.title}
-                title={role.title}
-                description={role.description}
+                key={title}
+                title={title}
+                description={LEADERSHIP_DESCRIPTIONS[title]}
                 variant="leadership"
                 selectionNumber={selNum >= 0 ? selNum + 1 : null}
-                isDimmed={atMax && !selected.includes(role.title)}
-                onToggle={() => toggleRole(role.title)}
+                isDimmed={atMax && !selected.includes(title)}
+                onToggle={() => toggleRole(title)}
               />
             );
           })}
