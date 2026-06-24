@@ -11,7 +11,7 @@ export const contentType = "image/png";
 
 export default async function Image() {
   const photoData = await readFile(
-    join(process.cwd(), "public/gl/ep-wide.jpg"),
+    join(process.cwd(), "public/about/ep-art-flowers.jpg"),
     "base64",
   );
   const photoSrc = `data:image/jpeg;base64,${photoData}`;
