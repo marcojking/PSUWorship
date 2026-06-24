@@ -104,11 +104,6 @@ const HTML = `<!DOCTYPE html>
   .benefit h3{font-size:1.18rem;margin-bottom:.25rem;}
   .benefit p{color:var(--muted);font-size:.96rem;font-weight:300;}
 
-  /* MERCH */
-  .merch{background:var(--accent-soft);}
-  .merch .max{max-width:780px;}
-  .merch .pill{display:inline-block;background:var(--accent);color:var(--paper);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;padding:.45rem .9rem;border-radius:100px;font-weight:600;margin-bottom:1.6rem;}
-
   /* CLOSE */
   .close{background:var(--ink);color:var(--paper);border-bottom:none;}
   .close h2{color:var(--paper);max-width:20ch;}
@@ -116,8 +111,6 @@ const HTML = `<!DOCTYPE html>
   .contact{margin-top:3rem;display:flex;gap:3rem;flex-wrap:wrap;padding-top:2rem;border-top:1px solid rgba(255,255,255,.14);}
   .contact div span{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;opacity:.6;margin-bottom:.35rem;}
   .contact div b{font-weight:500;font-size:1.05rem;}
-
-  .note{font-size:.8rem;color:var(--muted);margin-top:1.4rem;font-style:italic;}
 
   @media(max-width:760px){
     .bnums{grid-template-columns:1fr;}
@@ -222,18 +215,8 @@ const HTML = `<!DOCTYPE html>
       <div class="benefit"><div class="num">03</div><div><h3>Content creators on-site</h3><p>Student content creators will be filming and promoting the event, so your brand reaches well beyond the lawn across their channels.</p></div></div>
       <div class="benefit"><div class="num">04</div><div><h3>Penn State athletes present</h3><p>PSU athletes will be in attendance, an open door if UNITUS is interested in NIL or college-athlete partnerships.</p></div></div>
       <div class="benefit"><div class="num">05</div><div><h3>Logo on signage and screen</h3><p>Your logo on event signage and the 20ft stage screen, plus shout-outs from the stage during the night.</p></div></div>
-      <div class="benefit"><div class="num">06</div><div><h3>Custom UNITUS merch</h3><p>An optional co-designed UNITUS piece for the event (see next page).</p></div></div>
+      <div class="benefit"><div class="num">06</div><div><h3>Collaborative merch</h3><p>We'd love to design some collaborative clothing with UNITUS for the event.</p></div></div>
     </div>
-  </div>
-</section>
-
-<!-- MERCH COLLAB -->
-<section class="merch">
-  <div class="max">
-    <span class="pill">Collaborative Merch</span>
-    <h2 class="serif">Custom UNITUS merch for the event.</h2>
-    <p class="lead" style="color:var(--muted);max-width:56ch;">If it's useful for the brand, we could produce custom UNITUS clothing for the night, design it together, put it on students, and split the profits from any we sell. The focus stays on UNITUS, not on our club.</p>
-    <p class="note">Fully optional. We're already running our own event apparel either way, so this is purely a bonus if you want it.</p>
   </div>
 </section>
 
