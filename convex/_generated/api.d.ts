@@ -10,6 +10,7 @@
 
 import type * as aiRenderCache from "../aiRenderCache.js";
 import type * as carts from "../carts.js";
+import type * as churchOutreach from "../churchOutreach.js";
 import type * as clothing from "../clothing.js";
 import type * as designs from "../designs.js";
 import type * as donations from "../donations.js";
@@ -39,6 +40,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   aiRenderCache: typeof aiRenderCache;
   carts: typeof carts;
+  churchOutreach: typeof churchOutreach;
   clothing: typeof clothing;
   designs: typeof designs;
   donations: typeof donations;

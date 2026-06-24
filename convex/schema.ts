@@ -246,6 +246,28 @@ export default defineSchema({
     submittedAt: v.number(),
   }).index("by_submittedAt", ["submittedAt"]),
 
+  churchOutreach: defineTable({
+    name: v.string(),
+    denomination: v.optional(v.string()),
+    address: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    website: v.optional(v.string()),
+    pastorName: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    followUpNotes: v.optional(v.string()),
+    contactDate: v.optional(v.string()),
+    stage: v.union(
+      v.literal("unprocessed"),
+      v.literal("approved"),
+      v.literal("reached_out"),
+      v.literal("supporting_involved"),
+      v.literal("involved_not_supporting"),
+      v.literal("non_involved"),
+    ),
+    createdAt: v.number(),
+  }).index("by_createdAt", ["createdAt"]),
+
   events: defineTable({
     slug: v.string(),
     title: v.string(),
