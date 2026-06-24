@@ -4,6 +4,19 @@ const HTML = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WMA × UNITUS Sponsorship Proposal</title>
+<meta name="description" content="An invitation for UNITUS to sponsor HUB Lawn Worship Night, Sept 13, 2026 at Penn State.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="WM&amp;A × UNITUS Sponsorship Proposal">
+<meta property="og:description" content="An invitation for UNITUS to sponsor HUB Lawn Worship Night, Sept 13, 2026 at Penn State.">
+<meta property="og:url" content="https://www.wmaac.org/Sept13/Unitus">
+<meta property="og:image" content="https://www.wmaac.org/Sept13/Unitus/opengraph-image">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="WM&amp;A × UNITUS Sponsorship Proposal">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WM&amp;A × UNITUS Sponsorship Proposal">
+<meta name="twitter:description" content="An invitation for UNITUS to sponsor HUB Lawn Worship Night, Sept 13, 2026 at Penn State.">
+<meta name="twitter:image" content="https://www.wmaac.org/Sept13/Unitus/opengraph-image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
