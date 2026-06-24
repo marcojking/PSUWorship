@@ -28,6 +28,7 @@ export function AddChurchModal({ onClose }: AddChurchModalProps) {
   const [pastorName, setPastorName] = useState('');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +46,9 @@ export function AddChurchModal({ onClose }: AddChurchModalProps) {
         notes: notes.trim() || undefined,
       });
       onClose();
+    } catch {
+      setError("Couldn't add church, try again");
+      setTimeout(() => setError(null), 3000);
     } finally {
       setSaving(false);
     }
@@ -73,6 +77,10 @@ export function AddChurchModal({ onClose }: AddChurchModalProps) {
         <input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="Website" style={inputStyle} />
         <input value={pastorName} onChange={(e) => setPastorName(e.target.value)} placeholder="Pastor / Leader" style={inputStyle} />
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes / Why good fit" rows={3} style={{ ...inputStyle, resize: 'vertical' }} />
+
+        {error && (
+          <p style={{ fontSize: '0.75rem', color: '#b45741' }}>{error}</p>
+        )}
 
         <button
           type="submit"
