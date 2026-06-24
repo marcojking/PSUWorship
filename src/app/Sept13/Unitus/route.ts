@@ -3,7 +3,7 @@ const HTML = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WMA × Unitus Sponsorship Proposal</title>
+<title>WMA × UNITUS Sponsorship Proposal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -135,10 +135,10 @@ const HTML = `<!DOCTYPE html>
 <!-- COVER -->
 <section class="cover">
   <div class="max">
-    <div class="logos"><span>WM&amp;A</span><span class="x">×</span><span>Unitus</span></div>
+    <div class="logos"><span>WM&amp;A</span><span class="x">×</span><span>UNITUS</span></div>
     <div class="eyebrow">Sponsorship Proposal</div>
     <h1 class="serif">HUB Lawn<br>Worship Night</h1>
-    <p class="lead">An outdoor live-music night on Penn State's campus, and an invitation for Unitus to be part of it.</p>
+    <p class="lead">An outdoor live-music night on Penn State's campus, and an invitation for UNITUS to be part of it.</p>
     <div class="meta">
       <div><span>Date</span><b>September 13, 2026</b></div>
       <div><span>Location</span><b>HUB Lawn · Penn State, University Park</b></div>
@@ -214,15 +214,15 @@ const HTML = `<!DOCTYPE html>
 <!-- BENEFITS -->
 <section class="benefits">
   <div class="max">
-    <div class="eyebrow">What Unitus Gets</div>
-    <h2 class="serif">What's in it for Unitus.</h2>
+    <div class="eyebrow">What UNITUS Gets</div>
+    <h2 class="serif">What's in it for UNITUS.</h2>
     <div class="blist">
       <div class="benefit"><div class="num">01</div><div><h3>700 to 1,000 students, in person</h3><p>Direct, in-person exposure to your product with one of the most concentrated student audiences on campus all semester.</p></div></div>
       <div class="benefit"><div class="num">02</div><div><h3>Your own tent and table</h3><p>A dedicated 10×10 tent with a table and sides for sampling, product display, sign-ups, and face-to-face presence all night.</p></div></div>
       <div class="benefit"><div class="num">03</div><div><h3>Content creators on-site</h3><p>Student content creators will be filming and promoting the event, so your brand reaches well beyond the lawn across their channels.</p></div></div>
-      <div class="benefit"><div class="num">04</div><div><h3>Penn State athletes present</h3><p>PSU athletes will be in attendance, an open door if Unitus is interested in NIL or college-athlete partnerships.</p></div></div>
+      <div class="benefit"><div class="num">04</div><div><h3>Penn State athletes present</h3><p>PSU athletes will be in attendance, an open door if UNITUS is interested in NIL or college-athlete partnerships.</p></div></div>
       <div class="benefit"><div class="num">05</div><div><h3>Logo on signage and screen</h3><p>Your logo on event signage and the 20ft stage screen, plus shout-outs from the stage during the night.</p></div></div>
-      <div class="benefit"><div class="num">06</div><div><h3>Custom Unitus merch</h3><p>An optional co-designed Unitus piece for the event (see next page).</p></div></div>
+      <div class="benefit"><div class="num">06</div><div><h3>Custom UNITUS merch</h3><p>An optional co-designed UNITUS piece for the event (see next page).</p></div></div>
     </div>
   </div>
 </section>
@@ -231,8 +231,8 @@ const HTML = `<!DOCTYPE html>
 <section class="merch">
   <div class="max">
     <span class="pill">Collaborative Merch</span>
-    <h2 class="serif">Custom Unitus merch for the event.</h2>
-    <p class="lead" style="color:var(--muted);max-width:56ch;">If it's useful for the brand, we could produce custom Unitus clothing for the night, design it together, put it on students, and split the profits from any we sell. The focus stays on Unitus, not on our club.</p>
+    <h2 class="serif">Custom UNITUS merch for the event.</h2>
+    <p class="lead" style="color:var(--muted);max-width:56ch;">If it's useful for the brand, we could produce custom UNITUS clothing for the night, design it together, put it on students, and split the profits from any we sell. The focus stays on UNITUS, not on our club.</p>
     <p class="note">Fully optional. We're already running our own event apparel either way, so this is purely a bonus if you want it.</p>
   </div>
 </section>
@@ -241,7 +241,7 @@ const HTML = `<!DOCTYPE html>
 <section class="close">
   <div class="max">
     <div class="eyebrow" style="color:var(--accent-soft);">In Short</div>
-    <h2 class="serif">We'd love to have Unitus involved.</h2>
+    <h2 class="serif">We'd love to have UNITUS involved.</h2>
     <p class="lead">$4,183.91 left to raise, a thousand students on the lawn, and plenty of ways to make it a fit for you. Happy to shape the details together.</p>
     <div class="contact">
       <div><span>Host Organization</span><b>Worship Music &amp; Arts Club at Penn State</b></div>

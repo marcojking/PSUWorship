@@ -28,6 +28,17 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "WM&A",
   },
+  openGraph: {
+    title: "WM&A",
+    description: "Worship Music & Arts Club at Penn State",
+    siteName: "WM&A",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WM&A",
+    description: "Worship Music & Arts Club at Penn State",
+  },
 };
 
 export const viewport: Viewport = {
