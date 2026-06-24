@@ -45,6 +45,13 @@ export function ApplicantDetailModal({ submission, onClose }: ApplicantDetailMod
           </div>
         )}
 
+        {submission.notes && (
+          <div style={{ marginBottom: 20 }}>
+            <Label>Notes</Label>
+            <p style={{ fontSize: '0.85rem', fontWeight: 300, color: '#003049', marginTop: 4, whiteSpace: 'pre-wrap' }}>{submission.notes}</p>
+          </div>
+        )}
+
         {submission.videoUrl && (
           <div style={{ marginBottom: 20 }}>
             <Label>Video</Label>

@@ -11,9 +11,12 @@ interface ChurchDetailModalProps {
 
 export function ChurchDetailModal({ church, onClose }: ChurchDetailModalProps) {
   const updateFollowUp = useMutation(api.churchOutreach.updateFollowUp);
+  const setType = useMutation(api.churchOutreach.setType);
+  const remove = useMutation(api.churchOutreach.remove);
   const [followUpNotes, setFollowUpNotes] = useState(church.followUpNotes ?? '');
   const [contactDate, setContactDate] = useState(church.contactDate ?? '');
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function handleSave() {
     setSaving(true);
@@ -27,6 +30,17 @@ export function ChurchDetailModal({ church, onClose }: ChurchDetailModalProps) {
       setSaving(false);
     }
   }
+
+  async function handleDelete() {
+    await remove({ id: church._id });
+    onClose();
+  }
+
+  async function handleSetType(type: 'church' | 'campus_ministry') {
+    await setType({ id: church._id, type });
+  }
+
+  const isCampusMinistry = church.type === 'campus_ministry';
 
   return (
     <div
@@ -45,6 +59,15 @@ export function ChurchDetailModal({ church, onClose }: ChurchDetailModalProps) {
             )}
           </div>
           <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(0,48,73,0.4)', fontSize: '1.4rem', lineHeight: 1 }}>×</button>
+        </div>
+
+        {/* Type toggle */}
+        <div style={{ marginBottom: 20 }}>
+          <Label>Type</Label>
+          <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+            <TypeButton active={!isCampusMinistry} onClick={() => handleSetType('church')}>Church</TypeButton>
+            <TypeButton active={isCampusMinistry} onClick={() => handleSetType('campus_ministry')}>Campus Ministry</TypeButton>
+          </div>
         </div>
 
         {church.address && <Field label="Address" value={church.address} />}
@@ -74,15 +97,63 @@ export function ChurchDetailModal({ church, onClose }: ChurchDetailModalProps) {
           />
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          style={{ fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.08em', padding: '9px 20px', borderRadius: 999, background: '#003049', color: '#fff7eb', border: 'none', cursor: 'pointer', opacity: saving ? 0.6 : 1 }}
-        >
-          {saving ? 'Saving…' : 'Save'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            style={{ fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.08em', padding: '9px 20px', borderRadius: 999, background: '#003049', color: '#fff7eb', border: 'none', cursor: 'pointer', opacity: saving ? 0.6 : 1 }}
+          >
+            {saving ? 'Saving…' : 'Save'}
+          </button>
+
+          {confirmDelete ? (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span style={{ fontSize: '0.72rem', color: '#b45741' }}>Remove this entry?</span>
+              <button
+                onClick={handleDelete}
+                style={{ fontSize: '0.72rem', fontWeight: 600, padding: '6px 14px', borderRadius: 999, background: '#b45741', color: '#fff', border: 'none', cursor: 'pointer' }}
+              >
+                Yes, remove
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                style={{ fontSize: '0.72rem', padding: '6px 14px', borderRadius: 999, background: 'none', color: 'rgba(0,48,73,0.5)', border: '1px solid rgba(0,48,73,0.15)', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              style={{ fontSize: '0.72rem', fontWeight: 400, color: 'rgba(180,87,65,0.6)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0' }}
+            >
+              Remove
+            </button>
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+function TypeButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        fontSize: '0.72rem',
+        fontWeight: 600,
+        letterSpacing: '0.05em',
+        padding: '6px 14px',
+        borderRadius: 999,
+        border: active ? 'none' : '1px solid rgba(0,48,73,0.15)',
+        background: active ? '#003049' : 'transparent',
+        color: active ? '#fff7eb' : 'rgba(0,48,73,0.45)',
+        cursor: 'pointer',
+      }}
+    >
+      {children}
+    </button>
   );
 }
 

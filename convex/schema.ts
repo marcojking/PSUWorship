@@ -225,7 +225,8 @@ export default defineSchema({
     roles: v.array(v.string()),
     worshipTeam: v.boolean(),
     instruments: v.optional(v.string()),
-    videoStorageId: v.id("_storage"),
+    videoStorageId: v.optional(v.id("_storage")),
+    notes: v.optional(v.string()),
     submittedAt: v.number(),
     // Legacy fields from old schema — kept for existing documents
     requestsCall: v.optional(v.boolean()),
@@ -248,6 +249,7 @@ export default defineSchema({
 
   churchOutreach: defineTable({
     name: v.string(),
+    type: v.optional(v.union(v.literal("church"), v.literal("campus_ministry"))),
     denomination: v.optional(v.string()),
     address: v.optional(v.string()),
     phone: v.optional(v.string()),

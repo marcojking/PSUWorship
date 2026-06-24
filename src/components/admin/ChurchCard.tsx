@@ -11,9 +11,12 @@ export type ChurchStage =
   | 'involved_not_supporting'
   | 'non_involved';
 
+export type ChurchType = 'church' | 'campus_ministry';
+
 export type ChurchOutreach = {
   _id: Id<'churchOutreach'>;
   name: string;
+  type?: ChurchType;
   denomination?: string;
   address?: string;
   phone?: string;
@@ -38,12 +41,14 @@ export function ChurchCard({ church, onOpenDetail }: ChurchCardProps) {
     data: { stage: church.stage },
   });
 
+  const isCampusMinistry = church.type === 'campus_ministry';
+
   return (
     <div
       ref={setNodeRef}
       style={{
         borderRadius: 14,
-        border: '1px solid rgba(0,48,73,0.1)',
+        border: `1px solid ${isCampusMinistry ? 'rgba(180,87,65,0.18)' : 'rgba(0,48,73,0.1)'}`,
         background: '#fff',
         padding: '12px 14px',
         display: 'flex',
@@ -71,7 +76,14 @@ export function ChurchCard({ church, onOpenDetail }: ChurchCardProps) {
           onClick={() => onOpenDetail(church._id)}
           style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
         >
-          <p className="font-cormorant" style={{ fontSize: '1.05rem', fontWeight: 600, color: '#003049', lineHeight: 1.2 }}>{church.name}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <p className="font-cormorant" style={{ fontSize: '1.05rem', fontWeight: 600, color: '#003049', lineHeight: 1.2 }}>{church.name}</p>
+            {isCampusMinistry && (
+              <span style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#b45741', background: 'rgba(180,87,65,0.1)', borderRadius: 999, padding: '2px 7px', flexShrink: 0 }}>
+                Campus Ministry
+              </span>
+            )}
+          </div>
           {church.denomination && (
             <p style={{ fontSize: '0.68rem', fontWeight: 300, color: 'rgba(0,48,73,0.45)', marginTop: 2 }}>{church.denomination}</p>
           )}

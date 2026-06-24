@@ -12,7 +12,7 @@ export const list = query({
     return await Promise.all(
       rows.map(async (r) => ({
         ...r,
-        videoUrl: await ctx.storage.getUrl(r.videoStorageId),
+        videoUrl: r.videoStorageId ? await ctx.storage.getUrl(r.videoStorageId) : null,
       }))
     );
   },
@@ -43,6 +43,25 @@ export const submit = mutation({
     worshipTeam: v.boolean(),
     instruments: v.optional(v.string()),
     videoStorageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("leadershipInterest", {
+      ...args,
+      submittedAt: Date.now(),
+    });
+  },
+});
+
+export const adminCreate = mutation({
+  args: {
+    name: v.string(),
+    email: v.string(),
+    gradYear: v.number(),
+    weeklyHours: v.number(),
+    roles: v.array(v.string()),
+    worshipTeam: v.boolean(),
+    instruments: v.optional(v.string()),
+    notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("leadershipInterest", {

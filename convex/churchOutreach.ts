@@ -10,6 +10,8 @@ const stageValidator = v.union(
   v.literal("non_involved"),
 );
 
+const typeValidator = v.union(v.literal("church"), v.literal("campus_ministry"));
+
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -24,6 +26,7 @@ export const list = query({
 export const create = mutation({
   args: {
     name: v.string(),
+    type: v.optional(typeValidator),
     denomination: v.optional(v.string()),
     address: v.optional(v.string()),
     phone: v.optional(v.string()),
@@ -61,5 +64,22 @@ export const updateFollowUp = mutation({
   },
   handler: async (ctx, { id, followUpNotes, contactDate }) => {
     await ctx.db.patch(id, { followUpNotes, contactDate });
+  },
+});
+
+export const setType = mutation({
+  args: {
+    id: v.id("churchOutreach"),
+    type: typeValidator,
+  },
+  handler: async (ctx, { id, type }) => {
+    await ctx.db.patch(id, { type });
+  },
+});
+
+export const remove = mutation({
+  args: { id: v.id("churchOutreach") },
+  handler: async (ctx, { id }) => {
+    await ctx.db.delete(id);
   },
 });

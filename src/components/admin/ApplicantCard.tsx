@@ -17,6 +17,7 @@ export type Submission = {
   roles: string[];
   worshipTeam: boolean;
   instruments?: string;
+  notes?: string;
   videoUrl: string | null;
   submittedAt: number;
   stage?: Stage;

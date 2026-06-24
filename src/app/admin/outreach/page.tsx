@@ -21,7 +21,7 @@ export default function OutreachPage() {
             Church Outreach
           </h1>
           <p style={{ fontSize: '0.85rem', fontWeight: 300, color: 'rgba(0,48,73,0.45)', marginTop: 10 }}>
-            Fall 2026 · Penn State Area Churches
+            Fall 2026 · Penn State Area Churches & Campus Ministries
           </p>
         </div>
 

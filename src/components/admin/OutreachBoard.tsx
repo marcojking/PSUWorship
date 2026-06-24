@@ -76,7 +76,7 @@ export function OutreachBoard() {
           onClick={() => setShowAddModal(true)}
           style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', padding: '8px 16px', borderRadius: 999, background: '#003049', color: '#fff7eb', border: 'none', cursor: 'pointer' }}
         >
-          + Add Church
+          + Add Entry
         </button>
       </div>
 
