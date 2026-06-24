@@ -47,7 +47,7 @@ Only `name` is required — manually-added churches may not have every field fil
 ## Convex Functions (`convex/churchOutreach.ts`)
 
 - `list` (query) — returns all rows, no pagination needed at this volume.
-- `create` (mutation) — args match the optional/required fields above; used both by the "+ Add church" UI and the one-time seed script. Sets `stage: "unprocessed"` and `createdAt: Date.now()` server-side (not passed by the caller).
+- `create` (mutation) — args match the optional/required fields above, plus an optional `stage` (defaults to `"unprocessed"` server-side when omitted — `AddChurchModal` omits it, the seed script passes `"approved"` for the one pre-vetted row). `createdAt: Date.now()` is always server-set, never passed by the caller.
 - `setStage` (mutation) — `{ id, stage }`, patches `stage` only. Mirrors `leadershipInterest.setStage`.
 - `updateFollowUp` (mutation) — `{ id, followUpNotes, contactDate }`, patches both fields together (modal has one Save button, not autosave-per-keystroke).
 
