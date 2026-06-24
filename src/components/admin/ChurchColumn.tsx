@@ -25,7 +25,7 @@ export function ChurchColumn({ id, title, churches, onOpenDetail }: ChurchColumn
           display: 'flex',
           flexDirection: 'column',
           gap: 10,
-          minHeight: 120,
+          minHeight: 'max(500px, 60vh)',
           padding: 8,
           borderRadius: 14,
           background: isOver ? 'rgba(180,87,65,0.06)' : 'rgba(0,48,73,0.02)',

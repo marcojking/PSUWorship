@@ -46,6 +46,8 @@ export function ChurchCard({ church, onOpenDetail }: ChurchCardProps) {
   return (
     <div
       ref={setNodeRef}
+      {...attributes}
+      {...listeners}
       style={{
         borderRadius: 14,
         border: `1px solid ${isCampusMinistry ? 'rgba(180,87,65,0.18)' : 'rgba(0,48,73,0.1)'}`,
@@ -57,24 +59,26 @@ export function ChurchCard({ church, onOpenDetail }: ChurchCardProps) {
         transform: transform ? CSS.Translate.toString(transform) : undefined,
         opacity: isDragging ? 0.4 : 1,
         boxShadow: isDragging ? 'none' : '0 1px 2px rgba(0,48,73,0.06)',
+        cursor: isDragging ? 'grabbing' : 'grab',
+        touchAction: 'none',
+        userSelect: 'none',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-        <button
-          {...attributes}
-          {...listeners}
-          aria-label="Drag to move"
-          style={{ flexShrink: 0, marginTop: 2, cursor: 'grab', background: 'none', border: 'none', padding: 2, color: 'rgba(0,48,73,0.3)', touchAction: 'none' }}
+        {/* Grip dots — visual only, drag fires from the whole card */}
+        <div
+          aria-hidden
+          style={{ flexShrink: 0, marginTop: 2, padding: 2, color: 'rgba(0,48,73,0.3)' }}
         >
           <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
             <circle cx="2" cy="2" r="1.5" /><circle cx="8" cy="2" r="1.5" />
             <circle cx="2" cy="8" r="1.5" /><circle cx="8" cy="8" r="1.5" />
             <circle cx="2" cy="14" r="1.5" /><circle cx="8" cy="14" r="1.5" />
           </svg>
-        </button>
+        </div>
         <button
-          onClick={() => onOpenDetail(church._id)}
-          style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          onClick={(e) => { e.stopPropagation(); onOpenDetail(church._id); }}
+          style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: 0, touchAction: 'auto' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             <p className="font-cormorant" style={{ fontSize: '1.05rem', fontWeight: 600, color: '#003049', lineHeight: 1.2 }}>{church.name}</p>
@@ -96,7 +100,7 @@ export function ChurchCard({ church, onOpenDetail }: ChurchCardProps) {
             href={church.website.startsWith('http') ? church.website : `https://${church.website}`}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); }}
             aria-label="Visit website"
             style={{ flexShrink: 0, marginTop: 2, color: 'rgba(0,48,73,0.25)', display: 'flex', alignItems: 'center' }}
           >
