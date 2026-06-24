@@ -41,6 +41,11 @@ export default function AdminPage() {
             label="Donations"
             sub="gifts submitted through give page"
           />
+          <NavCard
+            href="/admin/outreach"
+            label="Church Outreach"
+            sub="church partnership tracking"
+          />
         </div>
       </div>
     </div>
