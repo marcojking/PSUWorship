@@ -6,6 +6,7 @@ import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
 import { ChurchColumn } from './ChurchColumn';
 import { ChurchDetailModal } from './ChurchDetailModal';
+import { AddChurchModal } from './AddChurchModal';
 import type { ChurchOutreach, ChurchStage } from './ChurchCard';
 
 const COLUMNS: { id: ChurchStage; title: string }[] = [
@@ -23,6 +24,7 @@ export function OutreachBoard() {
   const [pendingMoves, setPendingMoves] = useState<Record<string, ChurchStage>>({});
   const [detailId, setDetailId] = useState<Id<'churchOutreach'> | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -69,6 +71,15 @@ export function OutreachBoard() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <button
+          onClick={() => setShowAddModal(true)}
+          style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', padding: '8px 16px', borderRadius: 999, background: '#003049', color: '#fff7eb', border: 'none', cursor: 'pointer' }}
+        >
+          + Add Church
+        </button>
+      </div>
+
       {error && (
         <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 10, background: 'rgba(180,87,65,0.1)', color: '#b45741', fontSize: '0.78rem' }}>
           {error}
@@ -90,6 +101,9 @@ export function OutreachBoard() {
 
       {detailChurch && (
         <ChurchDetailModal church={detailChurch} onClose={() => setDetailId(null)} />
+      )}
+      {showAddModal && (
+        <AddChurchModal onClose={() => setShowAddModal(false)} />
       )}
     </div>
   );
