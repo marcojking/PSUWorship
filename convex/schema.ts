@@ -226,6 +226,7 @@ export default defineSchema({
     worshipTeam: v.boolean(),
     instruments: v.optional(v.string()),
     videoStorageId: v.optional(v.id("_storage")),
+    videoDriveUrl: v.optional(v.string()),
     notes: v.optional(v.string()),
     submittedAt: v.number(),
     // Legacy fields from old schema — kept for existing documents

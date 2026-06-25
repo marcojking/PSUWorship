@@ -61,6 +61,7 @@ export const adminCreate = mutation({
     roles: v.array(v.string()),
     worshipTeam: v.boolean(),
     instruments: v.optional(v.string()),
+    videoDriveUrl: v.optional(v.string()),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -68,6 +69,17 @@ export const adminCreate = mutation({
       ...args,
       submittedAt: Date.now(),
     });
+  },
+});
+
+export const adminPatch = mutation({
+  args: {
+    id: v.id("leadershipInterest"),
+    videoDriveUrl: v.optional(v.string()),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, { id, ...fields }) => {
+    await ctx.db.patch(id, fields);
   },
 });
 

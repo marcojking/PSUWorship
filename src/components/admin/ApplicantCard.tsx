@@ -18,6 +18,7 @@ export type Submission = {
   worshipTeam: boolean;
   instruments?: string;
   notes?: string;
+  videoDriveUrl?: string;
   videoUrl: string | null;
   submittedAt: number;
   stage?: Stage;

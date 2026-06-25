@@ -52,12 +52,27 @@ export function ApplicantDetailModal({ submission, onClose }: ApplicantDetailMod
           </div>
         )}
 
-        {submission.videoUrl && (
+        {submission.videoUrl ? (
           <div style={{ marginBottom: 20 }}>
             <Label>Video</Label>
             <video src={submission.videoUrl} controls style={{ marginTop: 10, width: '100%', borderRadius: 12, maxHeight: 300, background: 'rgba(0,48,73,0.04)' }} />
           </div>
-        )}
+        ) : submission.videoDriveUrl ? (
+          <div style={{ marginBottom: 20 }}>
+            <Label>Video</Label>
+            <a
+              href={submission.videoDriveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.06em', padding: '9px 18px', borderRadius: 999, background: 'rgba(0,48,73,0.07)', color: '#003049', textDecoration: 'none' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              Watch Video (Google Drive)
+            </a>
+          </div>
+        ) : null}
 
         <a href={`mailto:${submission.email}`} style={{ fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.08em', padding: '9px 20px', borderRadius: 999, background: '#003049', color: '#fff7eb', textDecoration: 'none', display: 'inline-block' }}>
           Email {submission.name.split(' ')[0]}
