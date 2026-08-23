@@ -241,6 +241,28 @@ export default defineSchema({
     assignedRole: v.optional(v.string()),
   }).index("by_submittedAt", ["submittedAt"]),
 
+  // Public volunteer sign-ups from /sept13. Distributed to local churches and
+  // campus ministries, so `church` matters — it is how we know which congregation
+  // a volunteer came through, and who to thank afterwards.
+  eventVolunteers: defineTable({
+    name: v.string(),
+    email: v.string(),
+    phone: v.optional(v.string()),
+    church: v.optional(v.string()),
+    roles: v.array(v.string()),
+    // Only asked when they pick media — what camera or gear they could bring.
+    // Free text rather than a yes/no: "just my phone" and "Sony A7III" are both
+    // useful answers and mean very different things for planning.
+    camera: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    submittedAt: v.number(),
+    // Which event this is for, so the table survives past Sept 13 2026.
+    event: v.string(),
+    contacted: v.optional(v.boolean()),
+  })
+    .index("by_submittedAt", ["submittedAt"])
+    .index("by_event", ["event"]),
+
   callRequests: defineTable({
     name: v.string(),
     contact: v.string(),
