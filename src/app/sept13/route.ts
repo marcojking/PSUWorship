@@ -209,7 +209,9 @@ const HTML = `<!DOCTYPE html>
     border-top:1px solid var(--line);
   }
   .sec > .k{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-bottom:1.1rem}
-  .bill{display:grid;gap:1.05rem;text-align:left}
+  /* Same thin rounded frame the printed flyer and email-ad PDFs put around this
+     section — the whole promo family shares it now. */
+  .bill{display:grid;gap:1.05rem;text-align:left;border:1px solid #3a3a3a;border-radius:16px;padding:1.3rem 1.4rem}
   .bill .row{display:grid;grid-template-columns:auto 1fr;gap:.85rem;align-items:start}
   .bill .dot{width:5px;height:5px;border-radius:50%;background:var(--figs);margin-top:.55rem}
   .bill .t{font-family:'Oswald',sans-serif;font-size:1rem;text-transform:uppercase;letter-spacing:.07em;font-weight:500}
