@@ -24,21 +24,31 @@ const RSVP_URL: string | null = null;
 
 const UNITUS_URL = "https://weareunitus.com";
 
-/* thefigsband.com does not resolve (verified Aug 2026 — connection times out), so
-   The Figs point at Instagram, which is live and is where they actually post. */
+/* Both artists link to Spotify from the lineup. Neither band's own domain is used:
+   thefigsband.com does not resolve at all, and gentleandlowlyband.com was
+   unreachable when this shipped. Share trackers (?si=) are stripped — they
+   identify whoever shared the link and have no place on a public page. */
 const LINKS = {
-  figs: "https://www.instagram.com/the.figs.official/",
-  /* Verified artist, not guessed: 1.5M monthly listeners, releases match
-     (LEMONADE 2025, How Did We Get Here? 2026). A second Spotify artist is also
-     called "The Figs" — a 1990s duo who became Pandora's Vox. Wrong band. */
+  /* Verified, not guessed: 1.5M monthly listeners, releases match (LEMONADE 2025,
+     How Did We Get Here? 2026). A DIFFERENT Spotify artist is also called "The
+     Figs" — a 1990s duo who became Pandora's Vox — and it outranks this one in
+     search. Check the releases before ever changing this ID. */
   figsSpotify: "https://open.spotify.com/artist/0guOtxDAwFFEGGCxrbW5KF",
-  /* Spotify rather than gentleandlowlyband.com: that domain was unreachable when
-     this shipped. Verified artist — "gentle & lowly", releases "Your Son before me"
-     and "peace like a river" (2026). The ?si= share tracker is stripped on purpose;
-     it identifies whoever shared the link and does not belong on a public page. */
+  // Verified: "gentle & lowly", "Your Son before me" / "peace like a river" (2026).
   gentleAndLowly: "https://open.spotify.com/artist/2rE4LSwX4hBzbu424HqILy",
-  unitus: UNITUS_URL,
 };
+
+/* Inline SVG rather than a "↗" character: iOS renders U+2197 as a blue EMOJI arrow,
+   which looked broken next to the type on a phone. An SVG inherits currentColor and
+   is identical everywhere. */
+const SPOTIFY_ICON =
+  '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+  '<path fill="currentColor" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 ' +
+  '17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421' +
+  '.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239' +
+  '-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 ' +
+  '12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601' +
+  '.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>';
 
 // Google Calendar expects UTC. Sept 13 2026 is EDT (UTC-4), so 6:30 PM ET = 22:30Z.
 const GCAL =
@@ -107,6 +117,32 @@ const HTML = `<!DOCTYPE html>
     font-size:clamp(3.3rem,16vw,6rem);
     line-height:.92;
     color:var(--figs);
+  }
+
+  /* THE FIGS is a CUTOUT: the letterforms are a window onto a pink, faintly
+     grained "paper" layer sitting behind the black. Two background layers —
+     SVG fractal-noise grain over a soft vertical gradient — clipped to the text.
+
+     Behind @supports because background-clip:text with a transparent fill makes
+     the word INVISIBLE where it is unsupported. The flat colour above is the
+     fallback and has to survive. */
+  @supports ((-webkit-background-clip:text) or (background-clip:text)){
+    h1{
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E"),
+        linear-gradient(176deg,#e0b6d6 0%,#d4a3c7 48%,#bf8db2 100%);
+      background-size:220px 220px, 100% 260%;
+      background-repeat:repeat, no-repeat;
+      background-position:0 0, 50% 0;
+      background-blend-mode:overlay, normal;
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+      color:transparent;
+    }
+  }
+  @media (prefers-reduced-motion:reduce){
+    h1{background-attachment:scroll}
   }
   .rule{height:1px;background:var(--line);width:min(220px,60%);margin:clamp(1rem,4vw,1.4rem) auto}
   h2{
@@ -188,64 +224,24 @@ const HTML = `<!DOCTYPE html>
     text-decoration:none;padding:.18rem .5rem;border:1px solid var(--line);
     border-radius:999px;transition:color .18s ease,border-color .18s ease;
   }
-  .bill .lst::after{content:" \\2197"}
+  .bill .lst .ico{width:.85em;height:.85em;vertical-align:-.12em;margin-right:.4em}
   .bill .lst:hover,.bill .lst:focus-visible{color:var(--white);border-color:var(--white)}
   /* Spotify's own green, but only on hover and only where it IS Spotify. */
   .bill .lst.sp:hover,.bill .lst.sp:focus-visible{color:#1db954;border-color:#1db954}
+  /* On a phone the title plus pill wraps; keep the pill from stranding itself
+     alone on a line by letting the title and pill share a flex row. */
+  .bill .t{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem}
+  .bill .t .lst{margin-left:0}
 
-  /* LINKS */
-  .links{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
-  .links a{
-    display:inline-block;padding:.6rem 1.1rem;border:1px solid var(--line);
-    color:var(--dim);text-decoration:none;font-size:.68rem;letter-spacing:.16em;
-    text-transform:uppercase;transition:border-color .18s ease,color .18s ease;
-  }
-  .links a:hover,.links a:focus-visible{border-color:var(--white);color:var(--white)}
 
-  /* VOLUNTEER — collapsed behind the Volunteer button so a normal attendee never
-     has to scroll past a form they don't want. Hidden via the [hidden] attribute
-     set by JS on load, NOT in CSS: if scripting fails the section stays visible
-     and reachable rather than becoming permanently invisible. */
-  .vol[hidden]{display:none}
-  .vol .rl{margin:0;font-size:.85rem;letter-spacing:0;text-transform:none;color:var(--dim)}
-  .vol{
-    margin-top:clamp(2.5rem,9vw,3.25rem);
-    padding-top:clamp(1.5rem,6vw,2rem);
-    border-top:1px solid var(--line);
-    text-align:left;
+  /* Collapsed behind the "Come early" button. Hidden via the [hidden] attribute set
+     by JS on load, NOT in CSS — if scripting fails the text stays visible instead of
+     becoming permanently unreachable. */
+  .sec[hidden]{display:none}
+  .invite{
+    color:var(--dim);font-size:.92rem;font-weight:300;line-height:1.6;
+    max-width:42ch;margin:0 auto;
   }
-  .vol .k{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);text-align:center}
-  .vol h3{
-    font-family:'Oswald',sans-serif;font-weight:500;text-transform:uppercase;
-    letter-spacing:.1em;font-size:clamp(1.05rem,4.4vw,1.35rem);
-    margin:.7rem 0 .5rem;text-align:center;
-  }
-  .vol .blurb{color:var(--dim);font-size:.9rem;font-weight:300;text-align:center;margin-bottom:1.6rem}
-  .vol label{display:block;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:.9rem 0 .35rem}
-  .vol input[type=text],.vol input[type=email],.vol input[type=tel],.vol textarea{
-    width:100%;background:#131313;border:1px solid var(--line);border-radius:6px;
-    color:var(--white);font:inherit;font-size:.95rem;padding:.7rem .8rem;
-  }
-  .vol textarea{resize:vertical;min-height:4.5rem}
-  .vol input:focus,.vol textarea:focus{outline:none;border-color:#5a5a5a}
-  .roles{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem .9rem;margin-top:.35rem}
-  .roles span{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--dim);font-weight:300}
-  .roles input{accent-color:var(--figs);width:1rem;height:1rem;flex:0 0 auto}
-  .vol .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-  .vol button{
-    margin-top:1.4rem;width:100%;padding:.95rem 1rem;border:1px solid var(--white);
-    background:var(--white);color:var(--black);font:inherit;font-size:.72rem;
-    letter-spacing:.22em;text-transform:uppercase;font-weight:600;cursor:pointer;
-    border-radius:0;transition:opacity .18s ease;
-  }
-  .vol button:hover{opacity:.85}
-  .vol button[disabled]{opacity:.5;cursor:default}
-  .vol .msg{margin-top:.9rem;font-size:.85rem;text-align:center;min-height:1.2em}
-  .vol .msg.err{color:#ff9b9b}
-  .vol .msg.ok{color:var(--figs)}
-  .vol .done{text-align:center;color:var(--white);font-size:1rem;padding:1.5rem 0}
-  .vol .done b{color:var(--figs)}
-  @media(max-width:420px){.roles{grid-template-columns:1fr}}
 
   /* Wordmark | wing mark, the same lockup used on the printed card. Both files are
      solid black art with alpha, so invert() paints them white on the dark field. */
@@ -289,7 +285,7 @@ const HTML = `<!DOCTYPE html>
           <div class="d">Come hungry.</div>
         </div></div>
         <div class="row"><span class="dot"></span><div>
-          <div class="t">The Figs, live<a class="lst sp" href="${LINKS.figsSpotify}" target="_blank" rel="noopener">Spotify</a></div>
+          <div class="t">The Figs, live<a class="lst sp" href="${LINKS.figsSpotify}" target="_blank" rel="noopener">${SPOTIFY_ICON}Spotify</a></div>
           <div class="d">A folk band playing a full set on the lawn.</div>
         </div></div>
         <div class="row"><span class="dot"></span><div>
@@ -298,7 +294,7 @@ const HTML = `<!DOCTYPE html>
             has meant to them.</div>
         </div></div>
         <div class="row"><span class="dot"></span><div>
-          <div class="t">Worship &mdash; gentle &amp; lowly<a class="lst sp" href="${LINKS.gentleAndLowly}" target="_blank" rel="noopener">Spotify</a></div>
+          <div class="t">Worship &mdash; gentle &amp; lowly<a class="lst sp" href="${LINKS.gentleAndLowly}" target="_blank" rel="noopener">${SPOTIFY_ICON}Spotify</a></div>
         </div></div>
       </div>
     </section>
@@ -306,63 +302,15 @@ const HTML = `<!DOCTYPE html>
     <div class="actions">
       ${rsvpButton}
       <a class="btn${RSVP_URL ? "" : " primary"}" href="${GCAL}" target="_blank" rel="noopener">Add to Calendar</a>
-      <a class="btn" href="#volunteer" id="volBtn" aria-expanded="false" aria-controls="volunteer">Volunteer</a>
+      <a class="btn" href="#early" id="earlyBtn" aria-expanded="false" aria-controls="early">Come early</a>
     </div>
 
-    <section class="sec">
-      <div class="k">Who's involved</div>
-      <div class="links">
-        <a href="${LINKS.figs}" target="_blank" rel="noopener">The Figs</a>
-        <a href="${LINKS.gentleAndLowly}" target="_blank" rel="noopener">gentle &amp; lowly</a>
-        <a href="${LINKS.unitus}" target="_blank" rel="noopener">Unitus</a>
-      </div>
-    </section>
 
-    <section class="vol" id="volunteer">
-      <div class="k">Get involved</div>
-      <h3>Volunteer with us</h3>
-      <p class="blurb">This night exists so students hear about Jesus and find a church that
-        will keep walking with them afterwards. We're looking for Christians who'll help
-        welcome people onto the lawn, sit with them, pray with them, and share the love of
-        Christ — the work is far more about the person in front of you than the task.
-        Students, local churches and campus ministries all welcome.</p>
-
-      <form id="volForm" novalidate>
-        <label for="v-name">Name</label>
-        <input id="v-name" name="name" type="text" autocomplete="name" required>
-
-        <label for="v-email">Email</label>
-        <input id="v-email" name="email" type="email" autocomplete="email" required>
-
-        <label for="v-phone">Phone <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
-        <input id="v-phone" name="phone" type="tel" autocomplete="tel">
-
-        <label for="v-church">Church or ministry <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
-        <input id="v-church" name="church" type="text">
-
-        <label>Where you'd like to help</label>
-        <div class="roles">
-          <span><input type="checkbox" name="roles" value="hospitality" id="r1"><label for="r1" class="rl">Hospitality</label></span>
-          <span><input type="checkbox" name="roles" value="media" id="r2"><label for="r2" class="rl">Media (photo / video)</label></span>
-        </div>
-
-        <!-- Only shown once media is ticked. Free text on purpose: "just my phone"
-             and "Sony A7III" are both useful and mean very different things. -->
-        <div id="camWrap" hidden>
-          <label for="v-camera">Do you have a camera you could bring?
-            <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
-          <input id="v-camera" name="camera" type="text" placeholder="e.g. Sony A7 III, or just my phone">
-        </div>
-
-        <label for="v-notes">Anything else <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
-        <textarea id="v-notes" name="notes"></textarea>
-
-        <!-- Honeypot: hidden from people, irresistible to bots. -->
-        <div class="hp" aria-hidden="true"><label>Website<input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
-
-        <button type="submit">Sign me up</button>
-        <p class="msg" id="volMsg" role="status" aria-live="polite"></p>
-      </form>
+    <section class="sec" id="early">
+      <div class="k">Come early</div>
+      <p class="invite">We'll pray together at 6:15, before doors open at 6:30. If you'd like to
+        help welcome people, come find us then &mdash; students, churches and campus
+        ministries all welcome.</p>
     </section>
 
     <div class="partner">
@@ -382,86 +330,41 @@ const HTML = `<!DOCTYPE html>
 
 <script>
 (function(){
-  var form = document.getElementById('volForm');
-  var msg  = document.getElementById('volMsg');
-  var sec  = document.getElementById('volunteer');
-  var btn  = document.getElementById('volBtn');
-  if (!form) return;
+  var sec = document.getElementById('early');
+  var btn = document.getElementById('earlyBtn');
+  /* The pink "paper" behind the THE FIGS cutout drifts as you scroll, so it reads
+     as a layer sitting behind the black rather than painted onto it.
 
-  // Collapse from JS, not CSS, so a scripting failure leaves the form reachable.
-  if (sec && btn) {
-    sec.hidden = true;
-    btn.addEventListener('click', function(e){
-      e.preventDefault();
-      var opening = sec.hidden;
-      sec.hidden = !opening;
-      btn.setAttribute('aria-expanded', String(opening));
-      if (opening) {
-        sec.scrollIntoView({behavior:'smooth', block:'start'});
-        var first = document.getElementById('v-name');
-        if (first) setTimeout(function(){ first.focus({preventScroll:true}); }, 350);
-      }
-    });
-  }
-
-  // The camera question only makes sense if they picked media.
-  var media = document.getElementById('r2');
-  var camWrap = document.getElementById('camWrap');
-  if (media && camWrap) {
-    media.addEventListener('change', function(){
-      camWrap.hidden = !media.checked;
-      if (!media.checked) {
-        var c = document.getElementById('v-camera');
-        if (c) c.value = '';
-      }
-    });
-  }
-  form.addEventListener('submit', async function(e){
-    e.preventDefault();
-    var btn = form.querySelector('button[type=submit]');
-    var fd  = new FormData(form);
-    var payload = {
-      name:    (fd.get('name')    || '').toString(),
-      email:   (fd.get('email')   || '').toString(),
-      phone:   (fd.get('phone')   || '').toString(),
-      church:  (fd.get('church')  || '').toString(),
-      camera:  (fd.get('camera')  || '').toString(),
-      notes:   (fd.get('notes')   || '').toString(),
-      website: (fd.get('website') || '').toString(),
-      roles:   fd.getAll('roles').map(String)
+     Only background-position moves — no element is transformed, nothing reflows,
+     so this cannot push the rest of the page around or stutter the layout. The
+     gradient layer is oversized (260% tall) precisely so it has room to travel
+     without ever running out of paint. rAF-throttled, passive listener, and
+     skipped entirely for anyone who asked for reduced motion. */
+  var figs = document.querySelector('h1');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (figs && !reduce) {
+    var ticking = false;
+    var paint = function(){
+      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var grain = (y * 0.10).toFixed(1);
+      var paper = (y * 0.22).toFixed(1);
+      figs.style.backgroundPosition = '0 ' + grain + 'px, 50% ' + paper + 'px';
+      ticking = false;
     };
-    if (!payload.name.trim() || !payload.email.trim()) {
-      msg.className = 'msg err';
-      msg.textContent = 'Please add your name and email.';
-      return;
-    }
-    btn.disabled = true;
-    msg.className = 'msg';
-    msg.textContent = 'Sending…';
-    try {
-      var res = await fetch('/api/volunteer', {
-        method: 'POST',
-        headers: {'content-type':'application/json'},
-        body: JSON.stringify(payload)
-      });
-      var data = await res.json().catch(function(){ return {}; });
-      if (res.ok && data.ok) {
-        // Replace the form outright — leaving a filled-in form on screen invites
-        // a double submission and reads as though nothing happened.
-        form.outerHTML =
-          '<p class="done">Thank you, <b>' +
-          payload.name.trim().split(' ')[0].replace(/[<>&"]/g, '') +
-          '</b>.<br>We\\'ll be in touch before September 13.</p>';
-        return;
-      }
-      msg.className = 'msg err';
-      msg.textContent = data.error || 'Something went wrong. Please try again.';
-      btn.disabled = false;
-    } catch (err) {
-      msg.className = 'msg err';
-      msg.textContent = 'Network problem — please try again.';
-      btn.disabled = false;
-    }
+    window.addEventListener('scroll', function(){
+      if (!ticking) { ticking = true; window.requestAnimationFrame(paint); }
+    }, {passive:true});
+    paint();
+  }
+
+  if (!sec || !btn) return;
+  sec.hidden = true;
+  btn.addEventListener('click', function(e){
+    e.preventDefault();
+    var opening = sec.hidden;
+    sec.hidden = !opening;
+    btn.setAttribute('aria-expanded', String(opening));
+    if (opening) sec.scrollIntoView({behavior:'smooth', block:'center'});
   });
 })();
 </script>

@@ -16,7 +16,6 @@ import type * as designs from "../designs.js";
 import type * as donations from "../donations.js";
 import type * as eventChecks from "../eventChecks.js";
 import type * as eventGear from "../eventGear.js";
-import type * as eventVolunteers from "../eventVolunteers.js";
 import type * as events from "../events.js";
 import type * as gearItems from "../gearItems.js";
 import type * as leadershipInterest from "../leadershipInterest.js";
@@ -47,7 +46,6 @@ declare const fullApi: ApiFromModules<{
   donations: typeof donations;
   eventChecks: typeof eventChecks;
   eventGear: typeof eventGear;
-  eventVolunteers: typeof eventVolunteers;
   events: typeof events;
   gearItems: typeof gearItems;
   leadershipInterest: typeof leadershipInterest;
