@@ -119,6 +119,40 @@ const HTML = `<!DOCTYPE html>
     color:var(--figs);
   }
 
+  /* ROTATING HEADLINE — the three posters share this page, so the hero cycles
+     THE FIGS / PSU FOOTBALL / FREE PIZZA, each carrying its poster's colour,
+     1.5s apiece.
+     A grid stack (every span in the same cell) means the box is always as tall
+     as the tallest headline, so nothing below it moves as they swap. Pure CSS:
+     this route ships as a string with no client bundle, so there is no JS to
+     hydrate and it still animates with scripting disabled. */
+  h1.rot{display:grid}
+  h1.rot>span{
+    grid-area:1/1;
+    opacity:0;
+    animation:rot 4.5s infinite;
+    /* Every headline stays on ONE line. The stack is only ever one line tall, so
+       the rule and everything under it hold still through the whole cycle. */
+    white-space:nowrap;
+    --hg:linear-gradient(176deg,#e0b6d6 0%,#d4a3c7 48%,#bf8db2 100%);
+  }
+  h1.rot>span:nth-child(1){color:var(--figs)}
+  h1.rot>span:nth-child(2){color:#8fa8cc;--hg:linear-gradient(176deg,#a9bedd 0%,#8fa8cc 48%,#7791b8 100%);animation-delay:1.5s;font-size:clamp(2.6rem,13vw,5rem)}
+  h1.rot>span:nth-child(3){color:#e2a75c;--hg:linear-gradient(176deg,#efbe7d 0%,#e2a75c 48%,#c98d44 100%);animation-delay:3.0s}
+  /* Each headline owns a third of the loop and is fully GONE before the next
+     arrives. Deliberately not a cross-dissolve: two different words fading
+     through each other in the same grid cell superimposes the letterforms and
+     reads as garbled type, not as a transition. Fading out to nothing and back
+     in leaves a ~70ms gap that scans as a beat rather than a blank. */
+  @keyframes rot{
+    0%{opacity:0} 6%{opacity:1} 27%{opacity:1} 32%{opacity:0} 100%{opacity:0}
+  }
+  /* Motion-sensitive users get the first headline, held still. */
+  @media (prefers-reduced-motion:reduce){
+    h1.rot>span{animation:none}
+    h1.rot>span:nth-child(1){opacity:1}
+  }
+
   /* THE FIGS is a CUTOUT: the letterforms are a window onto a pink, faintly
      grained "paper" layer sitting behind the black. Two background layers —
      SVG fractal-noise grain over a soft vertical gradient — clipped to the text.
@@ -127,10 +161,10 @@ const HTML = `<!DOCTYPE html>
      the word INVISIBLE where it is unsupported. The flat colour above is the
      fallback and has to survive. */
   @supports ((-webkit-background-clip:text) or (background-clip:text)){
-    h1{
+    h1.rot>span{
       background-image:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E"),
-        linear-gradient(176deg,#e0b6d6 0%,#d4a3c7 48%,#bf8db2 100%);
+        var(--hg);
       background-size:220px 220px, 100% 260%;
       background-repeat:repeat, no-repeat;
       background-position:0 0, 50% 0;
@@ -144,7 +178,50 @@ const HTML = `<!DOCTYPE html>
   @media (prefers-reduced-motion:reduce){
     h1{background-attachment:scroll}
   }
-  .rule{height:1px;background:var(--line);width:min(220px,60%);margin:clamp(1rem,4vw,1.4rem) auto}
+  /* CHALK UNDERLINE — the flat 1px hairline replaced with a hand-drawn line.
+     Same trick the headline cutout already uses: feTurbulence noise, but fed to
+     feDisplacementMap so it shoves the stroke around instead of tinting it. That
+     gives the ragged, dusty edge chalk has. The wave is four QUADRATIC half-waves,
+     not cubics: a cubic segment with one control above the line and one below
+     cancels itself out and draws almost flat, which is what the first attempt did.
+     A quadratic reaches half its control offset, so the controls sit at ~2x the
+     amplitude actually wanted. Two passes: a
+     solid stroke, plus a wider, fainter, dashed one for the dust that skips off
+     the tooth of the board. Inline SVG — no canvas, no JS, no request. */
+  .rule{display:block;width:min(240px,66%);height:22px;margin:clamp(.6rem,3vw,1rem) auto;overflow:visible}
+  .rule .ink{stroke:#d8d8d8;opacity:.62}
+  .rule .dust{stroke:#d8d8d8;opacity:.20}
+
+  /* THE BOIL — lifted from /gospel, which does exactly this for the rules under its
+     contact fields (src/contact.ts, boilRules). It is NOT a tween. Three variants of
+     the same line, each jittered by well under a pixel, SNAPPED between on a ~160ms
+     clock — roughly 6fps. That stutter is the whole effect: it reads as hand-drawn
+     animation boiling, where every frame was redrawn slightly differently. Smoothly
+     interpolating the same three shapes looks like a wave instead, which is what an
+     earlier pass here did wrong.
+
+     step-end is what makes it snap: each keyframe's value HOLDS until the next one
+     rather than easing toward it. Jitter here is ~±2.5 units on a 240-wide
+     viewBox — pushed well past gospel's 0.9, which is subtle enough to be almost
+     subliminal at their scale; this line is short and isolated, so it needs more
+     throw to register as motion at all. */
+  @keyframes inkboil{
+    0%  {d:path("M6 11 Q 44 2, 82 11 Q 120 20, 158 11 Q 196 2, 234 11")}
+    33% {d:path("M7.1 13.1 Q 46.2 5, 83.9 8.6 Q 117.8 17.4, 155.9 13.4 Q 198.4 4.9, 232.2 8.7")}
+    66% {d:path("M4.6 8.8 Q 41.6 -0.6, 80.1 13.5 Q 122.4 22.5, 160.3 8.7 Q 193.5 -0.4, 235.7 13.4")}
+  }
+  @keyframes dustboil{
+    0%  {d:path("M8 12.2 Q 45 3.4, 83 12.2 Q 121 21, 159 12.2 Q 197 3.4, 232 12.2")}
+    33% {d:path("M9.2 14.4 Q 46.4 5.6, 84.1 10.4 Q 119.6 19.1, 157.7 14.5 Q 198.6 5.5, 230.9 10.5")}
+    66% {d:path("M6.7 10 Q 43.4 1.2, 81.6 14 Q 122.5 22.7, 160.6 10 Q 195.3 1.3, 233.4 14")}
+  }
+  .rule .ink{animation:inkboil .48s step-end infinite}
+  .rule .dust{animation:dustboil .48s step-end infinite}
+  /* gospel gates its whole boil clock on this; same here. */
+  @media (prefers-reduced-motion:reduce){
+    .rule .ink,.rule .dust{animation:none}
+  }
+}
   h2{
     font-family:'Oswald',sans-serif;
     font-weight:400;
@@ -213,7 +290,21 @@ const HTML = `<!DOCTYPE html>
      section — the whole promo family shares it now. */
   .bill{display:grid;gap:1.05rem;text-align:left;border:1px solid #3a3a3a;border-radius:16px;padding:1.3rem 1.4rem}
   .bill .row{display:grid;grid-template-columns:auto 1fr;gap:.85rem;align-items:start}
-  .bill .dot{width:5px;height:5px;border-radius:50%;background:var(--figs);margin-top:.55rem}
+  /* The dots track the headline's colour on the same 4.5s clock, but they only
+     ever CHANGE HUE — never fade out. Blinking four dots in and out alongside the
+     headline would read as a glitch; a slow tint shift reads as one system. Holds
+     on each colour, then a short fade timed to land with the headline swap. */
+  .bill .dot{width:5px;height:5px;border-radius:50%;background:var(--figs);margin-top:.55rem;
+    animation:dothue 4.5s infinite}
+  @keyframes dothue{
+    0%,27%   {background-color:#d4a3c7}
+    33%,60%  {background-color:#8fa8cc}
+    67%,94%  {background-color:#e2a75c}
+    100%     {background-color:#d4a3c7}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .bill .dot{animation:none}
+  }
   .bill .t{font-family:'Oswald',sans-serif;font-size:1rem;text-transform:uppercase;letter-spacing:.07em;font-weight:500}
   .bill .d{color:var(--dim);font-size:.88rem;font-weight:300;margin-top:.15rem;line-height:1.5}
   /* Small inline "Spotify" tag beside the band. Deliberately quiet — it is a way
@@ -272,8 +363,23 @@ const HTML = `<!DOCTYPE html>
 </head>
 <body>
   <main class="wrap">
-    <h1>${EVENT.artist}</h1>
-    <div class="rule"></div>
+    <h1 class="rot">
+      <span>${EVENT.artist}</span>
+      <span>PSU Football</span>
+      <span>Free pizza</span>
+    </h1>
+    <svg class="rule" viewBox="0 0 240 22" fill="none" aria-hidden="true" focusable="false">
+      <filter id="chalk" x="-15%" y="-80%" width="130%" height="260%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.62 0.42" numOctaves="3" seed="11" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="3.1" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <g filter="url(#chalk)">
+        <path class="ink" d="M6 11 Q 44 2, 82 11 Q 120 20, 158 11 Q 196 2, 234 11"
+              stroke-width="2.1" stroke-linecap="round"/>
+        <path class="dust" d="M8 12.2 Q 45 3.4, 83 12.2 Q 121 21, 159 12.2 Q 197 3.4, 232 12.2"
+              stroke-width="3.4" stroke-linecap="round" stroke-dasharray="19 8 34 6 26 12"/>
+      </g>
+    </svg>
     <h2>Live on ${EVENT.place}</h2>
     <p class="when"><b>${EVENT.date}</b> &nbsp;·&nbsp; <b>${EVENT.time}</b></p>
 
@@ -296,7 +402,7 @@ const HTML = `<!DOCTYPE html>
             has meant to them.</div>
         </div></div>
         <div class="row"><span class="dot"></span><div>
-          <div class="t">Worship &mdash; gentle &amp; lowly<a class="lst sp" href="${LINKS.gentleAndLowly}" target="_blank" rel="noopener">${SPOTIFY_ICON}Spotify</a></div>
+          <div class="t">Student band closes the night<a class="lst sp" href="${LINKS.gentleAndLowly}" target="_blank" rel="noopener">${SPOTIFY_ICON}Spotify</a></div>
         </div></div>
       </div>
     </section>
