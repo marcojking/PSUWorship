@@ -192,36 +192,15 @@ const HTML = `<!DOCTYPE html>
   .rule .ink{stroke:#d8d8d8;opacity:.62}
   .rule .dust{stroke:#d8d8d8;opacity:.20}
 
-  /* THE BOIL — lifted from /gospel, which does exactly this for the rules under its
-     contact fields (src/contact.ts, boilRules). It is NOT a tween. Three variants of
-     the same line, each jittered by well under a pixel, SNAPPED between on a ~160ms
-     clock — roughly 6fps. That stutter is the whole effect: it reads as hand-drawn
-     animation boiling, where every frame was redrawn slightly differently. Smoothly
-     interpolating the same three shapes looks like a wave instead, which is what an
-     earlier pass here did wrong.
+  /* THE BOIL — see the script at the end of <body>. Driven by JS swapping the d
+     ATTRIBUTE, exactly as /gospel does it (src/contact.ts, boilRules).
 
-     step-end is what makes it snap: each keyframe's value HOLDS until the next one
-     rather than easing toward it. Jitter here is ~±2.5 units on a 240-wide
-     viewBox — pushed well past gospel's 0.9, which is subtle enough to be almost
-     subliminal at their scale; this line is short and isolated, so it needs more
-     throw to register as motion at all. */
-  @keyframes inkboil{
-    0%  {d:path("M6 11 Q 44 2, 82 11 Q 120 20, 158 11 Q 196 2, 234 11")}
-    33% {d:path("M7.1 13.1 Q 46.2 5, 83.9 8.6 Q 117.8 17.4, 155.9 13.4 Q 198.4 4.9, 232.2 8.7")}
-    66% {d:path("M4.6 8.8 Q 41.6 -0.6, 80.1 13.5 Q 122.4 22.5, 160.3 8.7 Q 193.5 -0.4, 235.7 13.4")}
-  }
-  @keyframes dustboil{
-    0%  {d:path("M8 12.2 Q 45 3.4, 83 12.2 Q 121 21, 159 12.2 Q 197 3.4, 232 12.2")}
-    33% {d:path("M9.2 14.4 Q 46.4 5.6, 84.1 10.4 Q 119.6 19.1, 157.7 14.5 Q 198.6 5.5, 230.9 10.5")}
-    66% {d:path("M6.7 10 Q 43.4 1.2, 81.6 14 Q 122.5 22.7, 160.6 10 Q 195.3 1.3, 233.4 14")}
-  }
-  .rule .ink{animation:inkboil .48s step-end infinite}
-  .rule .dust{animation:dustboil .48s step-end infinite}
-  /* gospel gates its whole boil clock on this; same here. */
-  @media (prefers-reduced-motion:reduce){
-    .rule .ink,.rule .dust{animation:none}
-  }
-}
+     This was written first as a CSS @keyframes animation on the d PROPERTY. That
+     works in Chrome and silently does nothing in Safari, which does not implement
+     d as a CSS property at all -- CSS.supports('d', 'path(...)') is false there.
+     It shipped, and the line sat dead still on every iPhone, which is most of the
+     traffic this page gets since it is what the poster QR codes open. Animating
+     the attribute from script is the portable way and is what gospel already did. */}
   h2{
     font-family:'Oswald',sans-serif;
     font-weight:400;
@@ -474,6 +453,24 @@ const HTML = `<!DOCTYPE html>
     btn.setAttribute('aria-expanded', String(opening));
     if (opening) sec.scrollIntoView({behavior:'smooth', block:'center'});
   });
+})();
+</script>
+<script>
+(function(){
+  /* Nine ink frames against eight dust frames on one 160ms tick. Co-prime, so the
+     two strokes only realign every 11.52s and the eye never catches a loop. */
+  var I=["M6.5 10.5 Q 43.9 1.9, 81.2 11.9 Q 120.8 21.3, 158.8 12.3 Q 196.2 1.2, 233.9 10.4","M5.9 9.6 Q 43.6 3.0, 81.5 9.9 Q 120.6 18.5, 157.6 9.6 Q 196.7 1.6, 234.8 11.3","M5.3 9.9 Q 44.0 1.5, 81.8 10.7 Q 120.6 19.7, 157.5 10.7 Q 195.3 1.3, 234.1 11.2","M5.5 9.4 Q 44.8 3.4, 82.4 11.5 Q 119.3 21.6, 157.2 10.2 Q 195.2 3.6, 234.1 12.4","M6.7 10.1 Q 43.3 0.6, 82.7 11.7 Q 119.4 19.3, 158.5 10.9 Q 195.4 0.4, 234.7 12.1","M6.6 9.9 Q 43.7 3.4, 82.7 11.0 Q 119.4 21.0, 158.4 9.5 Q 195.4 2.4, 233.1 11.2","M5.3 9.7 Q 43.2 0.5, 82.5 11.0 Q 120.9 19.5, 158.4 11.8 Q 196.0 1.3, 234.7 10.0","M5.4 11.9 Q 44.3 1.3, 81.4 10.6 Q 120.7 18.5, 157.1 12.5 Q 196.7 0.7, 234.0 9.5","M6.4 12.1 Q 44.0 3.4, 81.5 11.8 Q 119.6 21.1, 158.2 10.7 Q 196.1 1.4, 233.2 11.8"];
+  var D=["M8.1 12.9 Q 45.6 2.2, 82.2 11.0 Q 120.8 20.3, 159.1 13.1 Q 196.4 2.7, 231.6 12.3","M8.3 12.6 Q 45.7 4.3, 82.9 13.4 Q 120.6 20.9, 159.5 13.2 Q 197.8 2.1, 231.6 10.8","M8.8 12.3 Q 44.5 2.6, 83.1 12.4 Q 121.8 21.1, 159.8 11.2 Q 197.6 3.0, 232.3 11.5","M8.3 11.6 Q 45.6 2.3, 82.3 13.7 Q 120.7 20.0, 159.0 11.6 Q 196.4 3.1, 231.5 11.2","M8.0 10.8 Q 45.4 4.7, 82.3 13.2 Q 120.9 21.7, 158.1 13.7 Q 196.8 4.7, 232.5 11.0","M7.1 11.5 Q 45.7 4.7, 82.4 10.7 Q 120.4 22.2, 159.7 13.5 Q 197.0 3.1, 232.0 12.0","M8.9 12.0 Q 45.4 4.9, 82.2 11.6 Q 121.9 22.4, 158.1 12.3 Q 196.4 4.0, 231.7 11.1","M8.5 12.5 Q 45.8 4.3, 82.8 10.8 Q 120.3 20.0, 158.8 11.7 Q 197.4 4.7, 231.2 12.8"];
+  var ink=document.querySelector(".rule .ink"), dust=document.querySelector(".rule .dust");
+  if(!ink||!dust) return;
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var i=0;
+  setInterval(function(){
+    if(document.hidden) return;              /* gospel skips hidden frames too */
+    i++;
+    ink.setAttribute("d", I[i%I.length]);
+    dust.setAttribute("d", D[i%D.length]);
+  },160);
 })();
 </script>
 </body>
