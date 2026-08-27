@@ -5,6 +5,12 @@ page reads its file sizes and thumbnail dimensions from.
 
     ~/Desktop/WMA_HUBLawn_2026-09-13/.pdfvenv/bin/python scripts/stage-promo.py
 
+RUN IT WITH THAT INTERPRETER, not with the repo's python or a bare `python3`.
+This needs pymupdf and Pillow to render the PDFs and shrink the previews, and
+neither is a dependency of this site -- they belong to the promo folder's own
+build, so its venv is the one place on this machine that already has them.
+Anywhere else you get ModuleNotFoundError: No module named 'pymupdf'.
+
 Run it whenever the promo folder is rebuilt. The manifest is generated rather
 than hand-written because the page prints a byte size next to every download,
 and a hand-kept table of forty sizes goes stale the first time anyone reruns
@@ -54,6 +60,14 @@ PRINT_FILES = [
     "TheFigs_HUBLawn_HalfPage_2up_Letter.pdf",
     "PSUFootball_HUBLawn_HalfPage_2up_Letter.pdf",
     "FreePizza_HUBLawn_HalfPage_2up_Letter.pdf",
+    # The same half pages with the black inset on a white sheet, for whoever is
+    # running them off an office printer rather than sending them to a shop.
+    "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf",
+    "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf",
+    "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf",
+    "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
+    "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
+    "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
     "TheFigs_Sept13_Email_Ad.pdf",
     "TheFigs_Sept13_Email_Ad.png",
 ]
@@ -98,6 +112,15 @@ THUMB_SOURCES = {
     "2up_figs": "TheFigs_HUBLawn_HalfPage_2up_Letter.pdf",
     "2up_psu": "PSUFootball_HUBLawn_HalfPage_2up_Letter.pdf",
     "2up_pizza": "FreePizza_HUBLawn_HalfPage_2up_Letter.pdf",
+    # Two thumbnails for the office-printer set, not six: the page offers it as
+    # one row per format with a pill per hook, so the only pictures needed are
+    # the two shapes. One would not do -- the half page and the two-up sheet are
+    # different shapes, and showing the half page on the two-up row would sell
+    # someone the wrong thing. Which of the three hooks the picture happens to
+    # show does not matter; the white border is the whole point of it.
+    "half_office": "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.png",
+    "2up_office": "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
+    "2up_figs_office": "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
     "emailad": "TheFigs_Sept13_Email_Ad.png",
     "s_email": "social/email_1200x630.png",
     "s_whatsapp": "social/whatsapp_1080.png",

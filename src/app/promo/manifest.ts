@@ -5,19 +5,25 @@
 export const BYTES: Record<string, number> = {
   "FreePizza_HUBLawn_Flyer_8.5x11.pdf": 69144,
   "FreePizza_HUBLawn_Flyer_8.5x11.png": 135384,
-  "FreePizza_HUBLawn_HalfPage_2up_Letter.pdf": 62492,
-  "FreePizza_HUBLawn_HalfPage_5.5x8.5.pdf": 65825,
-  "FreePizza_HUBLawn_HalfPage_5.5x8.5.png": 90559,
+  "FreePizza_HUBLawn_HalfPage_2up_Letter.pdf": 62493,
+  "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf": 62230,
+  "FreePizza_HUBLawn_HalfPage_5.5x8.5.pdf": 65826,
+  "FreePizza_HUBLawn_HalfPage_5.5x8.5.png": 90365,
+  "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf": 65553,
   "PSUFootball_HUBLawn_Flyer_8.5x11.pdf": 69598,
   "PSUFootball_HUBLawn_Flyer_8.5x11.png": 136833,
-  "PSUFootball_HUBLawn_HalfPage_2up_Letter.pdf": 62864,
-  "PSUFootball_HUBLawn_HalfPage_5.5x8.5.pdf": 66192,
-  "PSUFootball_HUBLawn_HalfPage_5.5x8.5.png": 92721,
+  "PSUFootball_HUBLawn_HalfPage_2up_Letter.pdf": 62863,
+  "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf": 62611,
+  "PSUFootball_HUBLawn_HalfPage_5.5x8.5.pdf": 66193,
+  "PSUFootball_HUBLawn_HalfPage_5.5x8.5.png": 92550,
+  "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf": 65938,
   "TheFigs_HUBLawn_Flyer_8.5x11.pdf": 69052,
   "TheFigs_HUBLawn_Flyer_8.5x11.png": 131424,
-  "TheFigs_HUBLawn_HalfPage_2up_Letter.pdf": 62421,
-  "TheFigs_HUBLawn_HalfPage_5.5x8.5.pdf": 65739,
-  "TheFigs_HUBLawn_HalfPage_5.5x8.5.png": 89236,
+  "TheFigs_HUBLawn_HalfPage_2up_Letter.pdf": 62422,
+  "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf": 62157,
+  "TheFigs_HUBLawn_HalfPage_5.5x8.5.pdf": 65741,
+  "TheFigs_HUBLawn_HalfPage_5.5x8.5.png": 89051,
+  "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf": 65468,
   "TheFigs_Sept13_Email_Ad.pdf": 73829,
   "TheFigs_Sept13_Email_Ad.png": 128269,
   "email_1200x630.gif": 540281,
@@ -50,6 +56,14 @@ export const THUMBS: Record<string, [number, number]> = {
     380,
     294
   ],
+  "2up_figs_office": [
+    380,
+    294
+  ],
+  "2up_office": [
+    380,
+    294
+  ],
   "2up_pizza": [
     380,
     294
@@ -75,6 +89,10 @@ export const THUMBS: Record<string, [number, number]> = {
     380
   ],
   "half_figs": [
+    246,
+    380
+  ],
+  "half_office": [
     246,
     380
   ],

@@ -198,6 +198,38 @@ const PRINT = section(
         },
       ],
     ) +
+    group(
+      "Printing it yourself? Take these instead",
+      `Everything above runs black right off the edge of the paper, which is what a print
+       shop wants &mdash; they print it oversized and trim it. An office or library printer
+       cannot print that last quarter inch, so it will hand you the same flyer with a
+       ragged white edge. <b>This version puts the black on a white sheet on purpose</b>,
+       so the border is even and looks like a choice. Same three hooks, same half page,
+       plus the matching two-up sheets. Going to a real printer? Ignore this and use the
+       ones above.`,
+      [
+        {
+          thumb: "half_office",
+          title: "Half page &middot; white margin",
+          note: "One sheet, one flyer.",
+          downloads: [
+            { file: "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" },
+            { file: "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" },
+            { file: "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" },
+          ],
+        },
+        {
+          thumb: "2up_figs_office",
+          title: "Two-up &middot; white margin",
+          note: "Print, one cut at 5.5&nbsp;in.",
+          downloads: [
+            { file: "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" },
+            { file: "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" },
+            { file: "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" },
+          ],
+        },
+      ],
+    ) +
     `<p class="warn"><b>Before a big run, scan one.</b> The QR codes are white on black,
      which the iPhone camera and Google Lens read fine but some scanner apps do not.
      Print a single copy, scan it with a phone, and check it opens the event page.</p>
