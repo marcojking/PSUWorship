@@ -29,6 +29,13 @@ const SOURCES = [
   'groupme',
   'whatsapp',
   'text',
+  /* Hand-out links for individual people sharing the event with their own
+   * network. Deliberately opaque: whoever receives the link sees the code, not
+   * whose list they are on. Who is who is kept off the site — the mapping lives
+   * in the promo folder's social/LINKS.txt. Add ref3, ref4… as more are given out. */
+  'ref1',
+  'ref2',
+  'ref3',
   'other',
 ] as const;
 

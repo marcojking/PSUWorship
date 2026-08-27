@@ -43,6 +43,17 @@ const GROUPS: { title: string; items: { key: string; label: string; colour: stri
       { key: "other", label: "Other", colour: "#6e6e6e" },
     ],
   },
+  /* One link per person sharing the event with their own network. Labelled by
+     code, not by name — this page is unlisted but public, and who was asked to
+     share is not ours to publish. The mapping is in the promo folder. */
+  {
+    title: "Personal links",
+    items: [
+      { key: "ref1", label: "Ref-1", colour: "#b58fd7" },
+      { key: "ref2", label: "Ref-2", colour: "#7ab8b0" },
+      { key: "ref3", label: "Ref-3", colour: "#d79a6d" },
+    ],
+  },
 ];
 
 type Row = { source: string; count: number };

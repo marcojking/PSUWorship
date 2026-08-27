@@ -71,12 +71,25 @@ const HTML = `<!DOCTYPE html>
 <meta name="description" content="${EVENT.artist} live on the ${EVENT.place} at Penn State. ${EVENT.date}, ${EVENT.time}. Free and open to everyone.">
 <meta name="theme-color" content="#0a0a0a">
 <meta property="og:type" content="website">
-<meta property="og:title" content="The Figs — Live on HUB Lawn">
+<meta property="og:title" content="PSU Football + The Figs — Live on HUB Lawn">
 <meta property="og:description" content="${EVENT.date} · ${EVENT.time} · Free and open to everyone. ${EVENT.campus}.">
 <meta property="og:url" content="https://www.wmaac.org/sept13">
+<meta property="og:site_name" content="Worship Music &amp; Arts Club at Penn State">
+<!-- The card iMessage, WhatsApp and Slack draw when this link is pasted. Without
+     an og:image they render a bare line of text, which is what this link did
+     until now. Absolute URL on purpose: iMessage does not resolve relative ones.
+     Built by the promo folder's build_social.py (og_sept13_1200x630.png).
+     Every scraper caches by URL — change the picture and you must change the
+     FILENAME too, or old previews keep showing the old image forever. -->
+<meta property="og:image" content="https://www.wmaac.org/sept13-og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PSU Football and The Figs, live on HUB Lawn. Sunday, September 13, 6:30 PM.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Figs — Live on HUB Lawn">
+<meta name="twitter:title" content="PSU Football + The Figs — Live on HUB Lawn">
 <meta name="twitter:description" content="${EVENT.date} · ${EVENT.time} · Free and open to everyone.">
+<meta name="twitter:image" content="https://www.wmaac.org/sept13-og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
