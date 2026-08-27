@@ -27,6 +27,7 @@ const SOURCES = [
   'fb',
   'email',
   'groupme',
+  'whatsapp',
   'text',
   'other',
 ] as const;
