@@ -117,10 +117,11 @@ THUMB_SOURCES = {
     # the two shapes. One would not do -- the half page and the two-up sheet are
     # different shapes, and showing the half page on the two-up row would sell
     # someone the wrong thing. Which of the three hooks the picture happens to
-    # show does not matter; the white border is the whole point of it.
-    "half_office": "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.png",
+    # show does not matter, except that a thumbnail is a link to the first file
+    # in its row, so both of these are the Figs cut to match what tapping them
+    # actually opens.
+    "half_office": "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.png",
     "2up_office": "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
-    "2up_figs_office": "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
     "emailad": "TheFigs_Sept13_Email_Ad.png",
     "s_email": "social/email_1200x630.png",
     "s_whatsapp": "social/whatsapp_1080.png",
@@ -180,6 +181,21 @@ def main() -> None:
         # right box before the image lands. Without them a phone reflows the
         # whole list as twenty-four thumbnails arrive one at a time.
         thumbs[key] = [img.width, img.height]
+
+    # Delete anything in public/promo that this script no longer produces.
+    # Without this the directory only ever grows: rename or drop a key and the
+    # old file stays committed and deployed forever, invisible because nothing
+    # links to it. That is not hypothetical -- a duplicate 2up_figs_office key
+    # rendering the same PDF as 2up_office left an orphan behind exactly here,
+    # and nothing in the build or the typechecker can see a file like that.
+    for f in OUT.glob("*.*"):
+        if f.name not in sizes:
+            print(f"pruned  {f.relative_to(OUT.parent)}")
+            f.unlink()
+    for f in THUMBS.glob("*.jpg"):
+        if f.stem not in thumbs:
+            print(f"pruned  {f.relative_to(OUT.parent)}")
+            f.unlink()
 
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST.write_text(

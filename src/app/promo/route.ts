@@ -147,7 +147,8 @@ const PRINT = section(
       "Half page &middot; 5.5&times;8.5",
       `Same design at half the size. Use it where a board is already crowded, or where
        you are handing something to a person rather than pinning it up. Twice as many
-       for the same paper.`,
+       for the same paper. Running these off yourself rather than sending them out?
+       There is a version further down made for that.`,
       [
         {
           thumb: "half_figs",
@@ -205,27 +206,41 @@ const PRINT = section(
        cannot print that last quarter inch, so it will hand you the same flyer with a
        ragged white edge. <b>This version puts the black on a white sheet on purpose</b>,
        so the border is even and looks like a choice. Same three hooks, same half page,
-       plus the matching two-up sheets. Going to a real printer? Ignore this and use the
-       ones above.`,
+       plus the matching two-up sheets. PDF only &mdash; like the two-up above, this
+       version exists to come out of a printer. Going to a real printer? Ignore this and
+       use the ones above.`,
+      /* One row per shape rather than six more rows, and the pills name the HOOK
+         rather than repeating "PDF" three times. Everything else in this section
+         is one row per file, but here the hook was already chosen at the top of
+         the section and the only live question is which printer the paper goes
+         through. Three identical "PDF" pills would have made the reader open all
+         three to find out which is which. */
       [
         {
           thumb: "half_office",
           title: "Half page &middot; white margin",
-          note: "One sheet, one flyer.",
+          note: "One flyer per 5.5&times;8.5 sheet, for a printer that takes that stock.",
           downloads: [
-            { file: "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" },
-            { file: "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" },
-            { file: "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" },
+            { file: "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "The Figs" },
+            {
+              file: "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf",
+              kind: "PSU Football",
+            },
+            { file: "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "Free Pizza" },
           ],
         },
         {
-          thumb: "2up_figs_office",
+          thumb: "2up_office",
           title: "Two-up &middot; white margin",
-          note: "Print, one cut at 5.5&nbsp;in.",
+          note: `Two per ordinary letter sheet, then one cut at 5.5&nbsp;in. <b>This is the
+                 one for a normal office copier</b> &mdash; letter is the paper it already has.`,
           downloads: [
-            { file: "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" },
-            { file: "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" },
-            { file: "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" },
+            { file: "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "The Figs" },
+            {
+              file: "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
+              kind: "PSU Football",
+            },
+            { file: "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "Free Pizza" },
           ],
         },
       ],
@@ -548,6 +563,7 @@ const HTML = `<!DOCTYPE html>
   .meta{min-width:0}
   .t{font-family:'Oswald',sans-serif;font-size:.95rem;text-transform:uppercase;letter-spacing:.06em;font-weight:500;line-height:1.25}
   .d{color:var(--dim);font-size:.82rem;font-weight:300;margin-top:.3rem;line-height:1.55}
+  .d b{color:var(--white);font-weight:500}
 
   .dls{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
   .dl{

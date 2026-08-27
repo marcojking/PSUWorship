@@ -56,10 +56,6 @@ export const THUMBS: Record<string, [number, number]> = {
     380,
     294
   ],
-  "2up_figs_office": [
-    380,
-    294
-  ],
   "2up_office": [
     380,
     294
