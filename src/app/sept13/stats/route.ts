@@ -90,7 +90,10 @@ function page(body: string): string {
      min-width:2.6ch;text-align:right;font-variant-numeric:tabular-nums}
   .zero .name,.zero .n{color:#4a4a4a}
   .tot{margin-top:1.2rem;color:#919191;font-size:.85rem;font-weight:300}
-  table{width:100%;border-collapse:collapse;font-size:.8rem;font-weight:300;margin-top:.4rem}
+  /* Fifteen columns will never fit a phone. Scroll the table inside its own box
+     rather than letting the page scroll sideways or silently clipping a source. */
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:.4rem}
+  table{border-collapse:collapse;min-width:100%;white-space:nowrap;font-size:.8rem;font-weight:300}
   th{text-align:right;color:#919191;font-weight:400;padding:.32rem .3rem;
      border-bottom:1px solid #262626;font-size:.66rem;text-transform:uppercase;letter-spacing:.06em}
   th:first-child,td:first-child{text-align:left}
@@ -164,10 +167,10 @@ export async function GET(): Promise<Response> {
       s.botTotal ? ` &middot; ${s.botTotal} link-preview fetches excluded` : ""
     }</p>
     <h2>By day</h2>
-    <table>
+    <div class="scroll"><table>
       <tr><th>Day</th>${cols.map((i) => `<th>${esc(i.label.split(" ")[0])}</th>`).join("")}<th>All</th></tr>
       ${dayRows}
-    </table>
+    </table></div>
     <p class="note">
       Counts page loads, not unique people &mdash; one person opening it twice counts twice.
       Each source is a <code>?p=</code> value on the link. The printed cards were made
