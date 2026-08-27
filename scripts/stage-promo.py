@@ -37,7 +37,7 @@ HERE = Path(__file__).resolve().parent
 SRC = Path.home() / "Desktop/WMA_HUBLawn_2026-09-13/promo"
 OUT = HERE.parent / "public/promo"
 THUMBS = OUT / "t"
-MANIFEST = HERE.parent / "src/app/promo/manifest.ts"
+MANIFEST = HERE.parent / "src/app/sept13/promo/manifest.ts"
 
 # Longest edge of a thumbnail. The page never displays one wider than ~220 CSS
 # px, so 380 covers a 1.5x screen with room to spare and keeps each file small.

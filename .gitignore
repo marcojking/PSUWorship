@@ -34,3 +34,4 @@ next-env.d.ts
 
 # bridge runtime state (local-only, not for version control)
 bridge/bridge-state.json
+.env*

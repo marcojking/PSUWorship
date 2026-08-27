@@ -1,4 +1,4 @@
-/* wmaac.org/promo — the download page for anyone helping promote the Sept 13
+/* wmaac.org/sept13/promo — the download page for anyone helping promote the Sept 13
    HUB Lawn worship night. Not for attendees: /sept13 is their page, and it asks
    one thing of them. This one is a working list for the people posting flyers,
    texting friends and running a church's projector.
@@ -639,10 +639,6 @@ const HTML = `<!DOCTYPE html>
     </svg>
     <h2>HUB Lawn Worship Night</h2>
     <p class="when">${EVENT.date} &nbsp;&middot;&nbsp; ${EVENT.time}</p>
-
-    <p class="intro">Everything we made for this night, free to use. Print it, post it,
-      put it on a screen, text it to one group chat. <b>Pick one thing and do it today</b>
-      &mdash; a flyer nobody hangs is worth nothing.</p>
 
     <div class="hero-link">
       <div class="k">Everything points here</div>
