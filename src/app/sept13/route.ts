@@ -491,8 +491,12 @@ export async function GET(request: Request) {
      turn a scan into an error page. Worst case we lose a count. */
   let poster: string | null = null;
   try {
-    poster = new URL(request.url).searchParams.get("p");
-    if (poster && process.env.NEXT_PUBLIC_CONVEX_URL) {
+    /* No ?p= means the 2,500 printed business cards, whose QR was made before any
+       of this existed and points at the bare URL. Recorded as "card" rather than
+       dropped — otherwise the single biggest run of printed material is the one
+       thing invisible in the numbers. */
+    poster = new URL(request.url).searchParams.get("p") ?? "card";
+    if (process.env.NEXT_PUBLIC_CONVEX_URL) {
       const bot = BOT_UA.test(request.headers.get("user-agent") ?? "");
       const { ConvexHttpClient } = await import("convex/browser");
       const { api } = await import("../../../convex/_generated/api");
@@ -507,14 +511,13 @@ export async function GET(request: Request) {
   return new Response(HTML, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      /* A ?p= request MUST reach the origin or it does not get counted. With the
-         shared cache below, the CDN would answer most poster scans itself and the
-         numbers would flatten to roughly one per poster per minute — which would
-         look like real data rather than like a bug. The bare URL, which is what
-         the 2,500 printed cards use, keeps its short shared cache. */
-      "Cache-Control": poster
-        ? "no-store"
-        : "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
+      /* Every request MUST reach the origin or it does not get counted. Under a
+         shared cache the CDN answers most scans itself and the totals flatten to
+         roughly one per source per minute — which looks like real data rather
+         than like a bug. That applies to the bare URL too now that it is counted
+         as a card scan, so the short s-maxage this used to carry is gone. The page
+         is a static string; regenerating it per request costs nothing. */
+      "Cache-Control": "no-store",
     },
   });
 }

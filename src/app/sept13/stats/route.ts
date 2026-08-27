@@ -14,9 +14,13 @@ const POSTERS = [
   { key: "figs", label: "The Figs", colour: "#d4a3c7" },
   { key: "psu", label: "PSU Football", colour: "#8fa8cc" },
   { key: "pizza", label: "Free Pizza", colour: "#e2a75c" },
+  /* The 2,500 printed cards. Their QR predates the ?p= scheme and points at the
+     bare URL, so this bucket is "no param" — mostly cards, plus anyone who typed
+     the address or opened a shared link. */
+  { key: "card", label: "Cards / direct", colour: "#8f8f8f" },
 ] as const;
 
-type Counts = { figs: number; psu: number; pizza: number };
+type Counts = { figs: number; psu: number; pizza: number; card: number };
 type Summary = {
   totals: Counts;
   bots: Counts;
@@ -107,12 +111,12 @@ export async function GET(): Promise<Response> {
         .reverse()
         .map(
           (d) =>
-            `<tr><td>${esc(d.day)}</td><td>${d.figs}</td><td>${d.psu}</td><td>${d.pizza}</td><td>${
-              d.figs + d.psu + d.pizza
+            `<tr><td>${esc(d.day)}</td><td>${d.figs}</td><td>${d.psu}</td><td>${d.pizza}</td><td>${d.card}</td><td>${
+              d.figs + d.psu + d.pizza + d.card
             }</td></tr>`,
         )
         .join("")
-    : `<tr><td colspan="5" style="color:#5e5e5e">No scans yet.</td></tr>`;
+    : `<tr><td colspan="6" style="color:#5e5e5e">No scans yet.</td></tr>`;
 
   const body = `
     <h1>Poster scans</h1>
@@ -123,15 +127,16 @@ export async function GET(): Promise<Response> {
     }</p>
     <h2>By day</h2>
     <table>
-      <tr><th>Day</th><th>Figs</th><th>PSU</th><th>Pizza</th><th>All</th></tr>
+      <tr><th>Day</th><th>Figs</th><th>PSU</th><th>Pizza</th><th>Cards</th><th>All</th></tr>
       ${rows}
     </table>
     <p class="note">
-      Counts page loads carrying <code>?p=</code>, not unique people &mdash; one person
-      scanning twice counts twice. Link-preview fetches from iMessage, Slack and the like
-      are detected by user-agent and excluded from these totals. Anyone typing
-      wmaac.org/sept13 off a poster has no <code>?p=</code> and is not counted, since a
-      typed visit cannot be attributed to one poster.
+      Counts page loads, not unique people &mdash; one person scanning twice counts twice.
+      Each poster's QR carries its own <code>?p=</code>. The printed cards were made
+      before that existed and point at the bare URL, so <strong>Cards / direct</strong> is
+      every visit with no parameter: mostly the 2,500 cards, but also anyone who typed the
+      address or opened a link someone shared. Link-preview fetches from iMessage, Slack
+      and the like are detected by user-agent and excluded.
       ${s.truncated ? '<br><span class="warn">Showing the most recent 20,000 scans only.</span>' : ""}
     </p>`;
 

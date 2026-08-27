@@ -11,7 +11,12 @@ import { v } from 'convex/values';
  * to one poster anyway.
  */
 
-const POSTERS = ['figs', 'psu', 'pizza'] as const;
+/* 'card' is the 2,500 printed business cards. Their QR was printed before any of
+   this existed and points at the bare /sept13 with no ?p= at all, so a visit with
+   no param is recorded as a card scan. That bucket is not purely cards — someone
+   typing the URL off a poster, or opening a shared link, lands there too — but
+   the cards outnumber both by orders of magnitude, so it is the honest label. */
+const POSTERS = ['figs', 'psu', 'pizza', 'card'] as const;
 
 /** Hard ceiling on a summary read. Far above anything this event can produce,
  *  but it keeps one query from ever loading an unbounded table. */
@@ -40,6 +45,7 @@ const COUNTS = v.object({
   figs: v.number(),
   psu: v.number(),
   pizza: v.number(),
+  card: v.number(),
 });
 
 export const summary = query({
@@ -56,6 +62,7 @@ export const summary = query({
         figs: v.number(),
         psu: v.number(),
         pizza: v.number(),
+        card: v.number(),
       }),
     ),
   }),
@@ -66,9 +73,9 @@ export const summary = query({
       .order('desc')
       .take(MAX_ROWS);
 
-    const totals = { figs: 0, psu: 0, pizza: 0 };
-    const bots = { figs: 0, psu: 0, pizza: 0 };
-    const byDay: Record<string, { figs: number; psu: number; pizza: number }> = {};
+    const totals = { figs: 0, psu: 0, pizza: 0, card: 0 };
+    const bots = { figs: 0, psu: 0, pizza: 0, card: 0 };
+    const byDay: Record<string, { figs: number; psu: number; pizza: number; card: number }> = {};
     let botTotal = 0;
 
     for (const r of rows) {
@@ -90,14 +97,14 @@ export const summary = query({
       const day = new Date(r.at).toLocaleDateString('en-CA', {
         timeZone: 'America/New_York',
       });
-      byDay[day] = byDay[day] ?? { figs: 0, psu: 0, pizza: 0 };
+      byDay[day] = byDay[day] ?? { figs: 0, psu: 0, pizza: 0, card: 0 };
       byDay[day][key] += 1;
     }
 
     return {
       totals,
       bots,
-      total: totals.figs + totals.psu + totals.pizza,
+      total: totals.figs + totals.psu + totals.pizza + totals.card,
       botTotal,
       truncated: rows.length >= MAX_ROWS,
       days: Object.keys(byDay)
