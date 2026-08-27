@@ -321,6 +321,12 @@ const HTML = `<!DOCTYPE html>
     color:var(--dim);font-size:.92rem;font-weight:300;line-height:1.6;
     max-width:42ch;margin:0 auto;
   }
+  /* The hand-off to the promo kit, under the prayer invitation it belongs with.
+     Smaller and quieter than the two buttons at the top of the page: this is a
+     second ask made of someone who has already said yes to the first. */
+  .invite.giveout{margin-top:1.5rem;font-size:.85rem;color:var(--faint)}
+  .actions.tight{margin-top:.85rem}
+  .actions.tight .btn{font-size:.7rem;padding:.7rem 1.4rem}
 
   /* Wordmark | wing mark, the same lockup used on the printed card. Both files are
      solid black art with alpha, so invert() paints them white on the dark field. */
@@ -407,9 +413,13 @@ const HTML = `<!DOCTYPE html>
         ministries all welcome.</p>
       <!-- Only shown to someone who already opened "Come early", which is as close
            as this page gets to a self-selected volunteer. Everyone else is here to
-           find out when to turn up, and should not be handed a job. -->
-      <p class="invite">Helping us get the word out?
-        <a href="/sept13/promo">Flyers, slides and images to share &rarr;</a></p>
+           find out when to turn up, and should not be handed a job.
+           A button rather than an inline link: nothing else on this page is a
+           blue underlined link, and one would read as a mistake. -->
+      <p class="invite giveout">Helping us get the word out?</p>
+      <div class="actions tight">
+        <a class="btn" href="/sept13/promo">Promo materials</a>
+      </div>
     </section>
 
     <div class="partner">
