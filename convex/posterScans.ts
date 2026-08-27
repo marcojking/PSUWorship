@@ -1,22 +1,35 @@
 import { internalMutation, mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
-/* Which poster did this scan come from?
+/* Where did this visit to /sept13 come from?
  *
- * Three versions of the Sept 13 poster went up, each with its own QR code:
- * The Figs, PSU Football, Free Pizza. All three open /sept13, but each carries a
- * different ?p= value, and that is the only signal telling us which poster is
- * actually pulling people in. Anyone TYPING wmaac.org/sept13 off the poster has
- * no param and is deliberately not counted — a typed visit cannot be attributed
- * to one poster anyway.
+ * Every link we control carries ?p=<source>. Each poster's QR code has its own
+ * value; each place we post the link online gets its own too.
+ *
+ * 'card' is the 2,500 printed business cards. Their QR was made before any of
+ * this existed and points at the bare /sept13 with no parameter, so a visit with
+ * no ?p= is recorded as a card scan. That bucket is not purely cards — someone
+ * typing the URL, or opening a link a friend forwarded, lands there too — but the
+ * cards outnumber both by orders of magnitude, so it is the honest default.
+ *
+ * Anything not on this list is dropped rather than stored, so a stray or guessed
+ * ?p= cannot pollute the counts or grow the table without bound.
  */
-
-/* 'card' is the 2,500 printed business cards. Their QR was printed before any of
-   this existed and points at the bare /sept13 with no ?p= at all, so a visit with
-   no param is recorded as a card scan. That bucket is not purely cards — someone
-   typing the URL off a poster, or opening a shared link, lands there too — but
-   the cards outnumber both by orders of magnitude, so it is the honest label. */
-const POSTERS = ['figs', 'psu', 'pizza', 'card'] as const;
+const SOURCES = [
+  'figs',
+  'psu',
+  'pizza',
+  'card',
+  'ig',
+  'igstory',
+  'tiktok',
+  'yt',
+  'fb',
+  'email',
+  'groupme',
+  'text',
+  'other',
+] as const;
 
 /** Hard ceiling on a summary read. Far above anything this event can produce,
  *  but it keeps one query from ever loading an unbounded table. */
@@ -29,9 +42,7 @@ export const log = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Ignore anything not one of ours so a stray or guessed ?p= cannot pollute
-    // the counts, or grow the table unboundedly if someone finds the param.
-    if (!(POSTERS as readonly string[]).includes(args.poster)) return null;
+    if (!(SOURCES as readonly string[]).includes(args.poster)) return null;
     await ctx.db.insert('posterScans', {
       poster: args.poster,
       bot: args.bot,
@@ -41,28 +52,23 @@ export const log = mutation({
   },
 });
 
-const COUNTS = v.object({
-  figs: v.number(),
-  psu: v.number(),
-  pizza: v.number(),
-  card: v.number(),
-});
+const ROW = v.object({ source: v.string(), count: v.number() });
 
 export const summary = query({
   args: {},
   returns: v.object({
-    totals: COUNTS,
-    bots: COUNTS,
+    /* Arrays rather than a fixed-key object, so adding a channel is a one-line
+       change to SOURCES and no validator anywhere needs updating to match. */
+    totals: v.array(ROW),
+    bots: v.array(ROW),
     total: v.number(),
     botTotal: v.number(),
     truncated: v.boolean(),
     days: v.array(
       v.object({
         day: v.string(),
-        figs: v.number(),
-        psu: v.number(),
-        pizza: v.number(),
-        card: v.number(),
+        total: v.number(),
+        counts: v.array(ROW),
       }),
     ),
   }),
@@ -73,43 +79,51 @@ export const summary = query({
       .order('desc')
       .take(MAX_ROWS);
 
-    const totals = { figs: 0, psu: 0, pizza: 0, card: 0 };
-    const bots = { figs: 0, psu: 0, pizza: 0, card: 0 };
-    const byDay: Record<string, { figs: number; psu: number; pizza: number; card: number }> = {};
+    const totals: Record<string, number> = {};
+    const bots: Record<string, number> = {};
+    const byDay: Record<string, Record<string, number>> = {};
+    let total = 0;
     let botTotal = 0;
 
     for (const r of rows) {
-      const key = r.poster as keyof typeof totals;
-      if (!(key in totals)) continue;
+      if (!(SOURCES as readonly string[]).includes(r.poster)) continue;
 
-      // Link-preview fetches are counted separately rather than thrown away: if
-      // one gets texted into a group chat, the bot number is what explains a
-      // sudden spike that no human caused.
+      // Link-preview fetches are held apart rather than discarded: if one gets
+      // pasted into a group chat, the bot number is what explains a spike that
+      // no human caused.
       if (r.bot) {
-        bots[key] += 1;
+        bots[r.poster] = (bots[r.poster] ?? 0) + 1;
         botTotal += 1;
         continue;
       }
-      totals[key] += 1;
+      totals[r.poster] = (totals[r.poster] ?? 0) + 1;
+      total += 1;
 
-      // Event is in Pennsylvania; bucket by Eastern date so "Tuesday" means the
-      // day the posters were actually walked past, not a UTC day boundary.
+      // Event is in Pennsylvania; bucket by Eastern date so a day means the day
+      // people were actually walking past the posters, not a UTC boundary.
       const day = new Date(r.at).toLocaleDateString('en-CA', {
         timeZone: 'America/New_York',
       });
-      byDay[day] = byDay[day] ?? { figs: 0, psu: 0, pizza: 0, card: 0 };
-      byDay[day][key] += 1;
+      byDay[day] = byDay[day] ?? {};
+      byDay[day][r.poster] = (byDay[day][r.poster] ?? 0) + 1;
     }
 
+    const asRows = (m: Record<string, number>) =>
+      SOURCES.map((s) => ({ source: s as string, count: m[s] ?? 0 }));
+
     return {
-      totals,
-      bots,
-      total: totals.figs + totals.psu + totals.pizza + totals.card,
+      totals: asRows(totals),
+      bots: asRows(bots),
+      total,
       botTotal,
       truncated: rows.length >= MAX_ROWS,
       days: Object.keys(byDay)
         .sort()
-        .map((d) => ({ day: d, ...byDay[d] })),
+        .map((d) => ({
+          day: d,
+          total: Object.values(byDay[d]).reduce((a, b) => a + b, 0),
+          counts: asRows(byDay[d]),
+        })),
     };
   },
 });
