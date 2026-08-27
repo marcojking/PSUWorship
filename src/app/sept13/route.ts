@@ -477,13 +477,44 @@ const HTML = `<!DOCTYPE html>
 </html>
 `;
 
-export async function GET() {
+/* Anything that fetches a URL to build a preview card rather than to read it.
+   iMessage, Slack, Discord, WhatsApp and friends all hit the link the moment it
+   is pasted, so one poster texted into a group chat can look like a dozen scans
+   if these are counted as people. */
+const BOT_UA =
+  /bot|crawler|spider|preview|facebookexternalhit|slackbot|discordbot|whatsapp|telegram|twitterbot|linkedinbot|embedly|quora|pinterest|vkshare|skypeuripreview|applebot|googlebot|bingbot|headless/i;
+
+export async function GET(request: Request) {
+  /* Which poster did this come from? The three QR codes carry ?p=figs|psu|pizza.
+     Fire-and-forget on purpose, and wrapped: this page is what every printed QR
+     code opens, so a Convex hiccup or a missing env var must never be able to
+     turn a scan into an error page. Worst case we lose a count. */
+  let poster: string | null = null;
+  try {
+    poster = new URL(request.url).searchParams.get("p");
+    if (poster && process.env.NEXT_PUBLIC_CONVEX_URL) {
+      const bot = BOT_UA.test(request.headers.get("user-agent") ?? "");
+      const { ConvexHttpClient } = await import("convex/browser");
+      const { api } = await import("../../../convex/_generated/api");
+      void new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL)
+        .mutation(api.posterScans.log, { poster, bot })
+        .catch(() => {});
+    }
+  } catch {
+    /* never block the render */
+  }
+
   return new Response(HTML, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      // Short cache: this URL is printed on physical cards, so a wrong value has
-      // to be correctable in minutes, not hours.
-      "Cache-Control": "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
+      /* A ?p= request MUST reach the origin or it does not get counted. With the
+         shared cache below, the CDN would answer most poster scans itself and the
+         numbers would flatten to roughly one per poster per minute — which would
+         look like real data rather than like a bug. The bare URL, which is what
+         the 2,500 printed cards use, keeps its short shared cache. */
+      "Cache-Control": poster
+        ? "no-store"
+        : "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
     },
   });
 }

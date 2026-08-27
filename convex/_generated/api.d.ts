@@ -23,6 +23,7 @@ import type * as liveSession from "../liveSession.js";
 import type * as liveSetlist from "../liveSetlist.js";
 import type * as logoVariants from "../logoVariants.js";
 import type * as orders from "../orders.js";
+import type * as posterScans from "../posterScans.js";
 import type * as products from "../products.js";
 import type * as promptTemplates from "../promptTemplates.js";
 import type * as savedDesigns from "../savedDesigns.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   liveSetlist: typeof liveSetlist;
   logoVariants: typeof logoVariants;
   orders: typeof orders;
+  posterScans: typeof posterScans;
   products: typeof products;
   promptTemplates: typeof promptTemplates;
   savedDesigns: typeof savedDesigns;

@@ -387,6 +387,14 @@ export default defineSchema({
     }))
   }),
 
+  /* One row per QR scan of a Sept 13 poster. Three posters went up with three
+     different QR codes; ?p= is the only thing that says which one worked. */
+  posterScans: defineTable({
+    poster: v.string(),        // "figs" | "psu" | "pizza"
+    bot:    v.boolean(),       // link-preview fetch rather than a person
+    at:     v.number(),
+  }).index("by_at", ["at"]),
+
   liveSession: defineTable({
     currentSong:  v.number(),
     currentSlide: v.number(),
