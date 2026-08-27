@@ -36,6 +36,11 @@ const SOURCES = [
   'ref1',
   'ref2',
   'ref3',
+  /* Not a page visit: someone pressed "Add to Calendar" on /sept13 and was
+   * redirected through /sept13/cal. Counted here so it shares one table and one
+   * whitelist, but the stats page holds it out of the visit total — it is an
+   * action taken ON the page, not an arrival at it. */
+  'cal',
   'other',
 ] as const;
 

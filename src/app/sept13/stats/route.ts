@@ -43,6 +43,13 @@ const GROUPS: { title: string; items: { key: string; label: string; colour: stri
       { key: "other", label: "Other", colour: "#6e6e6e" },
     ],
   },
+  /* An action on the page, not an arrival at it, so it sits in its own group and
+     is subtracted from the visit total below. Counting it as a visit would both
+     inflate the total and bury the single strongest signal on this page. */
+  {
+    title: "On the page",
+    items: [{ key: "cal", label: "Add-to-calendar", colour: "#7ad79a" }],
+  },
   /* One link per person sharing the event with their own network. Labelled by
      code, not by name — this page is unlisted but public, and who was asked to
      share is not ours to publish. The mapping is in the promo folder. */
@@ -175,16 +182,17 @@ export async function GET(): Promise<Response> {
     <h1>Traffic sources</h1>
     <p class="sub">HUB Lawn Worship Night &middot; Sunday, September 13</p>
     ${groups}
-    <p class="tot"><strong>${s.total}</strong> visits total${
-      s.botTotal ? ` &middot; ${s.botTotal} link-preview fetches excluded` : ""
-    }</p>
+    <p class="tot"><strong>${s.total - count("cal")}</strong> visits total${
+      count("cal") ? ` &middot; ${count("cal")} added it to a calendar` : ""
+    }${s.botTotal ? ` &middot; ${s.botTotal} link-preview fetches excluded` : ""}</p>
     <h2>By day</h2>
     <div class="scroll"><table>
       <tr><th>Day</th>${cols.map((i) => `<th>${esc(i.label.split(" ")[0])}</th>`).join("")}<th>All</th></tr>
       ${dayRows}
     </table></div>
     <p class="note">
-      Counts page loads, not unique people &mdash; one person opening it twice counts twice.
+      <strong>Add-to-calendar</strong> is a click on the button, not a page load, so it
+      is kept out of the visit total. Everything else counts page loads, not unique people &mdash; one person opening it twice counts twice.
       Each source is a <code>?p=</code> value on the link. The printed cards were made
       before that existed and point at the bare URL, so <strong>Cards / direct</strong> is
       every visit with no parameter: mostly the 2,500 cards, but also anyone who typed the

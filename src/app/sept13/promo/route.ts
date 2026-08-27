@@ -12,7 +12,7 @@
    names a file that the script did not copy, and nothing prints a byte count
    that it did not measure. */
 
-import { BYTES, THUMBS } from "./manifest";
+import { ANIM, BYTES, THUMBS } from "./manifest";
 
 const EVENT = {
   date: "Sunday, September 13",
@@ -77,7 +77,7 @@ function row(a: Asset): string {
     : "";
   return `<div class="row">
     <a class="thumb" href="/promo/${first}">
-      <img src="/promo/t/${a.thumb}.jpg" width="${w}" height="${h}" loading="lazy" decoding="async" alt="${a.title}">
+      <img src="/promo/t/${a.thumb}.${ANIM.includes(a.thumb) ? "webp" : "jpg"}" width="${w}" height="${h}" loading="lazy" decoding="async" alt="${a.title}">
     </a>
     <div class="meta">
       <div class="t">${a.title}</div>
@@ -105,11 +105,7 @@ const section = (id: string, kicker: string, lead: string, body: string) =>
 const PRINT = section(
   "print",
   "Print",
-  `Three flyers, one night. Same event, same details &mdash; only the first line changes,
-   so you can pick the one that fits where it is going. <b>The Figs</b> is the default.
-   <b>PSU Football</b> is for the gyms, the IM building and anywhere athletic.
-   <b>Free Pizza</b> is the broadest hook, for dining halls and dorm boards.
-   Each carries its own QR code, so we can tell which one is actually working.`,
+  `Three different flyers. Put them next to each other, or target specific places.`,
   group(
     "Full page &middot; 8.5&times;11",
     "For a board you are allowed to own. Reads from down the hallway.",
@@ -145,10 +141,7 @@ const PRINT = section(
   ) +
     group(
       "Half page &middot; 5.5&times;8.5",
-      `Same design at half the size. Use it where a board is already crowded, or where
-       you are handing something to a person rather than pinning it up. Twice as many
-       for the same paper. Running these off yourself rather than sending them out?
-       There is a version further down made for that.`,
+      `For crowded boards, or handing to a person. Printing them yourself? See below.`,
       [
         {
           thumb: "half_figs",
@@ -178,9 +171,8 @@ const PRINT = section(
     ) +
     group(
       "Two-up letter sheet &middot; print then cut",
-      `The half page, twice, on one ordinary letter sheet. This is the one to send to a
-       print shop or a library printer: print it, then <b>one straight cut down the middle
-       at 5.5&nbsp;in</b>, and you have two flyers. PDF only &mdash; it exists to be printed.`,
+      `Two half pages on one letter sheet. Print, then <b>one cut down the middle at
+       5.5&nbsp;in</b>.`,
       [
         {
           thumb: "2up_figs",
@@ -201,69 +193,73 @@ const PRINT = section(
     ) +
     group(
       "Printing it yourself? Take these instead",
-      `Everything above runs black right off the edge of the paper, which is what a print
-       shop wants &mdash; they print it oversized and trim it. An office or library printer
-       cannot print that last quarter inch, so it will hand you the same flyer with a
-       ragged white edge. <b>This version puts the black on a white sheet on purpose</b>,
-       so the border is even and looks like a choice. Same three hooks, same half page,
-       plus the matching two-up sheets. PDF only &mdash; like the two-up above, this
-       version exists to come out of a printer. Going to a real printer? Ignore this and
-       use the ones above.`,
-      /* One row per shape rather than six more rows, and the pills name the HOOK
-         rather than repeating "PDF" three times. Everything else in this section
-         is one row per file, but here the hook was already chosen at the top of
-         the section and the only live question is which printer the paper goes
-         through. Three identical "PDF" pills would have made the reader open all
-         three to find out which is which. */
+      `Everything above bleeds black to the edge, which an office printer can't always do
+       well &mdash; it can leave a ragged white edge. These put the black on a white sheet
+       on purpose, so the border is even. Going to a print shop? Use the ones above.
+       Two-up is still one cut down the middle at 5.5&nbsp;in.`,
       [
         {
-          thumb: "half_office",
-          title: "Half page &middot; white margin",
-          note: "One flyer per 5.5&times;8.5 sheet, for a printer that takes that stock.",
-          downloads: [
-            { file: "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "The Figs" },
-            {
-              file: "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf",
-              kind: "PSU Football",
-            },
-            { file: "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "Free Pizza" },
-          ],
+          thumb: "full_office_figs",
+          title: "Full page &middot; The Figs",
+          downloads: [{ file: "TheFigs_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf", kind: "PDF" }],
         },
         {
-          thumb: "2up_office",
-          title: "Two-up &middot; white margin",
-          note: `Two per ordinary letter sheet, then one cut at 5.5&nbsp;in. <b>This is the
-                 one for a normal office copier</b> &mdash; letter is the paper it already has.`,
-          downloads: [
-            { file: "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "The Figs" },
-            {
-              file: "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
-              kind: "PSU Football",
-            },
-            { file: "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "Free Pizza" },
-          ],
+          thumb: "full_office_psu",
+          title: "Full page &middot; PSU Football",
+          downloads: [{ file: "PSUFootball_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf", kind: "PDF" }],
+        },
+        {
+          thumb: "full_office_pizza",
+          title: "Full page &middot; Free Pizza",
+          downloads: [{ file: "FreePizza_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf", kind: "PDF" }],
+        },
+        {
+          thumb: "half_office_figs",
+          title: "Half page &middot; The Figs",
+          downloads: [{ file: "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" }],
+        },
+        {
+          thumb: "half_office_psu",
+          title: "Half page &middot; PSU Football",
+          downloads: [{ file: "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" }],
+        },
+        {
+          thumb: "half_office_pizza",
+          title: "Half page &middot; Free Pizza",
+          downloads: [{ file: "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf", kind: "PDF" }],
+        },
+        {
+          thumb: "2up_office_figs",
+          title: "Two-up &middot; The Figs",
+          downloads: [{ file: "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" }],
+        },
+        {
+          thumb: "2up_office_psu",
+          title: "Two-up &middot; PSU Football",
+          downloads: [{ file: "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" }],
+        },
+        {
+          thumb: "2up_office_pizza",
+          title: "Two-up &middot; Free Pizza",
+          downloads: [{ file: "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf", kind: "PDF" }],
         },
       ],
     ) +
-    `<p class="warn"><b>Before a big run, scan one.</b> The QR codes are white on black,
-     which the iPhone camera and Google Lens read fine but some scanner apps do not.
-     Print a single copy, scan it with a phone, and check it opens the event page.</p>
-     <p class="gb">PDF is the one to print. PNG is for dropping into a slide, a post or
-     a message.</p>`,
+    `<p class="warn"><b>PDF is the one to print.</b> PNG is for dropping into a slide,
+     a post or a message.</p>`,
 );
 
 /* PHONE — the section most people arriving from a text message will stop at. */
 const PHONE = section(
   "phone",
   "Share on your phone",
-  `The fastest thing anyone can do for this night is send one picture to one group chat.
-   Tap a thumbnail to open it full size, press and hold to save it to your photos, then
-   send it and <b>paste the link underneath</b>.`,
+  `Tap a thumbnail, press and hold to save it, then send it and <b>paste the link
+   underneath</b>.`,
   group("", "", [
     {
       thumb: "s_textduo",
       title: "Text image &middot; The Figs",
-      note: "Static and tall, the full layout. The one to send if you are only sending one.",
+      note: "The one to send if you are only sending one.",
       downloads: [{ file: "text_duo_1080x1350.png", kind: "PNG" }],
       link: { url: tracked("text"), label: "Paste under the image" },
     },
@@ -320,9 +316,8 @@ const CHURCH = section(
     {
       thumb: "s_signage",
       title: "Projector slide &middot; 16:9",
-      note: `For a pre-service slide loop. Send the AV team the PNG &mdash; every system takes a
-             still. The MP4 is the same slide with the headline cycling, for the booths that
-             take video. The QR is already on the artwork, so there is nothing to add.`,
+      note: `For a pre-service loop. PNG for any system; MP4 if the booth takes video.
+             The QR is already on it.`,
       downloads: [
         { file: "hub_signage_1920x1080.png", kind: "PNG" },
         { file: "hub_signage_1920x1080.mp4", kind: "MP4" },
@@ -338,9 +333,8 @@ const CHURCH = section(
     {
       thumb: "emailad",
       title: "Newsletter / bulletin ad",
-      note: `Built for a screen rather than a wall, so it has tappable buttons instead of a QR
-             code &mdash; whoever opens it is already holding the device. PDF to attach, PNG to
-             drop into an email or a bulletin layout.`,
+      note: `Tappable buttons instead of a QR &mdash; it is read on a device. PDF to attach,
+             PNG for a bulletin layout.`,
       downloads: [
         { file: "TheFigs_Sept13_Email_Ad.pdf", kind: "PDF" },
         { file: "TheFigs_Sept13_Email_Ad.png", kind: "PNG" },
@@ -348,8 +342,8 @@ const CHURCH = section(
       link: { url: tracked("email"), label: "Link the image to" },
     },
   ]) +
-    `<p class="gb">A welcome desk or a foyer table is the other place these land well &mdash;
-     the <a href="#print">half-page flyers</a> above are sized for exactly that.</p>`,
+    `<p class="gb">For a welcome desk or foyer table, the
+     <a href="#print">half-page flyers</a> are sized for it.</p>`,
 );
 
 /* SOCIAL — one asset per posting place, because the crop and the call to action
@@ -357,8 +351,7 @@ const CHURCH = section(
 const SOCIAL = section(
   "social",
   "Social",
-  `One file per place, already the right shape and already saying the right thing about
-   where the link is. Each platform has its own link so we can tell them apart.`,
+  `One file per place, already the right shape. Each platform has its own link.`,
   group("Instagram", "", [
     {
       thumb: "s_igfeed",
@@ -644,11 +637,6 @@ const HTML = `<!DOCTYPE html>
       <div class="k">Everything points here</div>
       <div class="u">wmaac.org/sept13</div>
     </div>
-
-    <p class="intro">Where you can, use the longer link listed next to each asset instead.
-      It goes to exactly the same page, but it tells us where people came from, which is
-      how we know what to do more of. A mistyped one still works &mdash; it just stops
-      counting, silently. Copy them, do not retype them.</p>
 
     ${PRINT}
     ${PHONE}

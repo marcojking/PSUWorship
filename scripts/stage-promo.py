@@ -42,6 +42,9 @@ MANIFEST = HERE.parent / "src/app/sept13/promo/manifest.ts"
 # Longest edge of a thumbnail. The page never displays one wider than ~220 CSS
 # px, so 380 covers a 1.5x screen with room to spare and keeps each file small.
 MAX_EDGE = 380
+# Animated thumbnails run a little smaller: the same edge across ~37 frames is
+# the difference between a page that loads on campus wifi and one that does not.
+ANIM_EDGE = 300
 QUALITY = 70
 
 PRINT_FILES = [
@@ -60,8 +63,11 @@ PRINT_FILES = [
     "TheFigs_HUBLawn_HalfPage_2up_Letter.pdf",
     "PSUFootball_HUBLawn_HalfPage_2up_Letter.pdf",
     "FreePizza_HUBLawn_HalfPage_2up_Letter.pdf",
-    # The same half pages with the black inset on a white sheet, for whoever is
+    # The same flyers with the black inset on a white sheet, for whoever is
     # running them off an office printer rather than sending them to a shop.
+    "TheFigs_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf",
+    "PSUFootball_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf",
+    "FreePizza_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf",
     "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf",
     "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf",
     "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf",
@@ -120,8 +126,17 @@ THUMB_SOURCES = {
     # show does not matter, except that a thumbnail is a link to the first file
     # in its row, so both of these are the Figs cut to match what tapping them
     # actually opens.
-    "half_office": "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.png",
-    "2up_office": "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
+    # One per flyer, same as every other group. A single shared thumbnail read as
+    # "only The Figs has a white-margin version".
+    "full_office_figs": "TheFigs_HUBLawn_Flyer_8.5x11_OfficePrinter.png",
+    "full_office_psu": "PSUFootball_HUBLawn_Flyer_8.5x11_OfficePrinter.png",
+    "full_office_pizza": "FreePizza_HUBLawn_Flyer_8.5x11_OfficePrinter.png",
+    "half_office_figs": "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.png",
+    "half_office_psu": "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.png",
+    "half_office_pizza": "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.png",
+    "2up_office_figs": "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
+    "2up_office_psu": "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
+    "2up_office_pizza": "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf",
     "emailad": "TheFigs_Sept13_Email_Ad.png",
     "s_email": "social/email_1200x630.png",
     "s_whatsapp": "social/whatsapp_1080.png",
@@ -138,6 +153,61 @@ THUMB_SOURCES = {
     "s_facebook": "social/facebook_1200x630.png",
     "s_signage": "social/hub_signage_1920x1080.png",
 }
+
+
+# Assets that move get a moving thumbnail: a still of one headline hides that the
+# artwork cycles through all three, which is the whole point of these files.
+# Animated WebP rather than GIF — same picture at roughly a fifth the bytes, and
+# it plays in a plain <img> with no player and no JavaScript.
+ANIM_SOURCES = {
+    "s_email": "social/email_1200x630.gif",
+    "s_whatsapp": "social/whatsapp_1080.gif",
+    "s_groupme": "social/groupme_1080.gif",
+    "s_text": "social/text_1080.gif",
+    "s_igfeed": "social/instagram_feed_1080x1350.mp4",
+    "s_igstory": "social/instagram_story_1080x1920.mp4",
+    "s_igreel": "social/instagram_reel_1080x1920.mp4",
+    "s_tiktok": "social/tiktok_1080x1920.mp4",
+    "s_yt": "social/youtube_short_1080x1920.mp4",
+    "s_facebook": "social/facebook_1200x630.mp4",
+    "s_signage": "social/hub_signage_1920x1080.mp4",
+}
+ANIM_FPS = 8
+# One full rotation. The MP4s hold each headline ~1s and fade for ~0.55s, three
+# headlines, then repeat — grabbing the whole file would trip through the same
+# loop three times for triple the bytes.
+ANIM_SECONDS = 4.67
+
+
+def ext(key: str) -> str:
+    return ".webp" if key in ANIM_SOURCES else ".jpg"
+
+
+def frames_of(path: Path) -> list[Image.Image]:
+    """Every frame of a GIF, or a fixed-rate sample of one loop of an MP4."""
+    if path.suffix == ".gif":
+        im = Image.open(path)
+        out = []
+        try:
+            while True:
+                out.append(im.copy().convert("RGB"))
+                im.seek(im.tell() + 1)
+        except EOFError:
+            pass
+        return out
+    tmp = THUMBS / "_anim"
+    shutil.rmtree(tmp, ignore_errors=True)
+    tmp.mkdir(parents=True)
+    subprocess.run(
+        ["ffmpeg", "-y", "-loglevel", "error", "-i", str(path),
+         "-t", str(ANIM_SECONDS), "-vf", f"fps={ANIM_FPS}", str(tmp / "%04d.png")],
+        check=True,
+    )
+    out = [Image.open(f).convert("RGB") for f in sorted(tmp.glob("*.png"))]
+    for f in out:
+        f.load()
+    shutil.rmtree(tmp, ignore_errors=True)
+    return out
 
 
 def load(path: Path) -> Image.Image:
@@ -172,7 +242,20 @@ def main() -> None:
         sizes[name] = src.stat().st_size
 
     thumbs = {}
+    for key, rel in ANIM_SOURCES.items():
+        fr = frames_of(SRC / rel)
+        for f in fr:
+            f.thumbnail((ANIM_EDGE, ANIM_EDGE), Image.LANCZOS)
+        dst = THUMBS / f"{key}.webp"
+        fr[0].save(dst, "WEBP", save_all=True, append_images=fr[1:],
+                   duration=round(1000 / ANIM_FPS), loop=0, quality=55, method=4)
+        thumbs[key] = [fr[0].width, fr[0].height]
+        print("%-18s %dx%d %5.1f KB  %d frames"
+              % (key, fr[0].width, fr[0].height, dst.stat().st_size / 1024, len(fr)))
+
     for key, rel in THUMB_SOURCES.items():
+        if key in ANIM_SOURCES:
+            continue
         img = load(SRC / rel)
         img.thumbnail((MAX_EDGE, MAX_EDGE), Image.LANCZOS)
         dst = THUMBS / f"{key}.jpg"
@@ -192,8 +275,8 @@ def main() -> None:
         if f.name not in sizes:
             print(f"pruned  {f.relative_to(OUT.parent)}")
             f.unlink()
-    for f in THUMBS.glob("*.jpg"):
-        if f.stem not in thumbs:
+    for f in list(THUMBS.glob("*.jpg")) + list(THUMBS.glob("*.webp")):
+        if f.stem not in thumbs or f.suffix != ext(f.stem):
             print(f"pruned  {f.relative_to(OUT.parent)}")
             f.unlink()
 
@@ -204,12 +287,15 @@ def main() -> None:
         "   pixel size of each preview in public/promo/t/. */\n\n"
         f"export const BYTES: Record<string, number> = {json.dumps(dict(sorted(sizes.items())), indent=2)};\n\n"
         f"export const THUMBS: Record<string, [number, number]> = "
-        f"{json.dumps(dict(sorted(thumbs.items())), indent=2)};\n"
+        f"{json.dumps(dict(sorted(thumbs.items())), indent=2)};\n\n"
+        "/* Thumbnails that move. These are animated WebP, not JPEG, so the page\n"
+        "   has to ask for the right extension. */\n"
+        f"export const ANIM: string[] = {json.dumps(sorted(ANIM_SOURCES), indent=2)};\n"
     )
 
     for key, (w, h) in thumbs.items():
-        print(f"{key:16} {w:>4}x{h:<4} {(THUMBS / f'{key}.jpg').stat().st_size/1024:6.1f} KB")
-    print(f"\nthumbs    {sum((THUMBS / f'{k}.jpg').stat().st_size for k in thumbs)/1024:.0f} KB")
+        print(f"{key:18} {w:>4}x{h:<4} {(THUMBS / f'{key}{ext(key)}').stat().st_size/1024:6.1f} KB")
+    print(f"\nthumbs    {sum((THUMBS / f'{k}{ext(k)}').stat().st_size for k in thumbs)/1024:.0f} KB")
     print(f"downloads {sum(sizes.values())/1024/1024:.2f} MB across {len(sizes)} files")
     print(f"manifest  {MANIFEST}")
 

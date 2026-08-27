@@ -9,6 +9,8 @@
    lowercase in git, and src/middleware.ts redirects the old capitalised /Sept13/*
    here so the UNITUS sponsorship link that was already shared keeps resolving. */
 
+import { GCAL, isBot } from "./event";
+
 const EVENT = {
   artist: "The Figs",
   date: "Sunday, September 13",
@@ -49,14 +51,6 @@ const SPOTIFY_ICON =
   '-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 ' +
   '12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601' +
   '.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>';
-
-// Google Calendar expects UTC. Sept 13 2026 is EDT (UTC-4), so 6:30 PM ET = 22:30Z.
-const GCAL =
-  "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-  "&text=" + encodeURIComponent("The Figs — Live on HUB Lawn") +
-  "&dates=20260913T223000Z/20260914T023000Z" +
-  "&location=" + encodeURIComponent("HUB Lawn, Penn State, University Park, PA") +
-  "&details=" + encodeURIComponent("Free and open to everyone. wmaac.org/sept13");
 
 const rsvpButton = RSVP_URL
   ? `<a class="btn primary" href="${RSVP_URL}" target="_blank" rel="noopener">RSVP</a>`
@@ -401,7 +395,7 @@ const HTML = `<!DOCTYPE html>
 
     <div class="actions">
       ${rsvpButton}
-      <a class="btn${RSVP_URL ? "" : " primary"}" href="${GCAL}" target="_blank" rel="noopener">Add to Calendar</a>
+      <a class="btn${RSVP_URL ? "" : " primary"}" href="/sept13/cal" target="_blank" rel="noopener">Add to Calendar</a>
       <a class="btn" href="#early" id="earlyBtn" aria-expanded="false" aria-controls="early">Come early</a>
     </div>
 
@@ -411,6 +405,11 @@ const HTML = `<!DOCTYPE html>
       <p class="invite">We'll pray together at 6:15, before doors open at 6:30. If you'd like to
         help welcome people, come find us then &mdash; students, churches and campus
         ministries all welcome.</p>
+      <!-- Only shown to someone who already opened "Come early", which is as close
+           as this page gets to a self-selected volunteer. Everyone else is here to
+           find out when to turn up, and should not be handed a job. -->
+      <p class="invite">Helping us get the word out?
+        <a href="/sept13/promo">Flyers, slides and images to share &rarr;</a></p>
     </section>
 
     <div class="partner">
@@ -494,8 +493,6 @@ const HTML = `<!DOCTYPE html>
    iMessage, Slack, Discord, WhatsApp and friends all hit the link the moment it
    is pasted, so one poster texted into a group chat can look like a dozen scans
    if these are counted as people. */
-const BOT_UA =
-  /bot|crawler|spider|preview|facebookexternalhit|slackbot|discordbot|whatsapp|telegram|twitterbot|linkedinbot|embedly|quora|pinterest|vkshare|skypeuripreview|applebot|googlebot|bingbot|headless/i;
 
 export async function GET(request: Request) {
   /* Which poster did this come from? The three QR codes carry ?p=figs|psu|pizza.
@@ -510,7 +507,7 @@ export async function GET(request: Request) {
        thing invisible in the numbers. */
     poster = new URL(request.url).searchParams.get("p") ?? "card";
     if (process.env.NEXT_PUBLIC_CONVEX_URL) {
-      const bot = BOT_UA.test(request.headers.get("user-agent") ?? "");
+      const bot = isBot(request.headers.get("user-agent"));
       const { ConvexHttpClient } = await import("convex/browser");
       const { api } = await import("../../../convex/_generated/api");
       void new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL)

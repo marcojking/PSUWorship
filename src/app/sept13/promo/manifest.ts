@@ -3,51 +3,54 @@
    pixel size of each preview in public/promo/t/. */
 
 export const BYTES: Record<string, number> = {
-  "FreePizza_HUBLawn_Flyer_8.5x11.pdf": 69144,
-  "FreePizza_HUBLawn_Flyer_8.5x11.png": 135384,
+  "FreePizza_HUBLawn_Flyer_8.5x11.pdf": 69146,
+  "FreePizza_HUBLawn_Flyer_8.5x11.png": 136670,
+  "FreePizza_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf": 69201,
   "FreePizza_HUBLawn_HalfPage_2up_Letter.pdf": 62493,
   "FreePizza_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf": 62230,
   "FreePizza_HUBLawn_HalfPage_5.5x8.5.pdf": 65826,
   "FreePizza_HUBLawn_HalfPage_5.5x8.5.png": 90365,
   "FreePizza_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf": 65553,
-  "PSUFootball_HUBLawn_Flyer_8.5x11.pdf": 69598,
-  "PSUFootball_HUBLawn_Flyer_8.5x11.png": 136833,
+  "PSUFootball_HUBLawn_Flyer_8.5x11.pdf": 69602,
+  "PSUFootball_HUBLawn_Flyer_8.5x11.png": 138108,
+  "PSUFootball_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf": 69527,
   "PSUFootball_HUBLawn_HalfPage_2up_Letter.pdf": 62863,
   "PSUFootball_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf": 62611,
   "PSUFootball_HUBLawn_HalfPage_5.5x8.5.pdf": 66193,
   "PSUFootball_HUBLawn_HalfPage_5.5x8.5.png": 92550,
   "PSUFootball_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf": 65938,
-  "TheFigs_HUBLawn_Flyer_8.5x11.pdf": 69052,
-  "TheFigs_HUBLawn_Flyer_8.5x11.png": 131424,
+  "TheFigs_HUBLawn_Flyer_8.5x11.pdf": 69056,
+  "TheFigs_HUBLawn_Flyer_8.5x11.png": 132810,
+  "TheFigs_HUBLawn_Flyer_8.5x11_OfficePrinter.pdf": 69112,
   "TheFigs_HUBLawn_HalfPage_2up_Letter.pdf": 62422,
   "TheFigs_HUBLawn_HalfPage_2up_Letter_OfficePrinter.pdf": 62157,
   "TheFigs_HUBLawn_HalfPage_5.5x8.5.pdf": 65741,
   "TheFigs_HUBLawn_HalfPage_5.5x8.5.png": 89051,
   "TheFigs_HUBLawn_HalfPage_5.5x8.5_OfficePrinter.pdf": 65468,
-  "TheFigs_Sept13_Email_Ad.pdf": 73829,
-  "TheFigs_Sept13_Email_Ad.png": 128269,
+  "TheFigs_Sept13_Email_Ad.pdf": 77416,
+  "TheFigs_Sept13_Email_Ad.png": 144209,
   "email_1200x630.gif": 540281,
-  "email_1200x630.png": 47389,
+  "email_1200x630.png": 42679,
   "facebook_1200x630.mp4": 173370,
-  "facebook_1200x630.png": 47353,
+  "facebook_1200x630.png": 42824,
   "groupme_1080.gif": 513671,
-  "groupme_1080.png": 48459,
+  "groupme_1080.png": 55431,
   "hub_signage_1920x1080.mp4": 285645,
-  "hub_signage_1920x1080.png": 91488,
+  "hub_signage_1920x1080.png": 88327,
   "instagram_carousel_2_1080x1350.png": 65940,
   "instagram_feed_1080x1350.mp4": 171229,
-  "instagram_feed_1080x1350.png": 50126,
+  "instagram_feed_1080x1350.png": 58161,
   "instagram_reel_1080x1920.mp4": 232413,
   "instagram_story_1080x1920.mp4": 232748,
-  "instagram_story_1080x1920.png": 85821,
+  "instagram_story_1080x1920.png": 93812,
   "text_1080.gif": 513671,
-  "text_1080.png": 48459,
+  "text_1080.png": 55431,
   "text_duo_1080x1350.png": 78387,
   "text_duo_psu_1080x1350.png": 78387,
   "tiktok_1080x1920.mp4": 232413,
   "whatsapp_1080.gif": 513671,
   "whatsapp_1080.mp4": 176157,
-  "whatsapp_1080.png": 48459,
+  "whatsapp_1080.png": 55431,
   "youtube_short_1080x1920.mp4": 234259
 };
 
@@ -56,7 +59,15 @@ export const THUMBS: Record<string, [number, number]> = {
     380,
     294
   ],
-  "2up_office": [
+  "2up_office_figs": [
+    380,
+    294
+  ],
+  "2up_office_pizza": [
+    380,
+    294
+  ],
+  "2up_office_psu": [
     380,
     294
   ],
@@ -84,11 +95,31 @@ export const THUMBS: Record<string, [number, number]> = {
     294,
     380
   ],
+  "full_office_figs": [
+    294,
+    380
+  ],
+  "full_office_pizza": [
+    294,
+    380
+  ],
+  "full_office_psu": [
+    294,
+    380
+  ],
   "half_figs": [
     246,
     380
   ],
-  "half_office": [
+  "half_office_figs": [
+    246,
+    380
+  ],
+  "half_office_pizza": [
+    246,
+    380
+  ],
+  "half_office_psu": [
     246,
     380
   ],
@@ -101,40 +132,40 @@ export const THUMBS: Record<string, [number, number]> = {
     380
   ],
   "s_email": [
-    380,
-    200
+    300,
+    158
   ],
   "s_facebook": [
-    380,
-    200
+    300,
+    158
   ],
   "s_groupme": [
-    380,
-    380
+    300,
+    300
   ],
   "s_igcarousel2": [
     304,
     380
   ],
   "s_igfeed": [
-    304,
-    380
+    240,
+    300
   ],
   "s_igreel": [
-    214,
-    380
+    169,
+    300
   ],
   "s_igstory": [
-    214,
-    380
+    169,
+    300
   ],
   "s_signage": [
-    380,
-    214
+    300,
+    169
   ],
   "s_text": [
-    380,
-    380
+    300,
+    300
   ],
   "s_textduo": [
     304,
@@ -145,15 +176,31 @@ export const THUMBS: Record<string, [number, number]> = {
     380
   ],
   "s_tiktok": [
-    214,
-    380
+    169,
+    300
   ],
   "s_whatsapp": [
-    380,
-    380
+    300,
+    300
   ],
   "s_yt": [
-    214,
-    380
+    169,
+    300
   ]
 };
+
+/* Thumbnails that move. These are animated WebP, not JPEG, so the page
+   has to ask for the right extension. */
+export const ANIM: string[] = [
+  "s_email",
+  "s_facebook",
+  "s_groupme",
+  "s_igfeed",
+  "s_igreel",
+  "s_igstory",
+  "s_signage",
+  "s_text",
+  "s_tiktok",
+  "s_whatsapp",
+  "s_yt"
+];
