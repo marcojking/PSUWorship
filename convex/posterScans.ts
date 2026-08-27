@@ -1,4 +1,4 @@
-import { mutation, query } from './_generated/server';
+import { internalMutation, mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
 /* Which poster did this scan come from?
@@ -104,5 +104,19 @@ export const summary = query({
         .sort()
         .map((d) => ({ day: d, ...byDay[d] })),
     };
+  },
+});
+
+/* Wipe the counts. internalMutation, so it is reachable only from the CLI or the
+   dashboard and never from a browser. Exists because the table gets seeded with
+   test rows while verifying the pipeline, and real numbers have to start at zero
+   before the posters go up. */
+export const reset = internalMutation({
+  args: {},
+  returns: v.number(),
+  handler: async (ctx) => {
+    const rows = await ctx.db.query('posterScans').withIndex('by_at').take(20000);
+    for (const r of rows) await ctx.db.delete(r._id);
+    return rows.length;
   },
 });
