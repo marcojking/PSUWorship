@@ -41,6 +41,19 @@ const SOURCES = [
    * whitelist, but the stats page holds it out of the visit total — it is an
    * action taken ON the page, not an arrival at it. */
   'cal',
+  /* University placements, each submitted separately and each taking the same
+   * 16:9 graphic. Split so we can learn which captive-audience channel actually
+   * works rather than lumping them under 'other' and never finding out.
+   *   hub   — HUB-Robeson digital signage
+   *   tpep  — The Toilet Paper / The Elevator Pitch (HUB stalls + elevators)
+   *   stall — Residence Life Stall Stories
+   *   disc  — the Discover / Penn State GO event listing
+   *   press — a link printed in a story we did not place ourselves */
+  'hub',
+  'tpep',
+  'stall',
+  'disc',
+  'press',
   'other',
 ] as const;
 

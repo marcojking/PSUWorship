@@ -43,6 +43,16 @@ const GROUPS: { title: string; items: { key: string; label: string; colour: stri
       { key: "other", label: "Other", colour: "#6e6e6e" },
     ],
   },
+  {
+    title: "University placements",
+    items: [
+      { key: "hub", label: "HUB screens", colour: "#6d8fd7" },
+      { key: "tpep", label: "TP/EP stalls", colour: "#c9d76d" },
+      { key: "stall", label: "Stall Stories", colour: "#d78f6d" },
+      { key: "disc", label: "Discover listing", colour: "#8fd7c9" },
+      { key: "press", label: "Press", colour: "#d76dae" },
+    ],
+  },
   /* An action on the page, not an arrival at it, so it sits in its own group and
      is subtracted from the visit total below. Counting it as a visit would both
      inflate the total and bury the single strongest signal on this page. */
