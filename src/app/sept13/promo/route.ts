@@ -638,10 +638,13 @@ const HTML = `<!DOCTYPE html>
       <div class="u">wmaac.org/sept13</div>
     </div>
 
-    ${PRINT}
+    <!-- Digital first, print last. Almost everyone who opens this is going to
+         send a picture to a group chat; only a few are going to a printer. The
+         page should open on the thing most people came to do. -->
     ${PHONE}
     ${CHURCH}
     ${SOCIAL}
+    ${PRINT}
 
     <footer>
       <a class="back" href="/sept13">See the event page</a>
