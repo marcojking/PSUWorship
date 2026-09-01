@@ -429,12 +429,6 @@ export default function DoxologyPage() {
               Count in
             </label>
           </div>
-
-          <p className="pt-4 text-[11px] leading-relaxed text-foreground/35">
-            {ARR.license} Tune from the Genevan Psalter, 1551; text by Thomas Ken, 1695.
-            Notes transcribed from a public-domain edition and checked against a second
-            independent source.
-          </p>
         </section>
       </div>
     </div>
