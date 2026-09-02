@@ -46,7 +46,7 @@ No Convex, no CMS. Each song is a typed data file, same spirit as
   instrument, and default view per song context (e.g. Marco: acoustic, capo 4
   C-shapes in E / open in G; Grant: acoustic, capo 2 D-shapes in E so the two
   guitars don't stack identical voicings; Clair: piano, concert key with an
-  optional "transpose keyboard −1, play G shapes" hint where it helps).
+  optional "transpose keyboard −3, read G shapes" view for the E songs).
   Adding a player or changing a capo is a one-line edit.
 - `src/lib/music/setlist/order.ts` — running order + transition notes.
 - `src/app/practice/page.tsx` — renders order; Doxology renders as a slot card
