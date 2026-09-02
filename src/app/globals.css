@@ -39,6 +39,25 @@ html:has(.doxology-page), body:has(.doxology-page) {
   position: static;
 }
 
+/* The practice page needs the same scrolling, but it also has a sticky person
+   picker, and the rule above is not enough for that. The base html/body rule
+   pins both to 100dvh, so `overflow: auto` on <body> leaves body its own
+   scroll container while <html> is what actually scrolls; a sticky child then
+   never engages, because the scrollport it is measured against never moves.
+   Releasing the height and keeping overflow on <html> alone puts the page back
+   on the normal document scroller. */
+html:has(.practice-page) {
+  overflow: auto;
+  position: static;
+  height: auto;
+}
+body:has(.practice-page) {
+  overflow: visible;
+  position: static;
+  height: auto;
+  min-height: 100dvh;
+}
+
 /* ── Merch Store Theme ── */
 .merch-theme {
   --background: #1a1714;
