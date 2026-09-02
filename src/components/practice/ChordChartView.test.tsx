@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ChordLine } from '@/lib/db';
 import type { PracticeSong } from '@/lib/music/setlist/types';
-import ChordChartView, { chordRow } from './ChordChartView';
+import ChordChartView, { barCells, chordRow } from './ChordChartView';
 
 const line = (lyrics: string, chords: ChordLine['chords']): ChordLine => ({ lyrics, chords });
 
@@ -74,6 +74,101 @@ describe('chordRow', () => {
       'F',
     );
     expect(row).toBe('C'.padEnd(8, ' ') + 'Csus');
+  });
+});
+
+describe('instrumental lines', () => {
+  // `lyrics: ''` with evenly spaced positions means "one chord per bar". The
+  // positions run past the end of the empty lyric on purpose — they are a
+  // rhythm, not character indexes.
+  const intro = line('', [
+    { chord: 'F', position: 0 },
+    { chord: 'F', position: 8 },
+    { chord: 'Fsus', position: 16 },
+    { chord: 'Fsus', position: 24 },
+  ]);
+
+  it('lays out four evenly spaced bars, none lost or overlapping', () => {
+    const cells = barCells(intro, 0, 'F');
+    expect(cells).toEqual(['F', 'F', 'Fsus', 'Fsus']);
+    expect(cells).toHaveLength(intro.chords.length);
+  });
+
+  it('transposes the bars with the capo', () => {
+    expect(barCells(intro, 5, 'F')).toEqual(['C', 'C', 'Csus', 'Csus']);
+  });
+
+  it('falls back to a character-offset row when the gaps are uneven', () => {
+    // 0/8/24 is a two-bar hold, not four even bars — forcing it into cells
+    // would quietly misstate the rhythm.
+    const uneven = line('', [
+      { chord: 'F', position: 0 },
+      { chord: 'Bb', position: 8 },
+      { chord: 'C', position: 24 },
+    ]);
+    expect(barCells(uneven, 0, 'F')).toBeNull();
+    expect(chordRow(uneven, 0, 'F')).toBe('F       Bb'.padEnd(24, ' ') + 'C');
+  });
+
+  it('leaves lines that have lyrics alone', () => {
+    const sung = line('one two three', [
+      { chord: 'G', position: 0 },
+      { chord: 'C', position: 4 },
+      { chord: 'D', position: 8 },
+    ]);
+    expect(barCells(sung, 0, 'G')).toBeNull();
+  });
+
+  it('does not draw a single chord as a bar', () => {
+    expect(barCells(line('', [{ chord: 'F', position: 0 }]), 0, 'F')).toBeNull();
+  });
+
+  const asText = (html: string) => html.replace(/<[^>]+>/g, '');
+
+  it('renders every bar chord for the real four-bar intro', () => {
+    const song: PracticeSong = {
+      id: 'intro-only',
+      title: 'Intro only',
+      artist: 'Test',
+      concertKey: 'F',
+      sections: [{ type: 'intro', label: 'Intro', lines: [intro] }],
+    };
+    const html = renderToStaticMarkup(<ChordChartView song={song} capo={5} />);
+
+    // All four bars survive the render, padded to a common width.
+    expect(asText(html)).toContain('| C    | C    | Csus | Csus |');
+    expect(html.split('|').length - 1).toBe(5);
+    // No lyric row for an instrumental line.
+    expect(html).not.toContain('text-foreground/85');
+  });
+
+  it('gives consecutive bar lines in a section one column width', () => {
+    // Amazing's turnaround: "| C  | Am |" over "| G  | F  |", not adrift.
+    const song: PracticeSong = {
+      id: 'turnaround',
+      title: 'Turnaround',
+      artist: 'Test',
+      concertKey: 'F',
+      sections: [
+        {
+          type: 'instrumental',
+          label: 'Turnaround',
+          lines: [
+            line('', [
+              { chord: 'F', position: 0 },
+              { chord: 'Dm', position: 8 },
+            ]),
+            line('', [
+              { chord: 'C', position: 0 },
+              { chord: 'Bb', position: 8 },
+            ]),
+          ],
+        },
+      ],
+    };
+    const text = asText(renderToStaticMarkup(<ChordChartView song={song} capo={0} />));
+    expect(text).toContain('| F  | Dm |');
+    expect(text).toContain('| C  | Bb |');
   });
 });
 

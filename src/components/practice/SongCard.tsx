@@ -119,7 +119,13 @@ function SongBlock({ song, player }: { song: PracticeSong; player: PlayerView })
           <select
             id={selectId}
             value={capo}
-            onChange={(e) => setCapo(Number(e.target.value))}
+            // shapeKeyFor/displayChord throw on an invalid capo, and they run
+            // during render — so nothing outside this list is allowed through,
+            // whatever the event carries.
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              if (options.includes(next)) setCapo(next);
+            }}
             className="w-full rounded-lg border border-foreground/25 bg-background px-3 py-2 text-base text-foreground sm:w-auto"
           >
             {options.map((option) => (

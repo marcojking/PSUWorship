@@ -28,6 +28,34 @@ export function chordRow(line: ChordLine, capo: number, concertKey: string): str
   return row;
 }
 
+/**
+ * Instrumental lines (`lyrics: ''`) carry evenly spaced positions meaning
+ * "one chord per bar, no words" — position is a rhythm, not a character index.
+ * Those read far better as bars than as chords floating over nothing, so they
+ * get `| F    | F    | Fsus | Fsus |` instead.
+ *
+ * Returns the cells unpadded, or null when the line is not that shape: a line
+ * with lyrics, a single chord, or uneven gaps (which would mean something
+ * other than one chord per bar, e.g. a two-bar hold). Those fall back to
+ * `chordRow`, so an unusual line is drawn honestly rather than forced into a
+ * grid that misstates its rhythm. Padding is applied per section by the
+ * caller, so consecutive bar lines share a column width instead of each
+ * sizing itself and coming out ragged.
+ */
+export function barCells(line: ChordLine, capo: number, concertKey: string): string[] | null {
+  if (line.lyrics !== '') return null;
+  const chords = [...line.chords].sort((a, b) => a.position - b.position);
+  if (chords.length < 2 || chords[0].position !== 0) return null;
+
+  const gap = chords[1].position - chords[0].position;
+  if (gap <= 0) return null;
+  for (let i = 1; i < chords.length; i += 1) {
+    if (chords[i].position - chords[i - 1].position !== gap) return null;
+  }
+
+  return chords.map(({ chord }) => displayChord(chord, capo, concertKey));
+}
+
 export default function ChordChartView({
   song,
   capo,
@@ -37,7 +65,16 @@ export default function ChordChartView({
 }) {
   return (
     <div className="space-y-5">
-      {song.sections.map((section, i) => (
+      {song.sections.map((section, i) => {
+        const bars = section.lines.map((line) => barCells(line, capo, song.concertKey));
+        // One column width for the whole section, so a two-line turnaround
+        // does not print "| C  | Am |" above "| G | F |" with the bars adrift.
+        const barWidth = Math.max(
+          0,
+          ...bars.flatMap((cells) => cells ?? []).map((cell) => cell.length),
+        );
+
+        return (
         <section key={`${section.label}-${i}`}>
           <h4 className="mb-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-foreground/55">
             {section.label}
@@ -48,9 +85,21 @@ export default function ChordChartView({
           <div className="overflow-x-auto overscroll-x-contain">
             <div className="min-w-max font-mono text-[17px] leading-tight">
               {section.lines.map((line, j) => {
-                const row = chordRow(line, capo, song.concertKey);
+                const cells = bars[j];
+                const row = cells ? null : chordRow(line, capo, song.concertKey);
                 return (
                   <div key={j} className="mb-2.5">
+                    {cells && (
+                      <div className="whitespace-pre font-bold text-secondary">
+                        {cells.map((cell, k) => (
+                          <span key={k}>
+                            <span className="text-foreground/30">| </span>
+                            {cell.padEnd(barWidth, ' ')}{' '}
+                          </span>
+                        ))}
+                        <span className="text-foreground/30">|</span>
+                      </div>
+                    )}
                     {row && (
                       <div className="whitespace-pre font-bold text-secondary">{row}</div>
                     )}
@@ -63,7 +112,8 @@ export default function ChordChartView({
             </div>
           </div>
         </section>
-      ))}
+        );
+      })}
     </div>
   );
 }
