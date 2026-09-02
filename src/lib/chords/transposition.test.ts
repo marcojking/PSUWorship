@@ -39,6 +39,18 @@ describe('transposeChord', () => {
     expect(transposeChord('F#m7(4)', -2, 'D')).toBe('Em7(4)');
   });
 
+  // The /practice set: Washed in concert F, read by Marco at capo 5 (C shapes)
+  // and Grant at capo 3 (D shapes).
+  it('handles the practice set capo views', () => {
+    expect(transposeChord('C(4)', -5, 'C')).toBe('G(4)');
+    expect(transposeChord('C(4)', -3, 'D')).toBe('A(4)');
+    expect(transposeChord('Gm7(4)', -5, 'C')).toBe('Dm7(4)');
+    expect(transposeChord('Gm7(4)', -3, 'D')).toBe('Em7(4)');
+    expect(transposeChord('Bb2', -5, 'C')).toBe('F2');
+    expect(transposeChord('F/A', -5, 'C')).toBe('C/E');
+    expect(transposeChord('F/A', -3, 'D')).toBe('D/F#');
+  });
+
   it('returns unparseable text unchanged', () => {
     expect(transposeChord('N.C.', -4, 'C')).toBe('N.C.');
   });
