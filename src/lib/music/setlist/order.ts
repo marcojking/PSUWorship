@@ -29,12 +29,14 @@ export const TRANSITIONS: TransitionNote[] = [
   {
     afterIndex: 0,
     text:
-      'Hold the final "A—men" (A major). The last melody note is A, which is the 3rd of F — ' +
-      'singers stay on their note and do not move. Piano ghosts a low F underneath; ' +
-      'count in at ~145 during the hold; band lands Amazing\'s intro vamp in F.',
+      'Hold the final "A—men". Janae and Marco are both on A, the 3rd of F — ' +
+      'they stay put and the band arrives underneath them. Cassidy and Grant release ' +
+      'on the downbeat so the band lands a clean F rather than F/A. Piano ghosts a low F ' +
+      'under the held chord; count in at ~145 during the hold; ' +
+      'band lands the intro vamp | F | F | Fsus | Fsus |.',
   },
   {
-    afterIndex: 2,
+    afterIndex: 1,
     text:
       'Capo move: Peace Like A River is open G. Marco goes capo 5 → open, Grant capo 3 → open. ' +
       'Back to the capos for The Cost Is A Joy, then open again for the last one.',

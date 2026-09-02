@@ -87,6 +87,12 @@ export function chordToRomanNumeral(chord: string, key: string): string {
     suffix += parsed.suffix;
   }
 
+  // Add SongSelect-style parenthesized added tones, e.g. the "(4)" in C(4).
+  // Dropping this turns a sus into a plain triad in the Nashville view.
+  if (parsed.paren) {
+    suffix += parsed.paren;
+  }
+
   // Handle slash chords - convert bass note to roman numeral too
   let bassNumeral = '';
   if (parsed.bass) {

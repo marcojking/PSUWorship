@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseChord, transposeChord } from './transposition';
+import { chordToRomanNumeral } from './nashville';
 
 describe('parseChord', () => {
   it('parses plain and extended chords', () => {
@@ -53,5 +54,21 @@ describe('transposeChord', () => {
 
   it('returns unparseable text unchanged', () => {
     expect(transposeChord('N.C.', -4, 'C')).toBe('N.C.');
+  });
+});
+
+describe('chordToRomanNumeral', () => {
+  it('converts plain and extended chords', () => {
+    expect(chordToRomanNumeral('C', 'C')).toBe('I');
+    expect(chordToRomanNumeral('Am7', 'C')).toBe('vi7');
+    expect(chordToRomanNumeral('C/E', 'C')).toBe('I/III');
+  });
+
+  // The numeral is built from the parsed parts, so a part left out disappears
+  // from the chart entirely — a sus4 silently rendered as a plain triad.
+  it('keeps SongSelect parenthesized added tones', () => {
+    expect(chordToRomanNumeral('C(4)', 'C')).toBe('I(4)');
+    expect(chordToRomanNumeral('Gm7(4)', 'F')).toBe('ii7(4)');
+    expect(chordToRomanNumeral('B(4)/D#', 'B')).toBe('I(4)/III');
   });
 });

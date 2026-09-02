@@ -108,7 +108,6 @@ function SongBlock({ song, player }: { song: PracticeSong; player: PlayerView })
           {keyLine(song, capo, player.instrument)}
         </p>
         {song.lyricsNote && <Meta>{song.lyricsNote}</Meta>}
-        {player.hint && <Meta>{player.hint}</Meta>}
 
         <div className="mt-3">
           <label htmlFor={selectId} className="sr-only">
