@@ -37,12 +37,13 @@ export interface ParsedChord {
   quality: string; // m, maj, dim, aug, etc.
   extension: string; // 7, 9, 11, 13
   suffix: string; // sus4, add9, etc.
+  paren: string; // SongSelect-style added tone, e.g. the "(4)" in B(4) or F#m7(4)
   bass: string | null; // for slash chords
 }
 
 export function parseChord(chord: string): ParsedChord | null {
-  // Match chord pattern: Root + quality + extension + suffix + optional bass
-  const match = chord.match(/^([A-G][#b♯♭]?)(m|min|maj|dim|aug|\+|°|ø)?(\d+)?(sus[24]?|add[29]|add11|add13)?(?:\/([A-G][#b♯♭]?))?$/i);
+  // Match chord pattern: Root + quality + extension + suffix + paren + optional bass
+  const match = chord.match(/^([A-G][#b♯♭]?)(m|min|maj|dim|aug|\+|°|ø)?(\d+)?(sus[24]?|add[29]|add11|add13)?(\([#b♯♭]?\d+\))?(?:\/([A-G][#b♯♭]?))?$/i);
 
   if (!match) return null;
 
@@ -51,7 +52,8 @@ export function parseChord(chord: string): ParsedChord | null {
     quality: normalizeQuality(match[2] || ''),
     extension: match[3] || '',
     suffix: match[4] || '',
-    bass: match[5] || null,
+    paren: match[5] || '',
+    bass: match[6] || null,
   };
 }
 
@@ -89,7 +91,7 @@ export function transposeChord(chord: string, semitones: number, targetKey?: str
     }
   }
 
-  return newRoot + parsed.quality + parsed.extension + parsed.suffix + newBass;
+  return newRoot + parsed.quality + parsed.extension + parsed.suffix + parsed.paren + newBass;
 }
 
 // Get the transposition interval between two keys
