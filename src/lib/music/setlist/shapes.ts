@@ -8,11 +8,9 @@ import { transposeChord } from '@/lib/chords/transposition';
 const MIN_CAPO = -12;
 const MAX_CAPO = 12;
 
-// transposeChord spells accidentals sharp unless its targetKey is one of its
-// FLAT_KEYS, which gives shape keys like D# where a musician writes Eb. Any
-// flat key works as the selector; 'F' just means "spell this one flat".
-// Naturals are unaffected, so the real capo-5 (C) and capo-3 (D) views are
-// untouched.
+// transposeChord spells accidentals sharp unless targetKey is one of its
+// FLAT_KEYS, which gives D# where a musician writes Eb. Naturals are
+// unaffected, so the capo-5 (C) and capo-3 (D) views are untouched.
 const SPELL_FLAT = 'F';
 
 // transposeChord indexes a 12-note table with `(i + semitones + 12) % 12`,
