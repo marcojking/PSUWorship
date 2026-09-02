@@ -14,11 +14,41 @@ import type { PracticeSong } from './types';
 // Capo positions actually in use: concert (everyone/piano), Grant's 3, Marco's 5.
 const CAPOS_IN_USE = [0, 3, 5];
 
-const songs: PracticeSong[] = SET_ENTRIES.flatMap((entry) => {
+function isPracticeSong(value: unknown): value is PracticeSong {
+  if (typeof value !== 'object' || value === null) return false;
+  const song = value as Partial<PracticeSong>;
+  return typeof song.id === 'string' && typeof song.concertKey === 'string'
+    && Array.isArray(song.sections);
+}
+
+// Every chart FILE, not just the ones currently in the set. A song written but
+// not yet wired into order.ts is exactly when a bad chord is cheapest to fix,
+// and glob means a new chart is covered the moment it lands without anyone
+// remembering to add it here.
+//
+// import.meta.glob is Vite's. It must be written out literally (Vite replaces
+// it at transform time, so an aliased reference fails at runtime), and the
+// project's tsconfig does not pull in vite/client — adding that would drop
+// vite's ambient '*.css' module declarations into the app's type program for
+// the sake of one test. The suppression un-suppresses itself if that changes.
+// @ts-expect-error -- ImportMeta.glob is untyped without vite/client
+const modules: Record<string, Record<string, unknown>> = import.meta.glob('./songs/*.ts', {
+  eager: true,
+});
+
+const fromFiles = Object.values(modules).flatMap((mod) =>
+  Object.values(mod).filter(isPracticeSong),
+);
+
+const fromSet = SET_ENTRIES.flatMap((entry) => {
   if (entry.kind === 'song') return [entry.song];
   if (entry.kind === 'mashup') return entry.songs;
   return [];
 });
+
+const byId = new Map<string, PracticeSong>();
+for (const song of [...fromFiles, ...fromSet]) byId.set(song.id, song);
+const songs: PracticeSong[] = [...byId.values()];
 
 interface ChordRef {
   song: string;
@@ -42,10 +72,10 @@ const chordRefs: ChordRef[] = songs.flatMap((song) =>
 
 describe('chart integrity', () => {
   it('has charts to check', () => {
-    // Guards the guard: if the flatMap above ever stops finding songs, every
-    // test below would pass vacuously.
-    expect(songs.length).toBeGreaterThan(0);
-    expect(chordRefs.length).toBeGreaterThan(20);
+    // Guards the guard: if the glob or the flatMap above ever stops finding
+    // songs, every test below would pass vacuously.
+    expect(songs.length).toBeGreaterThanOrEqual(5);
+    expect(chordRefs.length).toBeGreaterThan(100);
   });
 
   it('every chord in the set parses', () => {
