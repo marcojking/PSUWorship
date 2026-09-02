@@ -17,8 +17,12 @@ position. Doxology links to the existing `/doxology` acapella trainer.
 | 2 | Amazing! (mashup, part 1) | **E** | Janae/Grant | Whole step below the Gb record → vocal headroom (Gb was "a tiny bit high"). |
 | 3 | Washed (mashup, part 2) | **E** | Marco | Same key as Amazing (mashup). 2 semitones below the practiced Gb — **verify not too low at rehearsal** (record is in B, so still far below original). |
 | 4 | Peace Like A River | **G** | Marco | Marco's original; Janae's PDF chart is the source of truth (G/C/Em/D as written). |
-| 5 | The Cost Is A Joy (SEU Worship) | TBD | TBD | Chart from Ultimate Guitar; key proposed at import to fit voices + flow after G. |
-| 6 | I Have Decided To Follow Jesus | TBD | TBD | Same — many arrangements exist; pick version + key at import. |
+| 5 | The Cost Is A Joy (SEU Worship) | **E** | TBD | UG chart is already in E — same key as the mashup, no transposition. Six chords: Amaj7, E/G#, E, C#m7, E2, Esus. |
+| 6 | I Have Decided To Follow Jesus | **G** (rec.) | TBD | Public domain hymn; standard hymnal form in G. Matches PLAR, comfortable for a crowd singalong closer. |
+
+**Set-flow note:** the order above runs A → E → G → E → G. Moving The Cost Is A
+Joy up beside the mashup would keep the E block together and let PLAR + the hymn
+close in G. Marco's call; the page renders whatever `order.ts` says.
 
 ### Transitions (printed on the page between songs)
 
@@ -93,6 +97,26 @@ setlist manager. If a TBD song's chart isn't ready, its card renders a
 
 - **Unlisted**: no link from `/sept13` (that's the public promo page) or the
   site nav. The band gets the URL directly: `wmaac.org/practice`.
+- **`noindex`**: the page sets `robots: { index: false, follow: false }` so it
+  never appears in search results. Marco's intent is internal club use; an
+  unlisted URL is still publicly reachable, and noindex is the cheap half of
+  closing that gap. A shared club password is available as a follow-up if the
+  team wants the page genuinely gated.
+
+## Lyrics policy (decided 2026-09-01)
+
+The page stores **chords, section structure, and short lyric cues** — not full
+lyrics — for the copyrighted songs (Amazing, Washed, The Cost Is A Joy).
+Rationale: the club's CCLI licence (#106893) covers reproducing charts for the
+team's own use, but the songs' full lyrics are not ours to commit to a repo, and
+the band's practice need is the harmony and the form, not the words. Full lyrics
+live where they are already licensed: the SongSelect PDFs in the team Drive
+folder, linked from each song card.
+
+Exceptions:
+- **Peace Like A River** is Marco's own song — full lyrics.
+- **I Have Decided To Follow Jesus** is public domain (Assam folk melody, text
+  attributed to Sadhu Sundar Singh, 19th c.) — full lyrics.
 
 ## Out of scope
 
