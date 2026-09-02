@@ -22,7 +22,12 @@ export const AMAZING: PracticeSong = {
       lines: [
         {
           lyrics: '',
-          chords: [{ chord: 'F', position: 0 }, { chord: 'F', position: 8 }, { chord: 'Fsus', position: 16 }],
+          chords: [
+            { chord: 'F', position: 0 },
+            { chord: 'F', position: 8 },
+            { chord: 'Fsus', position: 16 },
+            { chord: 'Fsus', position: 24 },
+          ],
         },
       ],
     },
