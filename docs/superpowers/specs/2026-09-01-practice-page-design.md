@@ -14,23 +14,31 @@ position. Doxology links to the existing `/doxology` acapella trainer.
 | # | Song | Key | Lead | Notes |
 |---|------|-----|------|-------|
 | 1 | Doxology (chorus only) | **A** | Janae/Marco | Acapella. Key unchanged from the `/doxology` trainer (deliberately in A for outdoor voices — see `src/lib/music/arrangements/old100th.ts`). NOT Gb as on Janae's PDF. |
-| 2 | Amazing! (mashup, part 1) | **E** | Janae/Grant | Whole step below the Gb record → vocal headroom (Gb was "a tiny bit high"). |
-| 3 | Washed (mashup, part 2) | **E** | Marco | Same key as Amazing (mashup). 2 semitones below the practiced Gb — **verify not too low at rehearsal** (record is in B, so still far below original). |
+| 2 | Amazing! (mashup, part 1) | **F** | Janae/Grant | Half step below the Gb record — exactly the "tiny bit" Marco wanted off it. Marco plays capo 5 / C shapes (his existing fingering), Grant capo 3 / D shapes. |
+| 3 | Washed (mashup, part 2) | **F** | Marco | Same key as Amazing (mashup). Half step below the practiced Gb chart. |
 | 4 | Peace Like A River | **G** | Marco | Marco's original; Janae's PDF chart is the source of truth (G/C/Em/D as written). |
-| 5 | The Cost Is A Joy (SEU Worship) | **E** | TBD | UG chart is already in E — same key as the mashup, no transposition. Six chords: Amaj7, E/G#, E, C#m7, E2, Esus. |
+| 5 | The Cost Is A Joy (SEU Worship) | **F** (rec.) | TBD | UG chart is in E; up a half step to F so the capos never move. Six chords: Bbmaj7, F/A, F, Dm7, F2, Fsus. |
 | 6 | I Have Decided To Follow Jesus | **G** (rec.) | TBD | Public domain hymn; standard hymnal form in G. Matches PLAR, comfortable for a crowd singalong closer. |
 
-**Set-flow note:** the order above runs A → E → G → E → G. Moving The Cost Is A
-Joy up beside the mashup would keep the E block together and let PLAR + the hymn
-close in G. Marco's call; the page renders whatever `order.ts` says.
+**Two capo positions all night.** With the set in F and G, Marco plays capo 5 (C
+shapes) and Grant capo 3 (D shapes) on every F song — Amazing, Washed, The Cost
+Is A Joy — and both go open for the G songs. Clair reads concert pitch
+throughout: F is one flat and G is one sharp, the two easiest keys on the page.
+
+**Set-flow note:** the order runs A → F → G → F → G. Moving The Cost Is A Joy up
+beside the mashup would keep the F block together and let PLAR + the hymn close
+in G. Marco's call; the page renders whatever `order.ts` says.
 
 ### Transitions (printed on the page between songs)
 
-- **Doxology → Amazing:** Doxology ends on the plagal Amen (D → held A). The A
-  chord contains the note E; band swells in under the final Amen and lands
-  Amazing's intro vamp (| E | E | Esus |). A is IV of E, so the entry is a second
-  plagal cadence — sounds composed, not like a key change. Insurance outdoors:
-  piano ghosts a quiet E pedal under the held Amen.
+- **Doxology → Amazing (common-tone pivot):** Doxology ends on the plagal Amen
+  (D → held A), and its final melody note is A4 (verified: soprano MIDI 69 in
+  `old100th.ts`). A is the 3rd of F major, so the singers hold the final "A—men"
+  and **do not change note** — the band enters on F underneath and the held pitch
+  simply becomes the 3rd of the new chord. Easier to execute live than any
+  cadence that asks a singer to find a new pitch. Piano ghosts a low F under the
+  held chord; count in at ~145 during the hold (the Amen is free time, so there's
+  no old tempo to fight); band lands the intro vamp | F | F | Fsus |.
 - **Amazing → Washed:** same key. Out of Amazing's tag the band drops out;
   Washed's first chorus is sung a cappella (as its chart marks), band re-enters
   on chorus 2. Acapella bookends inside the medley.
@@ -47,10 +55,9 @@ No Convex, no CMS. Each song is a typed data file, same spirit as
   sections of `ChordLine`s (lyrics + positioned chords, **stored in concert
   key**) — reusing the existing `ChordLine` model.
 - `src/lib/music/setlist/people.ts` — player config: id, display name,
-  instrument, and default view per song context (e.g. Marco: acoustic, capo 4
-  C-shapes in E / open in G; Grant: acoustic, capo 2 D-shapes in E so the two
-  guitars don't stack identical voicings; Clair: piano, concert key with an
-  optional "transpose keyboard −3, read G shapes" view for the E songs).
+  instrument, and default view per song context (Marco: acoustic, capo 5 C-shapes
+  in F / open in G; Grant: acoustic, capo 3 D-shapes in F so the two guitars
+  don't stack identical voicings; Clair: piano, concert key throughout).
   Adding a player or changing a capo is a one-line edit.
 - `src/lib/music/setlist/order.ts` — running order + transition notes.
 - `src/app/practice/page.tsx` — renders order; Doxology renders as a slot card
@@ -80,7 +87,7 @@ setlist manager. If a TBD song's chart isn't ready, its card renders a
 
 ### Testing
 
-- Unit: shape/capo mapping for the person views (E → capo 4 C-shapes, capo 2
+- Unit: shape/capo mapping for the person views (F → capo 5 C-shapes, capo 3
   D-shapes; G → open) through the transposition lib.
 - Manual: every chart proofread against source (UG/PDF); page checked on a phone.
 
@@ -88,7 +95,7 @@ setlist manager. If a TBD song's chart isn't ready, its card renders a
 
 - **Amazing, Washed:** clean versions fetched from Ultimate Guitar (Marco's Pro
   account, via claude-in-chrome), cross-checked against the SongSelect PDFs in
-  the Drive folder, stored in E.
+  the Drive folder, stored in F.
 - **Peace Like A River:** transcribed from Janae's PDF (already clean).
 - **The Cost Is A Joy, I Have Decided:** UG lookup; propose key before storing.
 - **Doxology:** no chart needed on /practice (links to `/doxology`).
