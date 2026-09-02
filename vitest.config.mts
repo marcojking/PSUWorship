@@ -8,5 +8,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  test: { include: ['src/**/*.test.ts'] },
+  // .tsx matters: a component test under a ts-only glob is silently never
+  // collected and the suite still reports green.
+  test: { include: ['src/**/*.test.{ts,tsx}'] },
 });
