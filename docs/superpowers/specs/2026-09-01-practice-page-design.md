@@ -17,8 +17,8 @@ position. Doxology links to the existing `/doxology` acapella trainer.
 | 2 | Amazing! (mashup, part 1) | **F** | Janae/Grant | Half step below the Gb record — exactly the "tiny bit" Marco wanted off it. Marco plays capo 5 / C shapes (his existing fingering), Grant capo 3 / D shapes. |
 | 3 | Washed (mashup, part 2) | **F** | Marco | Same key as Amazing (mashup). Half step below the practiced Gb chart. |
 | 4 | Peace Like A River | **G** | Marco | Marco's original; Janae's PDF chart is the source of truth (G/C/Em/D as written). |
-| 5 | The Cost Is A Joy (SEU Worship) | **F** (rec.) | TBD | UG chart is in E; up a half step to F so the capos never move. Six chords: Bbmaj7, F/A, F, Dm7, F2, Fsus. |
-| 6 | I Have Decided To Follow Jesus | **G** (rec.) | TBD | Public domain hymn; standard hymnal form in G. Matches PLAR, comfortable for a crowd singalong closer. |
+| 5 | The Cost Is A Joy (SEU Worship) | **F** (rec.) | Janae | UG chart is in E; up a half step to F so the capos never move. Six chords: Bbmaj7, F/A, F, Dm7, F2, Fsus. |
+| 6 | I Have Decided To Follow Jesus | **G** (rec.) | Marco | Public domain hymn; standard hymnal form in G. Matches PLAR, comfortable for a crowd singalong closer. |
 
 **Two capo positions all night.** With the set in F and G, Marco plays capo 5 (C
 shapes) and Grant capo 3 (D shapes) on every F song — Amazing, Washed, The Cost
