@@ -38,7 +38,9 @@ in G. Marco's call; the page renders whatever `order.ts` says.
   simply becomes the 3rd of the new chord. Easier to execute live than any
   cadence that asks a singer to find a new pitch. Piano ghosts a low F under the
   held chord; count in at ~145 during the hold (the Amen is free time, so there's
-  no old tempo to fight); band lands the intro vamp | F | F | Fsus |.
+  no old tempo to fight); band lands the intro vamp | F | F | Fsus | Fsus |
+  (four bars, per the SongSelect chart — a full bar longer than a three-bar
+  version to settle into after the pivot).
 - **Amazing → Washed:** same key. Out of Amazing's tag the band drops out;
   Washed's first chorus is sung a cappella (as its chart marks), band re-enters
   on chorus 2. Acapella bookends inside the medley.
