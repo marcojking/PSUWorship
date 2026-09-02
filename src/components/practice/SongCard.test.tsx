@@ -24,9 +24,18 @@ describe('capo override options', () => {
   const optionText = (html: string) =>
     [...html.matchAll(/<option[^>]*>([^<]*)<\/option>/g)].map((m) => m[1]);
 
+  // Look the song up by id, never by position. The running order is the one
+  // thing on this page that gets reshuffled, and "the first song entry" quietly
+  // becomes a different song in a different key when it does.
+  const songById = (id: string) => {
+    const entry = SET_ENTRIES.find((e) => e.kind === 'song' && e.song.id === id);
+    if (!entry) throw new Error(`no song entry with id ${id}`);
+    return entry;
+  };
+
   it('offers only natural-letter shapes for a guitarist, plus their default', () => {
     const marco = PLAYERS.find((p) => p.id === 'marco')!;
-    const peace = SET_ENTRIES.find((e) => e.kind === 'song')!;
+    const peace = songById('peace-like-a-river');
     const html = renderToStaticMarkup(<SongCard entry={peace} player={marco} />);
 
     // Peace Like A River is in G: capo 0/2/3/5/7 land on G/F/E/D/C.
@@ -41,7 +50,7 @@ describe('capo override options', () => {
 
   it('defaults the piano to concert pitch and offers reads above it', () => {
     const clair = PLAYERS.find((p) => p.id === 'clair')!;
-    const peace = SET_ENTRIES.find((e) => e.kind === 'song')!;
+    const peace = songById('peace-like-a-river');
     const html = renderToStaticMarkup(<SongCard entry={peace} player={clair} />);
     const options = optionText(html);
 

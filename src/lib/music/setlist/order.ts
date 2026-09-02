@@ -20,8 +20,11 @@ export const SET_ENTRIES: SetEntry[] = [
     songs: [AMAZING, WASHED],
     note: "Out of Amazing's tag the band drops out — Washed's first chorus is a cappella, band back in on chorus 2.",
   },
-  { kind: 'song', song: PEACE_LIKE_A_RIVER },
+  // The Cost Is A Joy sits next to the mashup because it is the other F song.
+  // That groups the whole capo block, so each guitarist moves their capo once
+  // all night instead of three times.
   { kind: 'song', song: THE_COST_IS_A_JOY },
+  { kind: 'song', song: PEACE_LIKE_A_RIVER },
   { kind: 'song', song: I_HAVE_DECIDED },
 ];
 
@@ -36,9 +39,9 @@ export const TRANSITIONS: TransitionNote[] = [
       'band lands the intro vamp | F | F | Fsus | Fsus |.',
   },
   {
-    afterIndex: 1,
+    afterIndex: 2,
     text:
-      'Capo move: Peace Like A River is open G. Marco goes capo 5 → open, Grant capo 3 → open. ' +
-      'Back to the capos for The Cost Is A Joy, then open again for the last one.',
+      'Capos off — and they stay off. The last two are both open G. ' +
+      'Marco capo 5 → open, Grant capo 3 → open. One move all night.',
   },
 ];

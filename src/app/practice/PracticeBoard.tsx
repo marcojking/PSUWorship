@@ -62,7 +62,10 @@ export default function PracticeBoard() {
 
   return (
     <div className="practice-page min-h-dvh bg-background text-foreground">
-      <div className="mx-auto max-w-2xl px-4 pb-24 pt-8 sm:px-5 sm:pt-10">
+      {/* Full width on purpose. A chord chart is wide, monospaced, and read at a
+          distance — a narrow reading column would force long lyric lines to
+          scroll sideways inside every section. */}
+      <div className="w-full px-4 pb-24 pt-8 sm:px-6 sm:pt-10">
         <header className="mb-5">
           <Link href="/" className="inline-block transition-opacity hover:opacity-80">
             <Logo size="sm" />
