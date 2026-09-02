@@ -36,8 +36,8 @@ export const TRANSITIONS: TransitionNote[] = [
   {
     afterIndex: 0,
     text:
-      'Hold the final "A—men" (A major). The melody note A is the 3rd of F, so it stays put ' +
-      'while the harmony moves underneath — singers do not change note. Piano ghosts a low F ' +
-      'under the held chord; count in at ~145; band lands Amazing’s intro vamp in F.',
+      'Hold the final "A—men" (A major). The last melody note is A, which is the 3rd of F — ' +
+      'singers stay on their note and do not move. Piano ghosts a low F underneath; ' +
+      'count in at ~145 during the hold; band lands Amazing\'s intro vamp in F.',
   },
 ];

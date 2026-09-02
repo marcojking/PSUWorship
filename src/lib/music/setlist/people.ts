@@ -21,6 +21,6 @@ export const PLAYERS: PlayerView[] = [
     name: 'Clair',
     instrument: 'piano',
     capoByKey: {},
-    hint: 'Concert key — no transpose needed. F is one flat, so read it as written; the guitars capo to match you.',
+    hint: 'Concert pitch — F is one flat, G is one sharp. No transposing needed.',
   },
 ];

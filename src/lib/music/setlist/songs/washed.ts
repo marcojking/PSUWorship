@@ -21,9 +21,9 @@ export const WASHED: PracticeSong = {
       label: 'Chorus (1st x a cappella)',
       lines: [
         { lyrics: "I've been washed in the water…", chords: [{ chord: 'F', position: 0 }, { chord: 'Bb2', position: 16 }] },
-        { lyrics: "I'm as good as new…", chords: [{ chord: 'Dm7', position: 0 }, { chord: 'C7sus', position: 11 }] },
+        { lyrics: "I'm as good as new…", chords: [{ chord: 'Dm7', position: 0 }, { chord: 'C', position: 11 }] },
         { lyrics: "I've been washed in the water…", chords: [{ chord: 'F', position: 0 }, { chord: 'Bb2', position: 16 }] },
-        { lyrics: 'All because of You…', chords: [{ chord: 'Dm7', position: 0 }, { chord: 'C7sus', position: 11 }] },
+        { lyrics: 'All because of You…', chords: [{ chord: 'Dm7', position: 0 }, { chord: 'C', position: 11 }] },
       ],
     },
     {
