@@ -20,7 +20,10 @@ export const AMAZING: PracticeSong = {
       type: 'intro',
       label: 'Intro',
       lines: [
-        { lyrics: '', chords: [{ chord: 'F', position: 0 }, { chord: 'Fsus', position: 8 }] },
+        {
+          lyrics: '',
+          chords: [{ chord: 'F', position: 0 }, { chord: 'F', position: 8 }, { chord: 'Fsus', position: 16 }],
+        },
       ],
     },
     {
