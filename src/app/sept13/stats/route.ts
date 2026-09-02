@@ -39,6 +39,7 @@ const GROUPS: { title: string; items: { key: string; label: string; colour: stri
       { key: "email", label: "Email", colour: "#9fb87a" },
       { key: "groupme", label: "GroupMe", colour: "#6dbfd7" },
       { key: "whatsapp", label: "WhatsApp", colour: "#6dd79a" },
+      { key: "popup", label: "Pop Up Praises", colour: "#8fd76d" },
       { key: "text", label: "Text", colour: "#c9b06d" },
       { key: "other", label: "Other", colour: "#6e6e6e" },
     ],

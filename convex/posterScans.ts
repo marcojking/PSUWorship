@@ -29,6 +29,8 @@ const SOURCES = [
   'groupme',
   'whatsapp',
   'text',
+  /* The "Pop Up Praises" PSU group chat — Christian students across ministries. */
+  'popup',
   /* Hand-out links for individual people sharing the event with their own
    * network. Deliberately opaque: whoever receives the link sees the code, not
    * whose list they are on. Who is who is kept off the site — the mapping lives
