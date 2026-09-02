@@ -42,6 +42,30 @@ export function beatsToSeconds(beats: number, bpm: number): number {
   return (beats * 60) / bpm;
 }
 
+/**
+ * Unlocks audio playback on iOS.
+ *
+ * Must be **called** synchronously inside a user gesture — awaiting the
+ * returned promise later is fine, calling it late is not. iOS Safari refuses
+ * `resume()` once the tap has ended, so anything awaited before this (a sample
+ * download, say) leaves the context suspended for the rest of the session and
+ * nothing ever sounds.
+ */
+export function unlockAudio(): Promise<void> {
+  const ctx = getAudioContext();
+  // Playing one silent sample is what actually moves iOS out of its
+  // "has never produced audio" state; resume() alone is not always enough.
+  try {
+    const source = ctx.createBufferSource();
+    source.buffer = ctx.createBuffer(1, 1, 22050);
+    source.connect(ctx.destination);
+    source.start(0);
+  } catch {
+    // Non-fatal — some browsers reject this before resume() settles.
+  }
+  return resumeAudioContext();
+}
+
 export class PartPlayer {
   private ctx: AudioContext;
   private gains: Record<PartId, GainNode>;

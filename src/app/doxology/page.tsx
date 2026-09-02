@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { PartPlayer } from '@/lib/audio/partPlayer';
+import { PartPlayer, unlockAudio } from '@/lib/audio/partPlayer';
 import { OLD_100TH } from '@/lib/music/arrangements/old100th';
 import {
   PART_IDS,
@@ -80,6 +80,7 @@ export default function DoxologyPage() {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [volumes, setVolumes] = useState<Record<PartId, number>>({
     soprano: 1, alto: 1, tenor: 1, bass: 1,
@@ -142,28 +143,45 @@ export default function DoxologyPage() {
   }, [playing]);
 
   const handlePlay = async () => {
-    const p = getPlayer();
-    if (playing) {
-      p.stop();
-      setPlaying(false);
-      return;
-    }
-    if (!p.isLoaded) {
-      setLoading(true);
-      await p.load();
+    setError(null);
+    try {
+      const p = getPlayer();
+      if (playing) {
+        p.stop();
+        setPlaying(false);
+        return;
+      }
+
+      // iOS Safari only honours resume() while the tap is still in progress.
+      // Kick it off before awaiting anything — notably before the samples
+      // download, which otherwise ends the gesture and leaves the context
+      // suspended for the rest of the session.
+      const resumed = unlockAudio();
+
+      if (!p.isLoaded) {
+        setLoading(true);
+        await p.load();
+        setLoading(false);
+        setReady(true);
+      }
+      await resumed;
+
+      // Re-apply mixer state; a fresh player starts at unity.
+      for (const id of PART_IDS) {
+        p.setPartVolume(id, volumes[id]);
+        p.setPartMuted(id, muted[id]);
+        p.setPartOctave(id, octaves[id]);
+        p.setPartSource(id, VOICING[id].source);
+      }
+      const { from, to } = rangeFor(selection);
+      await p.play({ fromBeat: from, toBeat: to, bpm, loop, countInBeats: countIn ? 4 : 0 });
+      setPlaying(true);
+    } catch (e) {
+      // Something failing silently on a phone is worse than an ugly message.
       setLoading(false);
-      setReady(true);
+      setPlaying(false);
+      setError(e instanceof Error ? e.message : 'Could not start audio.');
     }
-    // Re-apply mixer state; a fresh player starts at unity.
-    for (const id of PART_IDS) {
-      p.setPartVolume(id, volumes[id]);
-      p.setPartMuted(id, muted[id]);
-      p.setPartOctave(id, octaves[id]);
-      p.setPartSource(id, VOICING[id].source);
-    }
-    const { from, to } = rangeFor(selection);
-    await p.play({ fromBeat: from, toBeat: to, bpm, loop, countInBeats: countIn ? 4 : 0 });
-    setPlaying(true);
   };
 
   const changeVolume = (id: PartId, v: number) => {
@@ -196,14 +214,22 @@ export default function DoxologyPage() {
   };
 
   const hearFirstNote = async (id: PartId) => {
-    const p = getPlayer();
-    if (!p.isLoaded) {
-      setLoading(true);
-      await p.load();
+    setError(null);
+    try {
+      const p = getPlayer();
+      const resumed = unlockAudio(); // before any await — see handlePlay
+      if (!p.isLoaded) {
+        setLoading(true);
+        await p.load();
+        setLoading(false);
+        setReady(true);
+      }
+      await resumed;
+      await p.playStartingPitch(id, rangeFor(selection).from);
+    } catch (e) {
       setLoading(false);
-      setReady(true);
+      setError(e instanceof Error ? e.message : 'Could not start audio.');
     }
-    await p.playStartingPitch(id, rangeFor(selection).from);
   };
 
   const sopranoNotes = ARR.parts.soprano;
@@ -384,12 +410,22 @@ export default function DoxologyPage() {
                 {loading ? 'Loading piano' : playing ? 'Stop' : 'Play'}
               </span>
             </button>
-            {!ready && !loading && (
+            {!ready && !loading && !error && (
               <span className="text-xs text-foreground/40">
                 Piano samples load on first play
               </span>
             )}
           </div>
+
+          {error && (
+            <p
+              role="alert"
+              className="mt-3 rounded-md border border-secondary/30 bg-secondary/10 px-3 py-2 text-xs leading-relaxed text-secondary"
+            >
+              {error} Try tapping Play again — on iPhone the sound has to start
+              from a tap, and turn the silent switch off.
+            </p>
+          )}
 
           <div>
             <div className="mb-1.5 flex items-baseline justify-between">

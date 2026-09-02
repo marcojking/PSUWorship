@@ -8,7 +8,16 @@ let audioContext: AudioContext | null = null;
 // Get or create audio context
 export function getAudioContext(): AudioContext {
   if (!audioContext) {
-    audioContext = new AudioContext();
+    // Older iOS Safari only exposes the prefixed constructor.
+    const Ctor =
+      typeof AudioContext !== 'undefined'
+        ? AudioContext
+        : (window as unknown as { webkitAudioContext?: typeof AudioContext })
+            .webkitAudioContext;
+    if (!Ctor) {
+      throw new Error('This browser does not support Web Audio.');
+    }
+    audioContext = new Ctor();
   }
   return audioContext;
 }
