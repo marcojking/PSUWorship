@@ -408,7 +408,7 @@ const HTML = `<!DOCTYPE html>
 
     <section class="sec" id="early">
       <div class="k">Come early</div>
-      <p class="invite">We'll pray together at 6:15, before doors open at 6:30. If you'd like to
+      <p class="invite">We'll pray together at 6:00, before doors open at 6:30. If you'd like to
         help welcome people, come find us then &mdash; students, churches and campus
         ministries all welcome.</p>
       <!-- Only shown to someone who already opened "Come early", which is as close
