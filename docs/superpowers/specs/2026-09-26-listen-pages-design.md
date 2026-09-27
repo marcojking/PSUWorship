@@ -34,7 +34,10 @@ Marco, 2026-09-26:
 - The gentle & lowly page lives on wmaac.org, as asked, even though gentleandlowlyband.com exists.
   It can point its own `/listen` at this page later.
 - Service buttons open each service's **artist page**, which stays current as releases come out
-  and carries the Follow button. The cover shown on the page is the release the socials are
+  and carries the Follow button. The exception is Marco on Amazon Music, Tidal, Deezer and
+  iHeartRadio: there his artist page is merged with other artists named Marco King, and the newest
+  release it shows isn't his, so those four buttons open "the more i see" until his distributor
+  splits the profiles. The cover shown on the page is the release the socials are
   pushing ("peace like a river" for the band, the newest solo release for Marco).
 - Spotify is the first button and the only filled one, because Spotify monthly listeners is the
   band's goal metric (see the `music-audience-growth` skill).
@@ -62,8 +65,8 @@ A visit's source is decided in this order:
 1. **A tag we gave out**, from `/listen/<tag>` or `?p=`, checked against a whitelist.
    gentle & lowly: `ig` (band Instagram bio), `wma` (@wma.pennstate bio), `story` (IG story link
    sticker), `tt`, `yt`, `fb`, `qr` (a QR code on a slide or in print), `email`, `text`, `web` (a
-   link on gentleandlowlyband.com or wmaac.org). marco king: `ig`, `tt`, `yt`, `qr`, `email`,
-   `text`, `web`.
+   link on gentleandlowlyband.com or wmaac.org). marco king: `ig`, `story`, `tt`, `yt`, `qr`,
+   `email`, `text`, `web`.
 2. **The in-app browser**, from the user agent: `Instagram` → `ig`, `FBAN`/`FBAV`/`FB_IAB` → `fb`,
    `musical_ly`/`BytedanceWebview`/`TikTok` → `tt`, `Snapchat` → `snap`. This catches the link being
    pasted into a DM or a caption without its tag.
@@ -77,7 +80,8 @@ never an error, and the raw string is not stored.
 
 Link-preview fetchers (iMessage, Slack, WhatsApp and so on) are detected with the same user-agent
 test `/sept13` uses and stored with `bot: true`. They are left out of every count and shown as one
-footnote. HEAD requests are not logged.
+footnote. HEAD requests are not logged. Pre-loads that in-app browsers and browsers mark with
+`X-Purpose: preview` or `Sec-Purpose: prefetch` are stored as bots.
 
 ## Clicks
 
@@ -123,8 +127,9 @@ listenEvents: defineTable({
   reaches the server and is counted.
 - One centred column, max about 420 px wide. It has the cover art (with a soft glow of its own
   colours behind it), the artist name and one quiet line, then the service buttons. Spotify comes
-  first and filled; the rest are outlined, each with a monochrome icon. Below those is a row of
-  follow icons and a footer line.
+  first and filled. Apple Music, YouTube Music and Amazon Music follow as full-width outlined
+  buttons, and the smaller services sit in a two-column grid under them (one column below 352 px).
+  Every button has a monochrome icon. Below those is a row of follow icons and a footer line.
 - **gentle & lowly** uses the band's own tokens from gentleandlowlyband.com: espresso `#1a1714`,
   cream `#f5ead6`, amber `#c4793a` for the "&", Cormorant Garamond with Source Sans 3. The footer
   reads "A Worship Music & Arts project at Penn State".
