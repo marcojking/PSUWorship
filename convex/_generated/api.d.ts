@@ -19,6 +19,7 @@ import type * as eventGear from "../eventGear.js";
 import type * as events from "../events.js";
 import type * as gearItems from "../gearItems.js";
 import type * as leadershipInterest from "../leadershipInterest.js";
+import type * as listen from "../listen.js";
 import type * as liveSession from "../liveSession.js";
 import type * as liveSetlist from "../liveSetlist.js";
 import type * as logoVariants from "../logoVariants.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   events: typeof events;
   gearItems: typeof gearItems;
   leadershipInterest: typeof leadershipInterest;
+  listen: typeof listen;
   liveSession: typeof liveSession;
   liveSetlist: typeof liveSetlist;
   logoVariants: typeof logoVariants;

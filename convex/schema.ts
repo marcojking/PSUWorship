@@ -395,6 +395,17 @@ export default defineSchema({
     at:     v.number(),
   }).index("by_at", ["at"]),
 
+  /* wmaac.org/listen: one row per page visit or tap through to a streaming
+     service. See convex/listen.ts and src/lib/listen/. */
+  listenEvents: defineTable({
+    kind:    v.union(v.literal("visit"), v.literal("click")),
+    source:  v.string(),              // a tag we gave out, or a guessed channel
+    service: v.optional(v.string()),  // clicks only
+    tagged:  v.boolean(),
+    bot:     v.boolean(),             // link-preview fetch rather than a person
+    at:      v.number(),
+  }).index("by_at", ["at"]),
+
   liveSession: defineTable({
     currentSong:  v.number(),
     currentSlide: v.number(),
