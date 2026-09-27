@@ -32,6 +32,11 @@ describe("renderListenPage", () => {
     assert.ok(!renderListenPage({ source: "ig", tagged: true }).includes("—"));
   });
 
+  it("clips sideways overflow on the root element, where iOS Safari honours it", () => {
+    // The glow is 150vw wide. iOS can ignore overflow-x on body alone and let the page pan sideways.
+    assert.match(renderListenPage({ source: "ig", tagged: true }), /html\{[^}]*overflow-x:clip/);
+  });
+
   it("carries a share card and a canonical URL", () => {
     const html = renderListenPage({ source: "ig", tagged: true });
     assert.ok(html.includes(`<link rel="canonical" href="${ARTIST.origin}${ARTIST.path}">`));

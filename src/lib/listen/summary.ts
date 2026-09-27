@@ -42,9 +42,13 @@ export interface Summary {
 
 export const DAYS = 30;
 
+/* Built once: toLocaleDateString makes a new formatter on every call, which is about half a
+   second across the 20,000 rows summary reads. */
+const EASTERN = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" });
+
 /** Eastern calendar date, YYYY-MM-DD. The audience is in Pennsylvania, so a day means their day. */
 export function easternDay(at: number): string {
-  return new Date(at).toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  return EASTERN.format(new Date(at));
 }
 
 /** The last `n` Eastern days ending today, oldest first. Calendar arithmetic rather than

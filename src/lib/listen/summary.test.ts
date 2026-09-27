@@ -122,6 +122,19 @@ describe("summarize", () => {
     assert.equal(s.since, at("2026-07-01T12:00:00Z"));
   });
 
+  it("adds up 20,000 rows, the most the query reads, well inside Convex's one-second budget", () => {
+    const rows: EventRow[] = [];
+    for (let i = 0; i < 20_000; i++) {
+      const iso = new Date(NOW - i * 5 * 60_000).toISOString(); // one every 5 minutes, about 69 days back
+      rows.push(i % 3 ? visit("ig", iso) : click("ig", "spotify", iso));
+    }
+    const t0 = performance.now();
+    const s = summarize(rows, NOW);
+    const ms = performance.now() - t0;
+    assert.equal(s.visits + s.clicks, 20_000);
+    assert.ok(ms < 150, `took ${Math.round(ms)} ms`);
+  });
+
   it("passes truncated through", () => {
     assert.equal(summarize([], NOW, true).truncated, true);
   });

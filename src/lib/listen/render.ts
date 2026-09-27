@@ -41,7 +41,7 @@ const FONTS = `<link rel="preconnect" href="https://fonts.googleapis.com">
 
 const PAGE_CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%;background:var(--bg)}
+html{-webkit-text-size-adjust:100%;background:var(--bg);overflow-x:clip}
 body{min-height:100svh;background:var(--bg);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
 .glow{position:fixed;left:50%;top:-12vh;width:150vw;max-width:980px;aspect-ratio:1;transform:translateX(-50%);background-size:cover;background-position:center;filter:blur(80px) saturate(1.2);opacity:.34;pointer-events:none}
 .veil{position:fixed;inset:0;background:linear-gradient(to bottom,transparent 0,transparent 22%,var(--bg) 72%);pointer-events:none}
