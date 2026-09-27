@@ -34,10 +34,17 @@ TypeScript. Tests use Vitest in PSUWorship, and `node --test` plus `tsx` in Proj
 
 ## Global Constraints
 
-- **Never touch a live backend or site.** Don't run `npx convex dev` or `npx convex deploy` against a
-  configured deployment, and don't run `git push` or `vercel`. wmaac.org's "dev" Convex deployment
-  `fearless-dotterel-730` *is* production. Local testing uses
-  `CONVEX_AGENT_MODE=anonymous npx convex dev`, which runs a throwaway backend on 127.0.0.1.
+- **Never touch a live backend or site.** Don't run `git push`, `vercel` or `npx convex deploy`, and
+  **never run `npx convex` directly**. wmaac.org's "dev" Convex deployment `fearless-dotterel-730`
+  *is* production, and the Convex CLI picks its target from the shell environment, `.env.local` and
+  `.env` before it looks at anonymous mode. Every Convex command goes through `L/cx.sh <repo> <args>`
+  (below), which fails closed before the CLI starts if anything could select a cloud or self-hosted
+  deployment, then runs the CLI with `CONVEX_AGENT_MODE=anonymous` against a throwaway backend on
+  127.0.0.1.
+- **One local backend per worktree, kept running.** `convex dev --once` kills the local backend when
+  it exits, and `convex run` doesn't start one. So Task 3 starts `cx.sh W dev` in the background and
+  it stays up through Tasks 5 and 6, and Task 8 does the same in `M` through Task 9. Each part stops
+  its own backend at its end.
 - Don't modify `/sept13` or any existing table or module. The changes only add things.
 - No new npm dependencies in either repo.
 - Paths are lowercase (Vercel builds on case-sensitive Linux).
@@ -46,8 +53,10 @@ TypeScript. Tests use Vitest in PSUWorship, and `node --test` plus `tsx` in Proj
 - Public copy has no em dash (U+2014), and a test enforces it. Use plain words.
 - Every page response is `Cache-Control: no-store`, and every route file exports
   `dynamic = "force-dynamic"`. A cached response is an uncounted visit.
-- Only link URLs from `L/links.json` whose `url` is non-null and verified. An honest missing button
-  beats a link to the wrong artist.
+- **Streaming buttons** link only URLs from `L/links.json` whose `url` is non-null and verified.
+  **Follow icons** link only accounts with recorded evidence that they're the artist's own, written
+  into the catalog comment (the account posts were scheduled from, an OAuth-connected channel, or
+  the profile's own page naming it). An honest missing button beats a link to the wrong artist.
 - Commit messages end with `Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>`.
 
 ## Review Focus
@@ -62,9 +71,32 @@ TypeScript. Tests use Vitest in PSUWorship, and `node --test` plus `tsx` in Proj
    `?p=spotify&t=1` must render or redirect normally, with nothing reflected unescaped. Task 1 unit
    tests plus Task 5 E2E curls.
 4. **Convex unreachable or the env var missing.** The page still returns 200 and the redirect still
-   returns 302. Task 5 E2E runs the dev server once with `NEXT_PUBLIC_CONVEX_URL` unset.
+   returns 302; stats says 503 (unset) or 502 (unreachable). Task 5 E2E runs the dev server once
+   with `NEXT_PUBLIC_CONVEX_URL` empty and once pointed at a dead port, and Task 8 repeats both.
 5. **A narrow phone in an in-app browser.** At 320 px wide nothing overflows sideways, and the
    longest label ("YouTube Music") stays on one line. Task 6 checks it with a screenshot at 320 px.
+
+## Independent Review
+
+- Reviewer: Codex (gpt-6-astra, medium effort) in Herdr pane `plan-reviewer-codex`, static review
+  of the plan, the spec and both worktrees, 2026-09-27.
+- Result: Revised after review.
+- Accepted findings:
+  - The local-only guard didn't fail closed: the Convex CLI selects from shell env, `.env.local` and
+    `.env` before anonymous mode. Now every Convex call goes through `L/cx.sh`, which refuses before
+    the CLI starts and re-checks `.env.local` on every `run`.
+  - `convex dev --once` kills the local backend on exit, so Task 3's `run` checks had nothing to
+    talk to. Now one persistent backend per worktree, started in Task 3 / Task 8 and stopped at the
+    end of Task 6 / Task 9.
+  - Three follow links had no recorded evidence. Kept, with the evidence written into the catalog
+    comments (both Instagram profiles fetched and named on 2026-09-27; YouTube and TikTok are the
+    channels posts are scheduled on), and the constraint now separates streaming links from follow
+    links.
+  - Advisories adopted: more acceptance curls (HEAD, `X-Purpose: preview`, `?p=spotify&t=1`, every
+    service's destination, a dead backend giving 502, repeated on marcoking.com); the mutation
+    drops `tagged` from a source we never hand out; follow taps are counted apart from streaming
+    taps; scoped eslint on marcoking.com; a rollback note in the handoff.
+- Rejected findings: none.
 
 ---
 
@@ -408,11 +440,15 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 - Test: `src/lib/listen/summary.test.ts`
 
 **Interfaces:**
+- Consumes: `serviceByKey` (catalog), to tell a follow tap from a streaming tap.
 - Produces: `EventRow`, `SourceRow {source,visits,tagged,clicks}`, `ServiceRow {service,clicks}`,
   `Cell {source,service,clicks}`, `DayRow {day,visits,clicks}`,
-  `Summary {visits,clicks,bots,sources,services,cells,days,truncated,since}`, `DAYS = 30`,
+  `Summary {visits,clicks,follows,bots,sources,services,cells,days,truncated,since}`, `DAYS = 30`,
   `easternDay(at): string`, `lastDays(now, n?): string[]`,
   `summarize(rows, now, truncated?): Summary`.
+- `clicks`, `services`, `cells`, `days[].clicks` and each source's `clicks` count **streaming taps
+  only**. Taps on the follow icons (Instagram, YouTube, TikTok) go in `follows` and nowhere else,
+  so the tap rate answers "which streaming service", as Marco asked.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -461,6 +497,7 @@ describe("summarize", () => {
     assert.equal(s.bots, 0);
     assert.deepEqual(s.sources, []);
     assert.deepEqual(s.services, []);
+    assert.deepEqual(s.follows, []);
     assert.equal(s.days.length, DAYS);
     assert.ok(s.days.every((d) => d.visits === 0 && d.clicks === 0));
     assert.equal(s.since, null);
@@ -492,6 +529,24 @@ describe("summarize", () => {
     assert.equal(cell("ig", "apple"), 1);
     assert.equal(cell("tt", "spotify"), 1);
     assert.equal(cell("tt", "apple"), undefined);
+  });
+
+  it("counts follow taps apart from streaming taps", () => {
+    const s = summarize(
+      [
+        visit("ig", "2026-09-27T15:00:00Z"),
+        click("ig", "spotify", "2026-09-27T15:01:00Z"),
+        click("ig", "instagram", "2026-09-27T15:02:00Z"),
+        click("tt", "instagram", "2026-09-27T15:03:00Z"),
+      ],
+      NOW,
+    );
+    assert.equal(s.clicks, 1);
+    assert.deepEqual(s.services, [{ service: "spotify", clicks: 1 }]);
+    assert.deepEqual(s.follows, [{ service: "instagram", clicks: 2 }]);
+    assert.deepEqual(s.sources, [{ source: "ig", visits: 1, tagged: 0, clicks: 1 }]);
+    assert.equal(s.cells.length, 1);
+    assert.equal(s.days.find((d) => d.day === "2026-09-27")?.clicks, 1);
   });
 
   it("keeps bots out of every count but their own", () => {
@@ -540,7 +595,10 @@ Expected: FAIL, with "Failed to resolve import ./summary".
  * a database; convex/listen.ts calls it inside the summary query.
  *
  * Counts are page loads and taps, not people. One person opening the page
- * twice is two visits. */
+ * twice is two visits. Taps on the follow icons are kept apart from taps on a
+ * streaming service, so "where they went" is only about listening. */
+
+import { serviceByKey } from "./catalog";
 
 export interface EventRow {
   kind: "visit" | "click";
@@ -558,7 +616,10 @@ export interface DayRow { day: string; visits: number; clicks: number }
 
 export interface Summary {
   visits: number;
+  /** Taps to a streaming service. Follow taps are not in here. */
   clicks: number;
+  /** Taps on the follow icons, by account, most first. */
+  follows: ServiceRow[];
   bots: number;
   /** Sorted by visits, most first. */
   sources: SourceRow[];
@@ -590,9 +651,15 @@ export function lastDays(now: number, n: number = DAYS): string[] {
   return out;
 }
 
+const byCount = (m: Map<string, number>): ServiceRow[] =>
+  [...m]
+    .map(([service, n]) => ({ service, clicks: n }))
+    .sort((a, b) => b.clicks - a.clicks || a.service.localeCompare(b.service));
+
 export function summarize(rows: readonly EventRow[], now: number, truncated = false): Summary {
   const sources = new Map<string, SourceRow>();
   const services = new Map<string, number>();
+  const follows = new Map<string, number>();
   const cells = new Map<string, Cell>();
   const days = new Map<string, DayRow>(lastDays(now).map((day) => [day, { day, visits: 0, clicks: 0 }]));
   let visits = 0;
@@ -604,6 +671,10 @@ export function summarize(rows: readonly EventRow[], now: number, truncated = fa
     since = since === null ? r.at : Math.min(since, r.at);
     if (r.bot) {
       bots++;
+      continue;
+    }
+    if (r.kind === "click" && r.service && serviceByKey(r.service)?.kind === "follow") {
+      follows.set(r.service, (follows.get(r.service) ?? 0) + 1);
       continue;
     }
     let s = sources.get(r.source);
@@ -633,13 +704,12 @@ export function summarize(rows: readonly EventRow[], now: number, truncated = fa
   return {
     visits,
     clicks,
+    follows: byCount(follows),
     bots,
     sources: [...sources.values()].sort(
       (a, b) => b.visits - a.visits || b.clicks - a.clicks || a.source.localeCompare(b.source),
     ),
-    services: [...services]
-      .map(([service, n]) => ({ service, clicks: n }))
-      .sort((a, b) => b.clicks - a.clicks || a.service.localeCompare(b.service)),
+    services: byCount(services),
     cells: [...cells.values()],
     days: [...days.values()],
     truncated,
@@ -670,7 +740,7 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 - Modify: `convex/_generated/api.d.ts` (by codegen, from the local backend)
 
 **Interfaces:**
-- Consumes: `isSource`, `serviceByKey` (catalog), `summarize` (summary)
+- Consumes: `isSource`, `isTag`, `serviceByKey` (catalog), `summarize` (summary)
 - Produces: `api.listen.log({kind, source, service?, tagged, bot}) → null`,
   `api.listen.summary({}) → Summary`, `internal.listen.reset({}) → number`
 
@@ -701,7 +771,7 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 
 import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { isSource, serviceByKey } from "../src/lib/listen/catalog";
+import { isSource, isTag, serviceByKey } from "../src/lib/listen/catalog";
 import { summarize } from "../src/lib/listen/summary";
 
 /** Ceiling on one summary read. Years of traffic for a band this size. */
@@ -720,7 +790,8 @@ export const log = mutation({
     if (!isSource(a.source)) return null;
     if (a.kind === "click" && !(a.service && serviceByKey(a.service))) return null;
     if (a.kind === "visit" && a.service !== undefined) return null;
-    await ctx.db.insert("listenEvents", { ...a, at: Date.now() });
+    // Only a tag we gave out can be "tagged"; a guessed source like direct or snap never is.
+    await ctx.db.insert("listenEvents", { ...a, tagged: a.tagged && isTag(a.source), at: Date.now() });
     return null;
   },
 });
@@ -748,36 +819,72 @@ export const reset = internalMutation({
 });
 ```
 
-- [ ] **Step 3: Push to a throwaway local backend and let codegen run**
+- [ ] **Step 3: Start the throwaway local backend and let codegen run**
 
-The worktree has no `.env.local` (it's gitignored), so nothing points at a real deployment. Confirm
-that first, then start the anonymous local backend:
+Every Convex command goes through `L/cx.sh`, never `npx convex` directly. It is already written
+and self-tested: it exits 2 before the CLI starts when a Convex variable is set in the shell, when
+`.env` selects a deployment, or when `.env.local` names anything but an `anonymous:` deployment on
+127.0.0.1.
 
-```bash
-cd W && test ! -e .env.local && echo "no env, good"
-CONVEX_AGENT_MODE=anonymous npx convex dev --once --typecheck enable 2>&1 | tail -20
-cat .env.local   # expect CONVEX_DEPLOYMENT=anonymous:… and NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:…
+```zsh
+#!/bin/zsh
+# Runs the Convex CLI in <repo> against a throwaway anonymous local backend, never a cloud or
+# self-hosted one. Fails closed: anything that could select a real deployment stops it before
+# the CLI starts. Usage: cx.sh <repo dir> <convex args...>
+set -euo pipefail
+cd "${1:?usage: cx.sh <repo dir> <convex args...>}"; shift
+for v in CONVEX_DEPLOYMENT CONVEX_DEPLOY_KEY CONVEX_SELF_HOSTED_URL CONVEX_SELF_HOSTED_ADMIN_KEY CONVEX_OVERRIDE_ACCESS_TOKEN CONVEX_URL NEXT_PUBLIC_CONVEX_URL; do
+  if [[ -n "${(P)v:-}" ]]; then echo "cx.sh refusing: $v is set in the environment" >&2; exit 2; fi
+done
+SEL='^(CONVEX_DEPLOYMENT|CONVEX_DEPLOY_KEY|CONVEX_SELF_HOSTED_URL|CONVEX_SELF_HOSTED_ADMIN_KEY)='
+if [[ -e .env ]] && grep -q -E "$SEL" .env; then echo "cx.sh refusing: .env selects a deployment" >&2; exit 2; fi
+if [[ -e .env.local ]]; then
+  if grep -E "$SEL" .env.local | grep -v -q -E '^CONVEX_DEPLOYMENT=anonymous:'; then
+    echo "cx.sh refusing: .env.local selects a non-anonymous deployment" >&2; exit 2
+  fi
+  url=$(grep -E '^NEXT_PUBLIC_CONVEX_URL=' .env.local | cut -d= -f2- || true)
+  if [[ -n "$url" && "$url" != http://127.0.0.1:* ]]; then echo "cx.sh refusing: NEXT_PUBLIC_CONVEX_URL is $url" >&2; exit 2; fi
+fi
+unset CONVEX_ALLOW_ANONYMOUS   # "false" would turn anonymous mode off and fall through to a cloud project
+export CONVEX_AGENT_MODE=anonymous
+exec npx convex "$@"
 ```
 
-Expected: it ends with Convex functions ready and typechecks with no errors, and `.env.local`
-names an `anonymous:` deployment on 127.0.0.1. **If it names `dev:` or `prod:`, or asks to log
-in, stop.** Delete `.env.local` and do not go on.
+Start the backend **in the background** (Bash `run_in_background`, or its own terminal). It is this
+worktree's one backend, and it stays up through Tasks 5 and 6:
+
+```bash
+"$L/cx.sh" "$W" dev --typecheck enable --tail-logs disable
+```
+
+When its output says "Convex functions ready!", check what it created:
+
+```bash
+cd W && grep -E '^(CONVEX_DEPLOYMENT|NEXT_PUBLIC_CONVEX_URL)=' .env.local
+# CONVEX_DEPLOYMENT=anonymous:…
+# NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:…
+```
+
+**If it names `dev:` or `prod:`, a URL off 127.0.0.1, or it asked to log in, stop the backend and
+go no further.** From here on `cx.sh` re-checks `.env.local` before every call.
 
 `git diff --stat convex/_generated` should show only `api.d.ts` gaining `listen`.
 
-- [ ] **Step 4: Exercise the functions against the local backend**
+- [ ] **Step 4: Exercise the functions against the running backend**
 
 ```bash
-cd W && npx convex run listen:log '{"kind":"visit","source":"ig","tagged":true,"bot":false}'
-npx convex run listen:log '{"kind":"click","source":"ig","service":"spotify","tagged":true,"bot":false}'
-npx convex run listen:log '{"kind":"click","source":"ig","service":"nope","tagged":false,"bot":false}'
-npx convex run listen:log '{"kind":"visit","source":"<script>","tagged":false,"bot":false}'
-npx convex run listen:summary '{}'
-npx convex run listen:reset '{}'
+"$L/cx.sh" "$W" run listen:log '{"kind":"visit","source":"ig","tagged":true,"bot":false}'
+"$L/cx.sh" "$W" run listen:log '{"kind":"click","source":"ig","service":"spotify","tagged":true,"bot":false}'
+"$L/cx.sh" "$W" run listen:log '{"kind":"click","source":"ig","service":"nope","tagged":false,"bot":false}'
+"$L/cx.sh" "$W" run listen:log '{"kind":"visit","source":"<script>","tagged":false,"bot":false}'
+"$L/cx.sh" "$W" run listen:log '{"kind":"visit","source":"direct","tagged":true,"bot":false}'
+"$L/cx.sh" "$W" run listen:summary '{}'
+"$L/cx.sh" "$W" run listen:reset '{}'
 ```
 
-Expected: the summary shows `visits: 1`, `clicks: 1` and `services: [{service:"spotify",clicks:1}]`
-(the `nope` and `<script>` rows were refused), and `reset` returns `2`.
+Expected: the summary shows `visits: 2`, `clicks: 1` and `services: [{service:"spotify",clicks:1}]`
+(the `nope` and `<script>` rows were refused); the `direct` source row has `tagged: 0`, because the
+mutation drops the flag from a source we never hand out; and `reset` returns `3`.
 
 - [ ] **Step 5: Commit**
 
@@ -853,7 +960,22 @@ describe("renderStats", () => {
   it("shows the zero state and every link to hand out", () => {
     const html = renderStats(summarize([], NOW));
     assert.ok(html.includes("No visits yet"));
+    assert.ok(!html.includes("Follow taps"));
     for (const t of TAGS) assert.ok(html.includes(`${ARTIST.path}/${t}<`), t);
+  });
+
+  it("lists follow taps on their own, outside the tap rate", () => {
+    const html = renderStats(
+      summarize(
+        [
+          { kind: "visit", source: "ig", tagged: true, bot: false, at: NOW - 1000 },
+          { kind: "click", source: "ig", service: "instagram", tagged: true, bot: false, at: NOW - 500 },
+        ],
+        NOW,
+      ),
+    );
+    assert.ok(html.includes("Follow taps"));
+    assert.ok(html.includes(">0%<")); // the tap-rate tile: no streaming taps
   });
 
   it("shows totals and escapes stored values", () => {
@@ -1097,7 +1219,7 @@ function statsDoc(body: string): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Listen stats - ${esc(ARTIST.name)}</title>
+<title>Listen stats &middot; ${esc(ARTIST.name)}</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="${THEME.bg}">
 ${FONTS}
@@ -1162,6 +1284,13 @@ export function renderStats(s: Summary): string {
         .join("")
     : `<div class="empty">No taps yet.</div>`;
 
+  const followRows = s.follows
+    .map(
+      (r) =>
+        `<div class="r"><span class="nm">${esc(serviceLabel(r.service))}</span><span></span><span class="n">${r.clicks}</span></div>`,
+    )
+    .join("");
+
   const cols = s.services.map((r) => r.service);
   const cell = (so: string, se: string) => s.cells.find((c) => c.source === so && c.service === se)?.clicks ?? 0;
   const matrix = cols.length
@@ -1209,6 +1338,7 @@ export function renderStats(s: Summary): string {
 <div class="rows">${sourceRows}</div>
 <h2>Where they went</h2>
 <div class="rows">${serviceRows}</div>
+${followRows ? `<h2>Follow taps</h2>\n<div class="rows">${followRows}</div>` : ""}
 <h2>Channel &times; service</h2>
 ${matrix}
 <h2>Last 30 days</h2>
@@ -1222,7 +1352,8 @@ ${dayTable}
   <strong>Guessed</strong> means it didn't, and the channel was read from the in-app browser or the
   referring site. <strong>Direct</strong> is what's left: typed in, or opened from somewhere that
   says nothing. Tap rate is taps divided by visits, so it can pass 100% when people tap more than
-  one service. Link-preview fetches from iMessage, Slack and the like are left out${
+  one service. Taps on the follow icons are counted on their own and left out of the tap rate.
+  Link-preview fetches from iMessage, Slack and the like are left out${
     s.bots ? ` (${s.bots} so far)` : ""
   }.
   ${s.truncated ? '<br><span class="warn">Showing the most recent 20,000 events only.</span>' : ""}
@@ -1419,10 +1550,12 @@ Expected: no errors.
 
 - [ ] **Step 4: Run it end to end on the local backend**
 
-Terminal A (leave it running; it keeps the local backend up):
-`cd W && CONVEX_AGENT_MODE=anonymous npx convex dev --tail-logs disable`
+The Task 3 backend is still running. Start Next in the background too; it reads the backend's URL
+from the `.env.local` that `cx.sh` created:
 
-Terminal B: `cd W && npx next dev -p 3107`
+```bash
+cd W && npx next dev -p 3107
+```
 
 Then:
 
@@ -1433,31 +1566,67 @@ curl -s -o /dev/null -w '%{http_code} %header{cache-control}\n' $B/listen/ig    
 curl -s -o /dev/null -w '%{http_code}\n' $B/listen/ig                                 # 200 (second visit)
 curl -s -o /dev/null -w '%{http_code}\n' -A "$IG" $B/listen                            # 200, guessed ig
 curl -s -o /dev/null -w '%{http_code}\n' -A 'facebookexternalhit/1.1 Facebot Twitterbot/1.0' $B/listen/ig   # 200, bot
-curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' "$B/listen/go/spotify?p=ig&t=1"   # 302 → Spotify artist URL
-curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' "$B/listen/go/nope?p=ig"           # 302 → /listen
-curl -s "$B/listen/%3Cscript%3E" | grep -c '<script>'                                  # 0
-curl -s "$B/listen?p=%3Cscript%3E" | grep -c '<script>'                                # 0
-sleep 2; npx convex run listen:summary '{}'
+curl -s -o /dev/null -w '%{http_code}\n' -H 'X-Purpose: preview' $B/listen/ig          # 200, bot (in-app pre-load)
+curl -s -o /dev/null -w '%{http_code}\n' -I $B/listen/ig                               # 200, HEAD: not stored
+curl -s "$B/listen/%3Cscript%3E" | grep -c '<script>'                                  # 0, direct
+curl -s "$B/listen?p=%3Cscript%3E" | grep -c '<script>'                                # 0, direct
+curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' "$B/listen/go/spotify?p=ig&t=1"       # 302 → Spotify artist URL
+curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' "$B/listen/go/spotify?p=spotify&t=1"  # 302, stored as direct, untagged
+curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' -I "$B/listen/go/spotify?p=ig"        # 302, HEAD: not stored
+curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' "$B/listen/go/instagram?p=ig"         # 302, a follow tap
+curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' "$B/listen/go/nope?p=ig"              # 302 → /listen, not stored
 ```
 
-Expected summary: `visits: 5`, with `ig` = 3 visits (2 tagged, 1 guessed) and `direct` = 2 (the two
-garbage tags); `bots: 1`; `clicks: 1` on spotify from `ig`. Then open `$B/listen/stats` in the
-browser and check it shows the same numbers.
+Every service's redirect goes where the catalog says. These use a bot user agent, so they land in
+the bot count and nowhere else:
+
+```bash
+cd W && grep -o 'key: "[a-z0-9]*".*url: "[^"]*"' src/lib/listen/catalog.ts |
+  sed -E 's/key: "([a-z0-9]+)".*url: "([^"]+)"/\1 \2/' |
+  while read -r key want; do
+    got=$(curl -s -o /dev/null -w '%{redirect_url}' -A 'destcheck-bot' "$B/listen/go/$key?p=direct")
+    [[ "$got" == "$want" ]] && echo "ok   $key" || echo "FAIL $key: $got"
+  done
+```
+
+Then read the stored rows and the summary:
+
+```bash
+sleep 2
+"$L/cx.sh" "$W" data listenEvents --limit 50
+"$L/cx.sh" "$W" run listen:summary '{}'
+```
+
+Expected:
+- `visits: 5`: `ig` = 3 (2 tagged, 1 guessed) and `direct` = 2 (the two garbage tags).
+- `clicks: 2`, both spotify: one from `ig` and one from `direct`. The `direct` row in
+  `listenEvents` has `tagged: false`.
+- `follows: [{service: "instagram", clicks: 1}]`.
+- `bots` = 2 plus one per catalog service (12 on wmaac.org).
+- No row for either HEAD request or for `nope`.
+
+Then open `$B/listen/stats` in the browser and check it shows the same numbers.
 
 - [ ] **Step 5: Check it keeps working without the database**
 
-Stop terminal B and restart it as `NEXT_PUBLIC_CONVEX_URL= npx next dev -p 3107`. Then check:
+Stop Next and restart it with the URL empty: `NEXT_PUBLIC_CONVEX_URL= npx next dev -p 3107`.
+(A variable already set in the process, even to empty, wins over `.env.local`.) Check:
 - `curl -s -o /dev/null -w '%{http_code}' $B/listen/ig` gives `200`
 - `/listen/go/spotify` gives `302`
 - `/listen/stats` gives `503` with "Not configured."
 
-Restart B normally afterwards.
+Stop it again and restart it pointed at a port nothing listens on:
+`NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:9 npx next dev -p 3107`. Check:
+- `/listen/ig` gives `200` and `/listen/go/spotify` gives `302`, both without delay
+- `/listen/stats` gives `502` with "Could not reach the database. Try again."
+
+Restart Next normally afterwards (Task 6 uses it).
 
 - [ ] **Step 6: Clear the test rows and commit**
 
 ```bash
-cd W && npx convex run listen:reset '{}'
-git add src/lib/listen/respond.ts src/app/listen
+"$L/cx.sh" "$W" run listen:reset '{}'   # run again until it returns 0
+cd W && git add src/lib/listen/respond.ts src/app/listen
 git commit -m "Serve /listen, count taps through /listen/go, show /listen/stats
 
 Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
@@ -1614,14 +1783,18 @@ then at 320×640. Screenshot each and look at them:
 
 Fix any CSS problem in `render.ts` and rerun the Task 4 tests.
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 3: Commit, then stop this worktree's servers**
 
 ```bash
 cd W && git add public/listen-art src/lib/listen
 git commit -m "Add the /listen cover art and share card
 
 Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
+"$L/cx.sh" "$W" run listen:reset '{}'   # until it returns 0
 ```
+
+Stop Next and the Task 3 `cx.sh … dev` backend (TaskStop on their background tasks, or Ctrl-C).
+Part A is done with Convex.
 
 ---
 
@@ -1711,20 +1884,34 @@ export async function GET(request: Request): Promise<Response> {
 }
 ```
 
-- [ ] **Step 2: Local backend, codegen, typecheck**
+- [ ] **Step 2: Local backend, codegen, typecheck, lint**
 
-Same as Task 3 Step 3, but in `M`:
-- confirm there's no `.env.local` first;
-- run `CONVEX_AGENT_MODE=anonymous npx convex dev --once --typecheck enable`;
-- **stop if `.env.local` names anything other than `anonymous:`**.
+Same as Task 3 Step 3, but in `M`. Start `M`'s own backend in the background, and leave it up
+through Task 9:
 
-Then run `npx tsc --noEmit -p .` and expect no new errors in `src/lib/listen`, `src/app/listen` or
-`src/app/admin/listen`. The repo may already have errors elsewhere; compare against a run on
-`master`.
+```bash
+"$L/cx.sh" "$M" dev --typecheck enable --tail-logs disable
+```
+
+When it says "Convex functions ready!", `grep -E '^(CONVEX_DEPLOYMENT|NEXT_PUBLIC_CONVEX_URL)=' M/.env.local`
+must show `anonymous:` and `http://127.0.0.1:…`. **Anything else: stop the backend and go no
+further.**
+
+Then, in `M`:
+
+```bash
+npx tsc --noEmit -p .
+npx eslint src/lib/listen src/app/listen src/app/admin/listen convex/listen.ts
+```
+
+Expect no errors in the new files. The repo may already have errors elsewhere; compare against the
+same commands on `master` and report only new ones.
 
 - [ ] **Step 3: End to end**
 
-Repeat Task 5 Step 4 on port 3108, with the local backend running in `M` (`B=http://localhost:3108`). Then:
+Repeat Task 5 Step 4 on port 3108 (`B=http://localhost:3108`), using `"$L/cx.sh" "$M"` wherever it
+says `"$L/cx.sh" "$W"` and `M`'s catalog for the destination loop. The expected summary is the
+same except `bots` = 2 plus one per `M` service (13). Then:
 
 ```bash
 curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' $B/admin/listen
@@ -1734,7 +1921,12 @@ curl -s -b 'admin-auth-token=true' $B/admin/listen | grep -o '<div class="v">[^<
 ```
 
 The second curl uses the cookie value `src/lib/auth.ts` accepts, on localhost only. It's the same
-weakness the handoff reports to Marco. Finish with `npx convex run listen:reset '{}'`.
+weakness the handoff reports to Marco.
+
+Then repeat Task 5 Step 5 on port 3108, checking `/admin/listen` (with the cookie) where it says
+`/listen/stats`: 503 with the URL empty, 502 with it at `http://127.0.0.1:9`, while `/listen/ig`
+stays 200 and `/listen/go/spotify` stays 302. Restart Next normally, and finish with
+`"$L/cx.sh" "$M" run listen:reset '{}'` until it returns 0.
 
 - [ ] **Step 4: Commit**
 
@@ -1761,6 +1953,8 @@ sips -s format png -Z 192 "$L/art/mk_the_more_i_see.jpg" --out public/listen-art
 - Screenshots at 390 and 320 px on port 3108.
 - Commit: `git add public/listen-art && git commit -m "Add the /listen cover art and share card"`,
   with the co-author line.
+- `"$L/cx.sh" "$M" run listen:reset '{}'` until it returns 0, then stop Next and `M`'s backend.
+  Nothing Convex is left running.
 
 ---
 
@@ -1775,18 +1969,28 @@ sips -s format png -Z 192 "$L/art/mk_the_more_i_see.jpg" --out public/listen-art
   social plans (where Marco will look). It covers:
   - the exact deploy commands for each site;
   - the smoke test (curl with a user agent containing "bot");
-  - the bio links table: one tagged URL per channel, per account.
+  - the bio links table: one tagged URL per channel, per account;
+  - rollback: redeploy the previous frontend (Vercel's previous production deployment on
+    wmaac.org, a revert commit on marcoking.com's `master`). Leave the `listenEvents` table and its
+    rows in place; it's additive, and nothing else reads it. `listen:reset` is for clearing test
+    rows, not a rollback;
+  - the security note: marcoking.com's admin check also accepts the cookie value `true`, and
+    `src/lib/auth.ts` has a hard-coded fallback PIN and secret. `/admin/listen` inherits that.
 - [ ] **Step 3: To-dos for Marco,** via `todo.py add`:
   - review both pages and OK the deploy;
-  - after the deploy, swap in the tagged links in the IG, TikTok and YouTube bios.
+  - after the deploy, swap in the tagged links in the IG, TikTok and YouTube bios;
+  - ask his distributor to split the merged Marco King profiles on Amazon Music, Tidal, Deezer and
+    iHeartRadio;
+  - fix the "gnetle & lowly" typo in the (P) line.
 - [ ] **Step 4:** Update the event `CLAUDE.md` log (run `date` first) and the handoff file.
 
 ---
 
 ## Appendix: Catalog data
 
-Every URL below comes from `L/links.json`, where each one was fetched on 2026-09-26 and matched to
-the right artist by release UPC or the service's own album-to-artist link.
+Every streaming URL below comes from `L/links.json`, where each one was fetched on 2026-09-26 and
+matched to the right artist by release UPC or the service's own album-to-artist link. The follow
+links rest on the account evidence written into each catalog's header comment.
 
 ### wmaac.org: `W/src/lib/listen/catalog.ts`
 
@@ -1798,7 +2002,13 @@ the right artist by release UPC or the service's own album-to-artist link.
  *
  * Links checked 2026-09-26: each one loads and belongs to the band (matched by
  * release UPC where the service shows one). Pandora, SoundCloud, Audiomack and
- * Bandcamp don't carry the band, so they aren't listed. */
+ * Bandcamp don't carry the band, so they aren't listed.
+ *
+ * Follow links: @gentleandlowlyband on Instagram is the account every HUB Lawn
+ * post was scheduled from, and its page names "Gentle and Lowly Band" (fetched
+ * 2026-09-27). YouTube @gentleandlowlyband is the channel the band's Shorts are
+ * scheduled on. TikTok @gentleandlowlyband is the account connected to Buffer
+ * on 2026-09-26 (the profile page itself wasn't loaded when this was written). */
 
 export interface Service {
   /** In the /listen/go/<key> URL and in stored events. Never rename one: old rows keep the old key. */
@@ -1919,7 +2129,10 @@ The `Service` interface and the three helpers at the bottom are unchanged.
  * iHeartRadio his artist page is merged with other artists called Marco King,
  * and the newest thing it shows isn't his, so those four link to his latest
  * single instead. Point them back at the artist page once the distributor
- * splits the profiles. Bandcamp doesn't carry him. */
+ * splits the profiles. Bandcamp doesn't carry him.
+ *
+ * Follow link: instagram.com/marcojking is Marco's own account; its page names
+ * "Marco King (@marcojking)" (fetched 2026-09-27). */
 
 export interface Service {
   /** In the /listen/go/<key> URL and in stored events. Never rename one: old rows keep the old key. */

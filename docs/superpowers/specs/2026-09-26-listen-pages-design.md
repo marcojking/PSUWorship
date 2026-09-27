@@ -90,7 +90,9 @@ Every button's `href` is `/listen/go/<service>?p=<resolved source>`. The go rout
 missed the way a JavaScript click beacon can (content blockers, long-press, open in new tab), and
 it's the pattern `/sept13/cal` already uses. An unknown service redirects back to `/listen`.
 
-The follow links (Instagram, YouTube, TikTok) go through the same route, so they're counted too.
+The follow links (Instagram, YouTube, TikTok) go through the same route, so they're counted too,
+but on their own: they're left out of the service counts and the tap rate, which are only about
+listening. The stats page lists them under "Follow taps".
 
 ## Data
 
@@ -145,7 +147,7 @@ It has four headline numbers: visits, clicks, click-through, and the top channel
 
 1. **Where visitors came from**: bars per source, each with its tagged or guessed split and its own
    click-through.
-2. **Where they went**: bars per service.
+2. **Where they went**: bars per streaming service, then follow taps by account.
 3. **Channel × service**: a table with one row per source and one column per service.
 4. **Last 30 days**: visits and clicks per day.
 
