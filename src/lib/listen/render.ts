@@ -180,13 +180,13 @@ h2{font-family:var(--label);font-weight:500;text-transform:uppercase;letter-spac
 @media (min-width:36rem){.tiles{grid-template-columns:repeat(4,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;background:var(--card)}
 .tile .k{font-size:.7rem;color:var(--ink-3)}
-.tile .v{font-family:var(--display);font-size:1.7rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .v{font-family:var(--display);font-size:1.7rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:lining-nums}
 .rows{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .r{background:var(--bg);padding:.6rem .9rem;display:grid;grid-template-columns:minmax(0,1fr) 7rem 3.2rem;align-items:center;gap:.8rem}
 .nm{font-size:.9rem;min-width:0}
 .nm small{display:block;color:var(--ink-3);font-size:.72rem}
 .bar{display:block;height:5px;border-radius:3px;background:var(--accent);min-width:2px}
-.n{font-family:var(--display);font-size:1.25rem;text-align:right;font-variant-numeric:tabular-nums}
+.n{font-family:var(--display);font-size:1.25rem;text-align:right;font-variant-numeric:lining-nums tabular-nums}
 .empty{background:var(--bg);padding:.8rem .9rem;color:var(--ink-3);font-size:.85rem}
 .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;min-width:100%;white-space:nowrap;font-size:.8rem}
