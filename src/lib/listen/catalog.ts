@@ -3,6 +3,11 @@
  * colours. attribution.ts, summary.ts, render.ts and respond.ts are identical
  * on marcoking.com; this is the only file that differs.
  *
+ * The page's public address is gentleandlowlyband.com/listen (Marco, 9/27).
+ * That static site passes /listen and /listen-art through to this app with
+ * Vercel rewrites, so the page and its counts still live here, and the older
+ * www.wmaac.org/listen links keep working and counting too.
+ *
  * Links checked 2026-09-26: each one loads and belongs to the band (matched by
  * release UPC where the service shows one). Pandora, SoundCloud, Audiomack and
  * Bandcamp don't carry the band, so they aren't listed.
@@ -34,7 +39,7 @@ export const ARTIST = {
   siteName: "Worship Music & Arts at Penn State",
   footer: "A Worship Music & Arts project at Penn State",
   footerHref: "https://www.wmaac.org",
-  origin: "https://www.wmaac.org",
+  origin: "https://gentleandlowlyband.com",
   path: "/listen",
   og: "/listen-art/og-gl-v1.png",
   icon: "/listen-art/gl-icon-v1.png",
@@ -53,7 +58,7 @@ export const SERVICES: readonly Service[] = [
   { key: "tiktok", label: "TikTok", kind: "follow", icon: "tiktok", url: "https://www.tiktok.com/@gentleandlowlyband" },
 ];
 
-/** Tags we hand out, each for one place a link gets posted: wmaac.org/listen/<tag>. */
+/** Tags we hand out, each for one place a link gets posted: gentleandlowlyband.com/listen/<tag>. */
 export const TAG_INFO: Record<string, string> = {
   ig: "Band Instagram bio (@gentleandlowlyband)",
   wma: "Club Instagram bio (@wma.pennstate)",

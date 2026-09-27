@@ -37,6 +37,12 @@ describe("renderListenPage", () => {
     assert.match(renderListenPage({ source: "ig", tagged: true }), /html\{[^}]*overflow-x:clip/);
   });
 
+  it("names the band's own domain as its address, which passes /listen through to this app", () => {
+    const html = renderListenPage({ source: "ig", tagged: true });
+    assert.ok(html.includes('<link rel="canonical" href="https://gentleandlowlyband.com/listen">'));
+    assert.ok(html.includes('content="https://gentleandlowlyband.com/listen-art/og-gl-v1.png"'));
+  });
+
   it("carries a share card and a canonical URL", () => {
     const html = renderListenPage({ source: "ig", tagged: true });
     assert.ok(html.includes(`<link rel="canonical" href="${ARTIST.origin}${ARTIST.path}">`));
@@ -56,6 +62,12 @@ describe("renderStats", () => {
     assert.ok(html.includes("No visits yet"));
     assert.ok(!html.includes("Follow taps"));
     for (const t of TAGS) assert.ok(html.includes(`${ARTIST.path}/${t}<`), t);
+  });
+
+  it("hands out links on the band's own domain", () => {
+    const html = renderStats(summarize([], NOW));
+    assert.ok(html.includes("gentleandlowlyband.com/listen/ig<"));
+    assert.ok(!html.includes("wmaac.org/listen/ig<"));
   });
 
   it("lists follow taps on their own, outside the tap rate", () => {

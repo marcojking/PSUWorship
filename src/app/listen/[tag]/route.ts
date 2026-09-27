@@ -1,5 +1,5 @@
 /* wmaac.org/listen/<tag>: the same page, tagged with where the link was posted,
-   e.g. wmaac.org/listen/ig in the Instagram bio. The tags are TAG_INFO in
+   e.g. gentleandlowlyband.com/listen/ig in the Instagram bio. The tags are TAG_INFO in
    src/lib/listen/catalog.ts. An unknown tag still shows the page. */
 import { listenPage } from "@/lib/listen/respond";
 
