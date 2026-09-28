@@ -43,6 +43,12 @@ describe("renderListenPage", () => {
     assert.ok(html.includes('content="https://gentleandlowlyband.com/listen-art/og-gl-v1.png"'));
   });
 
+  it("credits the club by its name, not as a project", () => {
+    const html = renderListenPage({ source: "ig", tagged: true });
+    assert.ok(html.includes(">Worship Music and Arts Club at Penn State</a></footer>"));
+    assert.ok(!/project/i.test(html));
+  });
+
   it("carries a share card and a canonical URL", () => {
     const html = renderListenPage({ source: "ig", tagged: true });
     assert.ok(html.includes(`<link rel="canonical" href="${ARTIST.origin}${ARTIST.path}">`));

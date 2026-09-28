@@ -37,7 +37,7 @@ export const ARTIST = {
   title: "gentle & lowly | Listen",
   description: "Listen to gentle & lowly on Spotify, Apple Music and wherever else you listen.",
   siteName: "Worship Music & Arts at Penn State",
-  footer: "A Worship Music & Arts project at Penn State",
+  footer: "Worship Music and Arts Club at Penn State",
   footerHref: "https://www.wmaac.org",
   origin: "https://gentleandlowlyband.com",
   path: "/listen",
